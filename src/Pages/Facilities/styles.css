@@ -1,0 +1,405 @@
+.facilities-page {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* ==========================================================================
+   Section 1: Hero Video Section
+   ========================================================================== */
+.facilities-section-1 {
+  position: relative;
+  width: 100%;
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.facilities-hero-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.facilities-hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 2;
+}
+
+.facilities-hero-content {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  text-align: center;
+  padding: 24px;
+}
+
+.facilities-hero-title {
+  font-size: 2.75rem;
+  font-weight: 900;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-shadow: 0 3px 12px rgba(0, 0, 0, 0.6);
+}
+
+.facilities-hero-info-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.facilities-hero-info-item {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--color-sand, #F2D17E);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+/* ==========================================================================
+   Section 2: Text Layout, 3 Pictures, Description & 6 Nav Buttons
+   ========================================================================== */
+.facilities-section-2 {
+  width: 100%;
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  background-color: var(--color-sand-light, #fbf3dc);
+  border-bottom: 1px dashed rgba(88, 64, 46, 0.15);
+}
+
+.facilities-section-2-container {
+  width: 100%;
+  max-width: 1380px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 48px;
+}
+
+.facilities-section-2-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 16px;
+}
+
+.facilities-section-2-title {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--color-forest, #43593B);
+  margin: 0;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.facilities-section-2-info-grid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+  flex-wrap: wrap;
+}
+
+.facilities-section-2-info-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.facilities-section-2-info-text {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--color-bark, #58402E);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.facilities-section-2-pictures-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 28px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.facilities-section-2-picture-card {
+  flex: 1;
+  min-width: 280px;
+  max-width: 420px;
+  height: 270px;
+  background-color: #eadfae;
+  border: 2px solid var(--color-bark, #58402E);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 16px rgba(88, 64, 46, 0.08);
+}
+
+.facilities-section-2-picture-label {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--color-bark, #58402E);
+  opacity: 0.75;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.facilities-section-2-description {
+  max-width: 900px;
+  font-size: 1.08rem;
+  line-height: 1.8;
+  color: var(--color-bark, #58402E);
+  text-align: center;
+  margin: 0;
+}
+
+.facilities-section-2-buttons-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  width: 100%;
+}
+
+.facilities-section-2-btn {
+  background-color: var(--color-forest, #43593B);
+  color: #ffffff;
+  border: 2px solid var(--color-forest, #43593B);
+  padding: 12px 24px;
+  border-radius: 9999px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 12px rgba(67, 89, 59, 0.2);
+}
+
+.facilities-section-2-btn:hover {
+  background-color: var(--color-bark, #58402E);
+  border-color: var(--color-sand, #F2D17E);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(88, 64, 46, 0.3);
+}
+
+.facilities-section-2-btn:active {
+  transform: translateY(0);
+}
+
+/* ==========================================================================
+   Section 3: Full-width Background Picture Section
+   ========================================================================== */
+.facilities-section-3 {
+  width: 100%;
+  min-height: 450px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-sage-light, #f1f2e8);
+  border-bottom: 1px dashed rgba(67, 89, 59, 0.15);
+}
+
+.facilities-section-3-picture-box {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+}
+
+.facilities-section-3-picture-label {
+  font-size: 3rem;
+  font-weight: 900;
+  color: var(--color-forest, #43593B);
+  opacity: 0.6;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ==========================================================================
+   Section 4: 6 Large Pictures with Titles for Facilities
+   ========================================================================== */
+.facilities-section-4 {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 90px 24px 110px;
+  background-color: var(--color-forest-light, #edf2eb);
+}
+
+.facilities-section-4-container {
+  width: 100%;
+  max-width: 1380px;
+  display: flex;
+  flex-direction: column;
+  gap: 90px;
+}
+
+.facilities-section-4-facility-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  scroll-margin-top: 100px;
+}
+
+.facilities-section-4-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.facilities-section-4-number {
+  font-size: 0.9rem;
+  font-weight: 800;
+  color: var(--color-lime, #7CCE17);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.facilities-section-4-title {
+  font-size: 2.25rem;
+  font-weight: 900;
+  color: var(--color-forest, #43593B);
+  margin: 0;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.facilities-section-4-subtitle {
+  font-size: 1.05rem;
+  color: var(--color-bark, #58402E);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.facilities-section-4-picture-box {
+  width: 100%;
+  min-height: 480px;
+  background-color: #dce5da;
+  border: 2px solid var(--color-forest, #43593B);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 24px rgba(67, 89, 59, 0.08);
+}
+
+.facilities-section-4-picture-label {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: var(--color-forest, #43593B);
+  opacity: 0.7;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ==========================================================================
+   Responsive Adjustments
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .facilities-section-2-pictures-row {
+    gap: 20px;
+  }
+
+  .facilities-section-2-picture-card {
+    max-width: 100%;
+    height: 240px;
+  }
+
+  .facilities-section-4-picture-box {
+    min-height: 380px;
+  }
+}
+
+@media (max-width: 768px) {
+  .facilities-hero-title {
+    font-size: 1.85rem;
+  }
+
+  .facilities-hero-info-row {
+    gap: 20px;
+  }
+
+  .facilities-hero-info-item {
+    font-size: 0.95rem;
+  }
+
+  .facilities-section-2-title {
+    font-size: 1.85rem;
+  }
+
+  .facilities-section-2-info-grid {
+    gap: 20px;
+  }
+
+  .facilities-section-2-picture-card {
+    height: 200px;
+  }
+
+  .facilities-section-2-picture-label {
+    font-size: 1.4rem;
+  }
+
+  .facilities-section-2-description {
+    font-size: 0.98rem;
+  }
+
+  .facilities-section-2-buttons-row {
+    gap: 10px;
+  }
+
+  .facilities-section-2-btn {
+    padding: 10px 18px;
+    font-size: 0.85rem;
+  }
+
+  .facilities-section-3-picture-label {
+    font-size: 2rem;
+  }
+
+  .facilities-section-4-title {
+    font-size: 1.75rem;
+  }
+
+  .facilities-section-4-picture-box {
+    min-height: 280px;
+  }
+
+  .facilities-section-4-picture-label {
+    font-size: 1.6rem;
+  }
+}

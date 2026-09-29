@@ -1,0 +1,121 @@
+.directions-page {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* ==========================================================================
+   Section 1: Video Background with "INFORMATION: CENTER" at Bottom Middle
+   ========================================================================== */
+.directions-section-1 {
+  position: relative;
+  width: 100%;
+  min-height: 60vh;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+  padding-bottom: 50px;
+}
+
+.directions-hero-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.directions-hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.45) 100%);
+  z-index: 2;
+}
+
+.directions-hero-content {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 24px;
+}
+
+.directions-hero-title {
+  font-size: 2.75rem;
+  font-weight: 900;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-shadow: 0 3px 12px rgba(0, 0, 0, 0.6);
+}
+
+/* ==========================================================================
+   Section 2: Embedded Google Maps Section
+   ========================================================================== */
+.directions-section-2 {
+  width: 100%;
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px 100px;
+  background-color: var(--color-forest-light, #edf2eb);
+}
+
+.directions-section-2-container {
+  width: 100%;
+  max-width: 1380px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.directions-map-wrapper {
+  width: 100%;
+  height: 640px;
+  background-color: #dce5da;
+  border: 2px solid var(--color-forest, #43593B);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 8px 30px rgba(67, 89, 59, 0.12);
+}
+
+.directions-map-iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+/* ==========================================================================
+   Responsive Adjustments
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .directions-map-wrapper {
+    height: 500px;
+  }
+}
+
+@media (max-width: 768px) {
+  .directions-hero-title {
+    font-size: 1.85rem;
+  }
+
+  .directions-section-2 {
+    padding: 50px 16px 70px;
+  }
+
+  .directions-map-wrapper {
+    height: 380px;
+  }
+}

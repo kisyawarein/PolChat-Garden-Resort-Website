@@ -1,0 +1,453 @@
+.events-rates-page {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* ==========================================================================
+   Section 1: Video Background with "INFORMATION: CENTER" at Bottom Middle
+   ========================================================================== */
+.events-rates-section-1 {
+  position: relative;
+  width: 100%;
+  min-height: 60vh;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  overflow: hidden;
+  padding-bottom: 50px;
+}
+
+.events-rates-hero-video {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.events-rates-hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0.3) 50%, rgba(0, 0, 0, 0.45) 100%);
+  z-index: 2;
+}
+
+.events-rates-hero-content {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 0 24px;
+}
+
+.events-rates-hero-title {
+  font-size: 2.75rem;
+  font-weight: 900;
+  color: #ffffff;
+  margin: 0;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  text-shadow: 0 3px 12px rgba(0, 0, 0, 0.6);
+}
+
+/* ==========================================================================
+   Section 2: 3 Tall Images in a Row with Titles Below Each
+   ========================================================================== */
+.events-rates-section-2 {
+  width: 100%;
+  min-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px;
+  background-color: #ffffff;
+  border-bottom: 1px dashed rgba(67, 89, 59, 0.15);
+}
+
+.events-rates-section-2-container {
+  width: 100%;
+  max-width: 1380px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.events-rates-section-2-cards-row {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 36px;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.events-rates-reservation-card {
+  flex: 1;
+  min-width: 290px;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.events-rates-tall-picture-box {
+  width: 100%;
+  height: 480px;
+  background-color: #eadfae;
+  border: 2px solid var(--color-forest, #43593B);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(67, 89, 59, 0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.events-rates-reservation-card:hover .events-rates-tall-picture-box {
+  transform: translateY(-4px);
+  border-color: var(--color-lime, #7CCE17);
+  box-shadow: 0 12px 28px rgba(67, 89, 59, 0.2);
+}
+
+.events-rates-picture-label {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: var(--color-forest, #43593B);
+  opacity: 0.75;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.events-rates-card-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+}
+
+.events-rates-card-title {
+  font-size: 1.85rem;
+  font-weight: 900;
+  color: var(--color-forest, #43593B);
+  margin: 0;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.events-rates-card-time {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-bark, #58402E);
+  letter-spacing: 0.02em;
+}
+
+/* ==========================================================================
+   Section 3: 2-Row Zigzag with Wider Images
+   ========================================================================== */
+.events-rates-section-3 {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 90px 24px;
+  border-bottom: 1px dashed rgba(67, 89, 59, 0.15);
+  background-color: var(--color-sand-light, #fbf3dc);
+}
+
+.events-rates-section-3-container {
+  width: 100%;
+  max-width: 1380px;
+  display: flex;
+  flex-direction: column;
+  gap: 80px;
+}
+
+.events-rates-section-3-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 60px;
+  width: 100%;
+}
+
+.events-rates-section-3-picture-box {
+  width: 580px;
+  height: 400px;
+  background-color: #dce5da;
+  border: 2px solid var(--color-bark, #58402E);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+}
+
+.events-rates-section-3-picture-label {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: var(--color-bark, #58402E);
+  opacity: 0.75;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.events-rates-section-3-content {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  flex: 1;
+}
+
+.events-rates-section-3-title {
+  font-size: 2.75rem;
+  font-weight: 900;
+  color: var(--color-forest, #43593B);
+  margin: 0;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.events-rates-section-3-info-grid {
+  display: flex;
+  align-items: flex-start;
+  gap: 40px;
+  flex-wrap: wrap;
+}
+
+.events-rates-section-3-info-column {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.events-rates-section-3-info-text {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--color-bark, #58402E);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.events-rates-section-3-link {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--color-forest, #43593B);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  margin-top: 8px;
+  cursor: pointer;
+  transition: color 0.2s ease, opacity 0.2s ease;
+}
+
+.events-rates-section-3-link:hover {
+  color: var(--color-lime, #7CCE17);
+  opacity: 0.85;
+}
+
+/* ==========================================================================
+   Section 4: Replicated Layout from Image (EVENTS + Staggered Blocks)
+   ========================================================================== */
+.events-rates-section-4 {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px 120px;
+  background-color: var(--color-forest-light, #edf2eb);
+}
+
+.events-rates-section-4-container {
+  width: 100%;
+  max-width: 1180px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 100px;
+}
+
+.events-rates-section-4-main-title {
+  font-size: 3.25rem;
+  font-weight: 900;
+  color: var(--color-forest, #43593B);
+  margin: 0;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.events-rates-section-4-block {
+  width: 100%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 60px;
+}
+
+.events-rates-section-4-block:first-of-type {
+  margin-bottom: 120px;
+}
+
+/* Large column with Title above tall picture */
+.events-rates-section-4-col-large {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.events-rates-section-4-sample-title {
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--color-forest, #43593B);
+  margin: 0;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.events-rates-section-4-pic-large {
+  width: 100%;
+  height: 560px;
+  background-color: #a3a3a3;
+  border: 2px solid #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+/* Medium column with Medium picture above paragraph */
+.events-rates-section-4-col-medium {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+}
+
+.events-rates-section-4-pic-medium {
+  width: 100%;
+  height: 330px;
+  background-color: #a3a3a3;
+  border: 2px solid #000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.events-rates-section-4-pic-label {
+  font-size: 2.25rem;
+  font-weight: 800;
+  color: #6b7280;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.events-rates-section-4-paragraph {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--color-bark, #58402E);
+  text-align: center;
+  margin: 0;
+  padding: 0 12px;
+}
+
+/* ==========================================================================
+   Responsive Adjustments
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .events-rates-section-3-row {
+    flex-direction: column;
+    gap: 36px;
+  }
+
+  .events-rates-section-3-row-reverse {
+    flex-direction: column-reverse;
+  }
+
+  .events-rates-section-3-picture-box {
+    width: 100%;
+    max-width: 580px;
+    height: 340px;
+  }
+
+  .events-rates-section-4-block {
+    flex-direction: column;
+    gap: 48px;
+  }
+
+  .events-rates-section-4-col-large,
+  .events-rates-section-4-col-medium {
+    width: 100%;
+  }
+
+  .events-rates-section-4-pic-large {
+    height: 420px;
+  }
+}
+
+@media (max-width: 768px) {
+  .events-rates-hero-title {
+    font-size: 1.85rem;
+  }
+
+  .events-rates-tall-picture-box {
+    height: 360px;
+  }
+
+  .events-rates-card-title {
+    font-size: 1.5rem;
+  }
+
+  .events-rates-section-3-title {
+    font-size: 1.85rem;
+  }
+
+  .events-rates-section-3-info-grid {
+    gap: 20px;
+  }
+
+  .events-rates-section-4-main-title {
+    font-size: 2.25rem;
+  }
+
+  .events-rates-section-4-sample-title {
+    font-size: 1.85rem;
+  }
+
+  .events-rates-section-4-pic-large {
+    height: 320px;
+  }
+
+  .events-rates-section-4-pic-medium {
+    height: 240px;
+  }
+
+  .events-rates-section-4-pic-label {
+    font-size: 1.6rem;
+  }
+
+  .events-rates-section-4-paragraph {
+    font-size: 0.88rem;
+    padding: 0;
+  }
+}

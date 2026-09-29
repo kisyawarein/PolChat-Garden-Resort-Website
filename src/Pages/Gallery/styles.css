@@ -1,0 +1,242 @@
+.gallery-page {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+/* ==========================================================================
+   Section 1: Hero Background Picture
+   ========================================================================== */
+.gallery-section-1 {
+  position: relative;
+  width: 100%;
+  min-height: 550px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: var(--color-bark-dark, #3f2d20);
+}
+
+.gallery-hero-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: 1;
+}
+
+.gallery-hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.15) 100%);
+  z-index: 2;
+}
+
+/* ==========================================================================
+   Section 2: Title, Information Text & Staggered Brick Grid
+   ========================================================================== */
+.gallery-section-2 {
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 24px 120px;
+  background-color: var(--color-sand-light, #fbf3dc);
+}
+
+.gallery-section-2-container {
+  width: 100%;
+  max-width: 1380px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 50px;
+}
+
+/* Header with Huge Title and Info Grid */
+.gallery-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+}
+
+.gallery-title {
+  font-size: 3.5rem;
+  font-weight: 900;
+  color: var(--color-forest, #43593B);
+  margin: 0;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.gallery-info-grid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 48px;
+  flex-wrap: wrap;
+}
+
+.gallery-info-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.gallery-info-text {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: var(--color-bark, #58402E);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* Staggered Brick Pattern Grid */
+.gallery-grid {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.gallery-row {
+  width: 100%;
+  display: grid;
+  gap: 16px;
+  box-sizing: border-box;
+}
+
+/* Specific column layouts */
+.gallery-row-1cols {
+  grid-template-columns: 1fr;
+}
+
+.gallery-row-2cols {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.gallery-row-3cols {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+/* Height variations for brick appearance */
+.gallery-row-height-large {
+  height: 460px;
+}
+
+.gallery-row-height-medium {
+  height: 360px;
+}
+
+.gallery-row-height-small {
+  height: 290px;
+}
+
+/* Picture Card Styling */
+.gallery-picture-card {
+  width: 100%;
+  height: 100%;
+  background-color: #eadfae;
+  border: 2px solid var(--color-bark, #58402E);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-sizing: border-box;
+  padding: 20px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(88, 64, 46, 0.08);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease, background-color 0.25s ease;
+}
+
+.gallery-picture-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--color-forest, #43593B);
+  background-color: #e5d9a0;
+  box-shadow: 0 10px 24px rgba(67, 89, 59, 0.2);
+}
+
+.gallery-picture-label {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: var(--color-forest, #43593B);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.gallery-picture-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-bark, #58402E);
+  letter-spacing: 0.02em;
+}
+
+/* ==========================================================================
+   Responsive Adjustments
+   ========================================================================== */
+@media (max-width: 1024px) {
+  .gallery-title {
+    font-size: 2.75rem;
+  }
+
+  .gallery-row-height-large {
+    height: 380px;
+  }
+
+  .gallery-row-height-medium {
+    height: 300px;
+  }
+
+  .gallery-row-height-small {
+    height: 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .gallery-section-1 {
+    min-height: 380px;
+  }
+
+  .gallery-title {
+    font-size: 2.25rem;
+  }
+
+  .gallery-info-grid {
+    gap: 20px;
+  }
+
+  .gallery-row-height-large,
+  .gallery-row-height-medium,
+  .gallery-row-height-small {
+    height: auto;
+  }
+
+  .gallery-row-2cols,
+  .gallery-row-3cols {
+    grid-template-columns: 1fr;
+  }
+
+  .gallery-picture-card {
+    min-height: 240px;
+  }
+
+  .gallery-picture-label {
+    font-size: 1.35rem;
+  }
+
+  .gallery-picture-title {
+    font-size: 0.88rem;
+  }
+}

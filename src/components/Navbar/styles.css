@@ -1,0 +1,104 @@
+.navbar-wrapper {
+  position: fixed;
+  top: 20px;
+  left: 0;
+  right: 0;
+  margin: 0;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  gap: 16px;
+  pointer-events: none;
+}
+
+.navbar-pill {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 6px 8px;
+  background-color: #ffffff;
+  border-radius: 9999px;
+  box-shadow: 0 4px 20px rgba(67, 89, 59, 0.12);
+  pointer-events: auto;
+}
+
+.navbar-indicator {
+  position: absolute;
+  top: 6px;
+  bottom: 6px;
+  left: 0;
+  background-color: var(--color-forest, #43593B);
+  border-radius: 9999px;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.navbar-menu {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.navbar-item {
+  display: inline-block;
+}
+
+.navbar-button {
+  position: relative;
+  z-index: 2;
+  background: transparent;
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--color-forest, #43593B);
+  padding: 10px 20px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: color 0.25s ease;
+}
+
+.navbar-button:hover {
+  color: var(--color-bark, #58402E);
+}
+
+.navbar-button-active {
+  color: #ffffff;
+}
+
+.navbar-button-active:hover {
+  color: #ffffff;
+}
+
+.book-now-button {
+  border: solid 0px;
+  background-color: var(--color-forest, #43593B);
+  color: #ffffff;
+  font-size: 0.95rem;
+  font-weight: 700;
+  padding: 14px 28px;
+  border-radius: 9999px;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(67, 89, 59, 0.35);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+  pointer-events: auto;
+}
+
+.book-now-button:hover {
+  background-color: var(--color-bark, #58402E);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(88, 64, 46, 0.45);
+}
+
+.book-now-button:active {
+  transform: translateY(0);
+}
+
+.book-now-button-active {
+  background-color: var(--color-bark-dark, #3f2d20);
+}
