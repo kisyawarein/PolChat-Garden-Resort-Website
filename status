@@ -1,0 +1,43 @@
+[33m021d532[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m pages done
+ .agents/rules/code-style-guid.md          |  29 [32m++[m
+ .env                                      |   2 [32m+[m
+ .gitattributes                            |   1 [32m+[m
+ index.html                                |   2 [32m+[m[31m-[m
+ resources/Directions_Video.mp4            |   3 [32m+[m
+ resources/EventsRates_Video.mp4           |   3 [32m+[m
+ resources/Facilities_Video.mp4            |   3 [32m+[m
+ resources/Gallery_Image.jpg               | Bin [31m0[m -> [32m2099186[m bytes
+ resources/Homepage_Video.mp4              |   3 [32m+[m
+ resources/Support_Video.mp4               |   3 [32m+[m
+ src/App.css                               | 183 [32m+[m[31m------[m
+ src/App.jsx                               | 153 [32m++[m[31m----[m
+ src/Pages/About/About.jsx                 | 203 [32m++++++++[m
+ src/Pages/About/components/.gitkeep       |   1 [32m+[m
+ src/Pages/About/styles.css                | 551 [32m++++++++++++++++++++[m
+ src/Pages/Directions/Directions.jsx       |  42 [32m++[m
+ src/Pages/Directions/components/.gitkeep  |   1 [32m+[m
+ src/Pages/Directions/styles.css           | 121 [32m+++++[m
+ src/Pages/EventsRates/EventsRates.jsx     | 187 [32m+++++++[m
+ src/Pages/EventsRates/components/.gitkeep |   1 [32m+[m
+ src/Pages/EventsRates/styles.css          | 453 [32m+++++++++++++++++[m
+ src/Pages/Facilities/Facilities.jsx       | 163 [32m++++++[m
+ src/Pages/Facilities/components/.gitkeep  |   1 [32m+[m
+ src/Pages/Facilities/styles.css           | 405 [32m+++++++++++++++[m
+ src/Pages/Gallery/Gallery.jsx             | 126 [32m+++++[m
+ src/Pages/Gallery/components/.gitkeep     |   1 [32m+[m
+ src/Pages/Gallery/styles.css              | 242 [32m+++++++++[m
+ src/Pages/Home/Home.jsx                   | 469 [32m+++++++++++++++++[m
+ src/Pages/Home/components/.gitkeep        |   1 [32m+[m
+ src/Pages/Home/styles.css                 | 812 [32m++++++++++++++++++++++++++++++[m
+ src/Pages/Reservation/Reservation.jsx     |  11 [32m+[m
+ src/Pages/Reservation/components/.gitkeep |   1 [32m+[m
+ src/Pages/Reservation/styles.css          |  13 [32m+[m
+ src/Pages/Support/Support.jsx             | 190 [32m+++++++[m
+ src/Pages/Support/components/.gitkeep     |   1 [32m+[m
+ src/Pages/Support/styles.css              | 495 [32m++++++++++++++++++[m
+ src/components/Footer/Footer.jsx          | 192 [32m+++++++[m
+ src/components/Footer/styles.css          | 279 [32m++++++++++[m
+ src/components/Navbar/Navbar.jsx          |  76 [32m+++[m
+ src/components/Navbar/styles.css          | 104 [32m++++[m
+ src/index.css                             | 140 [32m++[m[31m----[m
+ 41 files changed, 5271 insertions(+), 396 deletions(-)
