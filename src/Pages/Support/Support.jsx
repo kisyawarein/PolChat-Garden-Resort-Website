@@ -1,52 +1,43 @@
 import { useState } from 'react'
 import supportVideo from '../../../resources/Support_Video.mp4'
+import InquirySection from './components/InquirySection'
 import './styles.css'
 
 const FAQ_ITEMS = [
   {
     id: 1,
-    question: 'QUESTION',
-    answer: 'PolChat Garden Resort offers day tours, night stays, and 22-hour overnight packages with full access to swimming pools and amenities.',
+    question: 'What are the day tour and overnight operating hours?',
+    answer: 'Day Tour runs from 9:00 AM to 5:00 PM (8 Hours). Overnight runs from 8:00 PM to 6:00 AM (10 Hours). We also offer 22-Hour packages (8:00 AM - 6:00 AM or 8:00 PM - 6:00 PM).',
   },
   {
     id: 2,
-    question: 'QUESTION',
-    answer: 'Yes, reservations are highly recommended to secure your preferred date, venue pavilion, and overnight accommodations.',
+    question: 'How much is the security deposit for reservations?',
+    answer: 'A refundable Security Deposit of PHP 2,000 is required upon booking confirmation and returned during checkout inspection.',
   },
   {
     id: 3,
-    question: 'QUESTION',
-    answer: 'Guests are welcome to bring outside food and drinks. Designated grilling and dining areas are readily accessible.',
+    question: 'Are outside food and drinks allowed without corkage?',
+    answer: 'Guests are welcome to bring outside food, drinks, and catering setups. Designated grilling and dining areas are readily accessible.',
   },
   {
     id: 4,
-    question: 'QUESTION',
-    answer: 'Standard check-in for day tours starts at 8:00 AM, while overnight stays begin at 2:00 PM.',
+    question: 'What is an Ocular Visitation and how do I schedule one?',
+    answer: 'Ocular Visitations allow guests to inspect our resort facilities beforehand. Available slots are Morning (9:00 AM - 11:00 AM) and Afternoon (2:00 PM - 4:00 PM).',
   },
   {
     id: 5,
-    question: 'QUESTION',
-    answer: 'We provide spacious parking spaces inside the gated resort premises for the convenience and security of our guests.',
+    question: 'What are the rates for exceeding guests and extension hours?',
+    answer: 'Extra guests exceeding the maximum pax limit are charged PHP 200 per head. Time extensions are PHP 700 to PHP 800 per hour depending on the package.',
   },
   {
     id: 6,
-    question: 'QUESTION',
-    answer: 'Yes, we offer exclusive private resort bookings for weddings, birthdays, reunions, and corporate retreats.',
+    question: 'What payment methods does Polchat Resort accept?',
+    answer: 'We accept GCash, direct bank transfer (BDO/BPI), and on-site cash payments. Proof of payment is verified by our admin team.',
   },
   {
     id: 7,
-    question: 'QUESTION',
-    answer: 'Our air-conditioned Cabin Rooms and traditional Bahay Kubo huts are fully equipped for comfortable overnight lodging.',
-  },
-  {
-    id: 8,
-    question: 'QUESTION',
-    answer: 'We accept bank transfers, GCash payments, and on-site cash transactions for deposits and remaining balances.',
-  },
-  {
-    id: 9,
-    question: 'QUESTION',
-    answer: 'Children below 3 feet can enter free of charge when accompanied by paying adults.',
+    question: 'Can we book exclusive private resort stays for special events?',
+    answer: 'Yes, our entire resort pavilion and private pool amenities can be booked for weddings, birthdays, team buildings, and reunions.',
   },
 ]
 
@@ -55,6 +46,13 @@ function Support() {
 
   const toggleFaq = (index) => {
     setOpenFaqIndex((prev) => (prev === index ? null : index))
+  }
+
+  const scrollToInquiries = () => {
+    const el = document.getElementById('inquiries')
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth' })
+    }
   }
 
   return (
@@ -72,22 +70,6 @@ function Support() {
         <div className="support-hero-overlay" />
         <div className="support-hero-content">
           <h1 className="support-hero-title">INFORMATION: CENTER</h1>
-        </div>
-      </section>
-
-      {/* Section 2: Huge Picture Container */}
-      <section className="support-section-2">
-        <div className="support-section-2-container">
-          <div className="support-section-2-picture-box">
-            <span className="support-section-2-picture-label">PICTURE</span>
-          </div>
-        </div>
-      </section>
-
-      {/* Section 3: Background Picture Holder */}
-      <section className="support-section-3">
-        <div className="support-section-3-picture-box">
-          <span className="support-section-3-picture-label">PICTURE</span>
         </div>
       </section>
 
@@ -109,21 +91,19 @@ function Support() {
                 Still have questions?
               </h3>
               <p className="support-section-4-inquiries-text">
-                Information Information
+                Chat directly with Polchat resort staff for questions and booking support.
               </p>
               <button
                 type="button"
                 className="support-section-4-inquiries-btn"
-                onClick={() => {
-                  window.location.href = '#inquiries'
-                }}
+                onClick={scrollToInquiries}
               >
                 Go to Inquiries
               </button>
             </div>
           </div>
 
-          {/* Right Column: 9 Expandable Question Pills */}
+          {/* Right Column: Expandable Question Pills */}
           <div className="support-section-4-right-col">
             {FAQ_ITEMS.map((item, index) => {
               const isOpen = openFaqIndex === index
@@ -154,37 +134,11 @@ function Support() {
         </div>
       </section>
 
-      {/* Section 5: Distinct Background with 2 Overlapping/Overflowing Boxes */}
-      <section className="support-section-5">
-        {/* Upper Right Overflowing Box (overflows into Section 4 by 50% height) */}
-        <div className="support-section-5-box-upper-right">
-          <span className="support-section-5-box-label">PICTURE / BOX</span>
-        </div>
-
-        {/* Section 5 Center Content */}
-        <div className="support-section-5-container">
-          <h2 className="support-section-5-title">POLCHAT SUPPORT</h2>
-          <p className="support-section-5-subtitle">
-            We are dedicated to making your visit seamless, memorable, and relaxing.
-          </p>
-        </div>
-
-        {/* Bottom Left Overflowing Box (overflows into Section 6 by 50% height) */}
-        <div className="support-section-5-box-bottom-left">
-          <span className="support-section-5-box-label">PICTURE / BOX</span>
-        </div>
-      </section>
-
-      {/* Section 6: Box Container Holding a Picture (Similar to Section 2) */}
-      <section className="support-section-6">
-        <div className="support-section-6-container">
-          <div className="support-section-6-picture-box">
-            <span className="support-section-6-picture-label">PICTURE</span>
-          </div>
-        </div>
-      </section>
+      {/* Interactive Customer Inquiry Live Helpdesk Section */}
+      <InquirySection />
     </div>
   )
 }
 
 export default Support
+

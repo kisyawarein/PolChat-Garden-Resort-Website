@@ -102,3 +102,171 @@
 .book-now-button-active {
   background-color: var(--color-bark-dark, #3f2d20);
 }
+
+/* Left Actions Container - Sidebar Toggle */
+.navbar-left-actions {
+  position: absolute;
+  left: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  pointer-events: auto;
+}
+
+.navbar-sidebar-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #ffffff;
+  color: var(--color-forest, #43593B);
+  border: 1.5px solid var(--color-forest, #43593B);
+  padding: 8px 18px;
+  border-radius: 9999px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(67, 89, 59, 0.15);
+  transition: all 0.2s ease;
+}
+
+.navbar-sidebar-toggle-btn:hover {
+  background-color: var(--color-forest, #43593B);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(67, 89, 59, 0.25);
+}
+
+.navbar-toggle-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.navbar-toggle-label {
+  font-size: 0.88rem;
+}
+
+/* Right Actions Container - Pinned to right edge of viewport */
+.navbar-right-actions {
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  pointer-events: auto;
+}
+
+
+
+/* Auth Buttons */
+.navbar-auth-buttons {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #ffffff;
+  padding: 4px 6px;
+  border-radius: 9999px;
+  box-shadow: 0 4px 20px rgba(67, 89, 59, 0.12);
+}
+
+.navbar-login-btn {
+  background: transparent;
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-forest, #43593B);
+  padding: 8px 16px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.navbar-login-btn:hover {
+  background-color: var(--color-sand-light, #fbf3dc);
+  color: var(--color-bark, #58402E);
+}
+
+.navbar-signup-btn {
+  background-color: var(--color-sand, #F2D17E);
+  border: 1px solid var(--color-bark, #58402E);
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-bark, #58402E);
+  padding: 8px 18px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(88, 64, 46, 0.15);
+}
+
+.navbar-signup-btn:hover {
+  background-color: var(--color-lime, #7CCE17);
+  color: #ffffff;
+  border-color: var(--color-forest, #43593B);
+  transform: translateY(-1px);
+}
+
+/* User Profile Chip */
+.navbar-user-container {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #ffffff;
+  padding: 4px 8px 4px 14px;
+  border-radius: 9999px;
+  box-shadow: 0 4px 20px rgba(67, 89, 59, 0.12);
+}
+
+.navbar-user-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.navbar-user-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--color-forest, #43593B);
+  max-width: 120px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.navbar-user-role-badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 9999px;
+}
+
+.navbar-role-admin {
+  background-color: var(--color-forest, #43593B);
+  color: #ffffff;
+}
+
+.navbar-role-customer {
+  background-color: var(--color-sand, #F2D17E);
+  color: var(--color-bark, #58402E);
+}
+
+.navbar-logout-btn {
+  background-color: transparent;
+  border: 1px solid #d1d5db;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--color-bark, #58402E);
+  padding: 5px 10px;
+  border-radius: 9999px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.navbar-logout-btn:hover {
+  background-color: #fee2e2;
+  border-color: #fca5a5;
+  color: #991b1b;
+}

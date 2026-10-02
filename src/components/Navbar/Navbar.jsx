@@ -1,7 +1,10 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { useAuth } from '../../context/AuthContext'
 import './styles.css'
 
-function Navbar({ currentPage, onNavigate }) {
+function Navbar({ currentPage, onNavigate, onToggleSidebar }) {
+  const { user, isAuthenticated, isAdmin, logout, openAuthModal } = useAuth()
+
   const navItems = [
     { id: 'home', label: 'Home' },
     { id: 'about', label: 'About' },
@@ -36,6 +39,24 @@ function Navbar({ currentPage, onNavigate }) {
 
   return (
     <header className="navbar-wrapper">
+      {/* Left-side Sidebar Toggle Button (When user is logged in) */}
+      {isAuthenticated && (
+        <div className="navbar-left-actions">
+          <button
+            type="button"
+            className="navbar-sidebar-toggle-btn"
+            onClick={onToggleSidebar}
+            title={isAdmin ? 'Open Admin Management Portal' : 'Open My Account Menu'}
+          >
+            <span className="navbar-toggle-icon">☰</span>
+            <span className="navbar-toggle-label">
+              {isAdmin ? 'Admin Menu' : 'Menu'}
+            </span>
+          </button>
+        </div>
+      )}
+
+      {/* Center Navigation Pill */}
       <nav className="navbar-pill">
         <div
           className="navbar-indicator"
@@ -69,8 +90,49 @@ function Navbar({ currentPage, onNavigate }) {
       >
         Book Now
       </button>
+
+      {/* Right Edge Actions */}
+      <div className="navbar-right-actions">
+        {isAuthenticated ? (
+          <div className="navbar-user-container">
+            <div className="navbar-user-chip" onClick={onToggleSidebar} style={{ cursor: 'pointer' }}>
+              <span className="navbar-user-name">{user?.name || user?.username}</span>
+              <span className={isAdmin ? 'navbar-user-role-badge navbar-role-admin' : 'navbar-user-role-badge navbar-role-customer'}>
+                {isAdmin ? 'Admin' : 'Guest'}
+              </span>
+            </div>
+            <button
+              type="button"
+              className="navbar-logout-btn"
+              onClick={logout}
+              title="Sign Out"
+            >
+              Sign Out
+            </button>
+          </div>
+        ) : (
+          <div className="navbar-auth-buttons">
+            <button
+              type="button"
+              className="navbar-login-btn"
+              onClick={() => openAuthModal('signin')}
+            >
+              Log in
+            </button>
+            <button
+              type="button"
+              className="navbar-signup-btn"
+              onClick={() => openAuthModal('signup')}
+            >
+              Sign up
+            </button>
+          </div>
+        )}
+      </div>
     </header>
   )
 }
 
 export default Navbar
+
+

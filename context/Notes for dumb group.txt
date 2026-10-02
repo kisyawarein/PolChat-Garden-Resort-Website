@@ -1,0 +1,97 @@
+1. reservation:
+
+PAX: 
+
+- 200 per head exceeding the maximum pax
+
+DAY TOUR:
+
+- 9:00AM to 5:00PM
+- 8 Hours
+- PHP 9,000 
+- 35 maximum pax
+- PHP 2,000 (Security Deposit)
+- 700 per hour extension
+
+OVERNIGHT: 
+
+- 8:00PM to 6:00AM
+- 10 Hours
+- PHP 10,000
+- 25 maximum pax
+- PHP 2,000 (Security Deposit)
+- 800 per hour extension
+
+22 HOURS:
+
+- 35 max pax 9am-5pm
+- must pay extra 200 charges per head over 25 pax after 5pm
+- PHP 17,000
+- PHP 2,000 (Security Deposit)
+
+- Two types 
+- 8:00AM - 6:00AM (700 per hour) 
+- 8:00PM - 6:00PM (800 per hour) 
+
+2. Occult Visitation
+
+- Can not overlap with already scheduled hours
+- Visitations are personal and can not overlap with others
+
+MORNING:
+
+- 9:00AM to 11:00 AM
+
+AFTERNOON:
+
+- 2:00PM to 4:00PM
+
+3. Payment Process
+
+- Chooses a reservation type (Ocular Visit, Resort)
+- Customer see's calendar and picks a date 
+- Chooses from 3 Cards (Day Tour, 22 Hours, Overnight)
+- Customer fills out form:
+
+a. First Name
+b. Last Name
+c. (Optional) Company Name
+d. Phone Number
+e. Guest Count
+f. Special Event
+
+- Customer Submits Form
+- Customer confirms reservation
+- Customer Pays in GCash
+- Customer Sends Proof of Payment
+- Admin Confirms payment received
+- Admin Confirms Reservation
+- Admin Sends Printable Receipt 
+- Customer prints Receipt
+- Customer present Receipt at the resort 
+- Finished
+
+4. Admin Dashboard:
+
+- Booking Catalog:
+
+a. Shows Pending, Confirmed, Cancelled
+b. Shows Types of scheduled reservations
+c. Show Ocular Visitations & Resort Reservations
+
+- Downloadable Excel Reports for management
+- Presents statistics via Bar graph & Pie chart:
+
+- Customer Records Archive:
+
+a. Shows ID
+b. Shows Name
+c. Shows Reservation History
+
+5. Reviews and Feedback
+
+- Customer can submit a review after reservation
+
+6. Announcements and Notifications
+
+- Announcements and notifs are sent via email or sms

@@ -493,3 +493,370 @@
     font-size: 2rem;
   }
 }
+
+/* ==========================================================================
+   Customer Inquiry & Helpdesk Live Chat Section
+   ========================================================================== */
+.support-inquiry-section {
+  width: 100%;
+  padding: 80px 24px 100px;
+  background-color: var(--color-forest-light, #edf2eb);
+  border-top: 2px solid var(--color-sage, #ACAD79);
+}
+
+.support-inquiry-container {
+  max-width: 1280px;
+  margin: 0 auto;
+}
+
+.support-inquiry-heading-block {
+  text-align: center;
+  max-width: 700px;
+  margin: 0 auto 40px;
+}
+
+.support-inquiry-tag {
+  display: inline-block;
+  background-color: var(--color-sand, #F2D17E);
+  color: var(--color-bark, #58402E);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  margin-bottom: 8px;
+}
+
+.support-inquiry-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--color-forest, #43593B);
+  margin: 0 0 10px 0;
+}
+
+.support-inquiry-subtext {
+  font-size: 0.95rem;
+  color: #4b5563;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.support-inquiry-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+  align-items: flex-start;
+}
+
+@media (max-width: 860px) {
+  .support-inquiry-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.support-inquiry-form-card,
+.support-inquiry-chat-card {
+  background-color: #ffffff;
+  border-radius: 16px;
+  padding: 30px;
+  border: 1px solid #cbd5e1;
+  box-shadow: 0 6px 20px rgba(67, 89, 59, 0.08);
+}
+
+.support-form-card-title {
+  margin: 0 0 6px 0;
+  font-size: 1.25rem;
+  color: var(--color-bark, #58402E);
+}
+
+.support-form-card-desc {
+  margin: 0 0 20px 0;
+  font-size: 0.88rem;
+  color: #64748b;
+}
+
+.support-inquiry-success-box {
+  background-color: #ecfdf5;
+  color: #065f46;
+  border: 1px solid #a7f3d0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.support-new-inquiry-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.support-form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.support-field-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #334155;
+}
+
+.support-field-input,
+.support-field-textarea {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.support-field-input:focus,
+.support-field-textarea:focus {
+  border-color: var(--color-forest, #43593B);
+}
+
+.support-submit-inquiry-btn {
+  background-color: var(--color-forest, #43593B);
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 9999px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(67, 89, 59, 0.25);
+  transition: all 0.2s ease;
+  margin-top: 6px;
+}
+
+.support-submit-inquiry-btn:hover {
+  background-color: var(--color-bark, #58402E);
+}
+
+.support-past-inquiries-block {
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px dashed #cbd5e1;
+}
+
+.support-past-title {
+  margin: 0 0 12px 0;
+  font-size: 0.95rem;
+  color: var(--color-bark, #58402E);
+}
+
+.support-past-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.support-past-item {
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 10px 14px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.support-past-item:hover {
+  border-color: var(--color-sage, #ACAD79);
+}
+
+.support-past-item-active {
+  border-color: var(--color-forest, #43593B);
+  background-color: #f2f7f0;
+}
+
+.support-past-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2px;
+}
+
+.support-past-label {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.support-status-chip {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+}
+
+.support-chip-open {
+  background-color: #dbeafe;
+  color: #1e40af;
+}
+
+.support-chip-in-progress {
+  background-color: #fef3c7;
+  color: #92400e;
+}
+
+.support-chip-resolved {
+  background-color: #dcfce7;
+  color: #166534;
+}
+
+.support-past-responder {
+  font-size: 0.75rem;
+  color: #64748b;
+}
+
+/* Chat Card */
+.support-inquiry-chat-card {
+  min-height: 480px;
+  display: flex;
+  flex-direction: column;
+}
+
+.support-chat-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 460px;
+}
+
+.support-chat-head {
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.support-chat-id {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--color-forest, #43593B);
+}
+
+.support-chat-label {
+  margin: 2px 0 0 0;
+  font-size: 1.05rem;
+  color: var(--color-bark, #58402E);
+}
+
+.support-chat-responder-pill {
+  font-size: 0.8rem;
+  background-color: #f1f5f9;
+  padding: 4px 10px;
+  border-radius: 9999px;
+}
+
+.support-messages-stream {
+  flex: 1;
+  padding: 16px 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.support-msg-row {
+  display: flex;
+}
+
+.support-msg-customer {
+  justify-content: flex-end;
+}
+
+.support-msg-admin {
+  justify-content: flex-start;
+}
+
+.support-bubble {
+  max-width: 80%;
+  padding: 10px 14px;
+  border-radius: 12px;
+}
+
+.support-bubble-client {
+  background-color: var(--color-forest, #43593B);
+  color: #ffffff;
+  border-bottom-right-radius: 2px;
+}
+
+.support-bubble-staff {
+  background-color: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  color: #1e293b;
+  border-bottom-left-radius: 2px;
+}
+
+.support-bubble-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 4px;
+  font-size: 0.72rem;
+  opacity: 0.85;
+}
+
+.support-msg-text {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+
+.support-reply-bar {
+  display: flex;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.support-reply-input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  outline: none;
+}
+
+.support-reply-input:focus {
+  border-color: var(--color-forest, #43593B);
+}
+
+.support-reply-send-btn {
+  background-color: var(--color-forest, #43593B);
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.support-chat-empty-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 400px;
+  text-align: center;
+  color: #64748b;
+  padding: 24px;
+}
+
+.support-empty-chat-icon {
+  font-size: 3rem;
+  margin-bottom: 12px;
+}
