@@ -39,24 +39,24 @@ function Navbar({ currentPage, onNavigate, onToggleSidebar }) {
 
   return (
     <header className="navbar-wrapper">
-      {/* Left-side Sidebar Toggle Button (When user is logged in) */}
+      {/* Pure Burger Icon Button (Close to the navbar pill, only when logged in) */}
       {isAuthenticated && (
-        <div className="navbar-left-actions">
-          <button
-            type="button"
-            className="navbar-sidebar-toggle-btn"
-            onClick={onToggleSidebar}
-            title={isAdmin ? 'Open Admin Management Portal' : 'Open My Account Menu'}
-          >
-            <span className="navbar-toggle-icon">☰</span>
-            <span className="navbar-toggle-label">
-              {isAdmin ? 'Admin Menu' : 'Menu'}
-            </span>
-          </button>
-        </div>
+        <button
+          type="button"
+          className="navbar-burger-btn"
+          onClick={onToggleSidebar}
+          title="Open Portal Menu"
+          aria-label="Toggle Portal Navigation Menu"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
       )}
 
-      {/* Center Navigation Pill */}
+      {/* Main Navigation Pill */}
       <nav className="navbar-pill">
         <div
           className="navbar-indicator"
@@ -83,6 +83,7 @@ function Navbar({ currentPage, onNavigate, onToggleSidebar }) {
         </ul>
       </nav>
 
+      {/* Book Now Button right next to the navbar */}
       <button
         type="button"
         className={currentPage === 'reservation' ? 'book-now-button book-now-button-active' : 'book-now-button'}
@@ -91,7 +92,7 @@ function Navbar({ currentPage, onNavigate, onToggleSidebar }) {
         Book Now
       </button>
 
-      {/* Right Edge Actions */}
+      {/* Far Right Edge Actions */}
       <div className="navbar-right-actions">
         {isAuthenticated ? (
           <div className="navbar-user-container">
@@ -134,5 +135,3 @@ function Navbar({ currentPage, onNavigate, onToggleSidebar }) {
 }
 
 export default Navbar
-
-

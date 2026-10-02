@@ -12,12 +12,14 @@ import EventsRates from './Pages/EventsRates/EventsRates'
 import Directions from './Pages/Directions/Directions'
 import Support from './Pages/Support/Support'
 import Reservation from './Pages/Reservation/Reservation'
-import Admin from './Pages/Admin/Admin'
+import BookingCatalog from './Pages/BookingCatalog/BookingCatalog'
+import CustomerRecords from './Pages/CustomerRecords/CustomerRecords'
+import CustomerInquiries from './Pages/CustomerInquiries/CustomerInquiries'
+import CustomerReviews from './Pages/CustomerReviews/CustomerReviews'
 import './App.css'
 
 function AppContent() {
   const [currentPage, setCurrentPage] = useState('home')
-  const [adminTab, setAdminTab] = useState('overview')
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   const renderPage = () => {
@@ -38,8 +40,15 @@ function AppContent() {
         return <Support />
       case 'reservation':
         return <Reservation />
+      case 'booking-catalog':
       case 'admin':
-        return <Admin activeTab={adminTab} onSelectTab={setAdminTab} />
+        return <BookingCatalog />
+      case 'customer-records':
+        return <CustomerRecords />
+      case 'customer-inquiries':
+        return <CustomerInquiries />
+      case 'customer-reviews':
+        return <CustomerReviews />
       default:
         return <Home />
     }
@@ -57,9 +66,7 @@ function AppContent() {
         isOpen={isSidebarOpen}
         onClose={() => setIsSidebarOpen(false)}
         currentPage={currentPage}
-        adminTab={adminTab}
         onNavigate={setCurrentPage}
-        onSelectAdminTab={setAdminTab}
       />
 
       <main className="page-content">

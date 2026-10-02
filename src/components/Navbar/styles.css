@@ -9,8 +9,33 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  gap: 16px;
+  gap: 12px;
   pointer-events: none;
+}
+
+/* Burger Icon Toggle Button (Directly beside the navbar pill) */
+.navbar-burger-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background-color: #ffffff;
+  color: var(--color-forest, #43593B);
+  border: 1.5px solid var(--color-forest, #43593B);
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(67, 89, 59, 0.15);
+  transition: all 0.2s ease;
+  pointer-events: auto;
+  flex-shrink: 0;
+}
+
+.navbar-burger-btn:hover {
+  background-color: var(--color-forest, #43593B);
+  color: #ffffff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(67, 89, 59, 0.25);
 }
 
 .navbar-pill {
@@ -103,50 +128,7 @@
   background-color: var(--color-bark-dark, #3f2d20);
 }
 
-/* Left Actions Container - Sidebar Toggle */
-.navbar-left-actions {
-  position: absolute;
-  left: 24px;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  align-items: center;
-  pointer-events: auto;
-}
-
-.navbar-sidebar-toggle-btn {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background-color: #ffffff;
-  color: var(--color-forest, #43593B);
-  border: 1.5px solid var(--color-forest, #43593B);
-  padding: 8px 18px;
-  border-radius: 9999px;
-  font-size: 0.9rem;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 4px 14px rgba(67, 89, 59, 0.15);
-  transition: all 0.2s ease;
-}
-
-.navbar-sidebar-toggle-btn:hover {
-  background-color: var(--color-forest, #43593B);
-  color: #ffffff;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(67, 89, 59, 0.25);
-}
-
-.navbar-toggle-icon {
-  font-size: 1.1rem;
-  line-height: 1;
-}
-
-.navbar-toggle-label {
-  font-size: 0.88rem;
-}
-
-/* Right Actions Container - Pinned to right edge of viewport */
+/* Right Actions Container - Pinned to far right edge of viewport */
 .navbar-right-actions {
   position: absolute;
   right: 24px;
@@ -157,8 +139,6 @@
   gap: 12px;
   pointer-events: auto;
 }
-
-
 
 /* Auth Buttons */
 .navbar-auth-buttons {

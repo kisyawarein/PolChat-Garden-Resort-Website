@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-function ReservationCalendar({
+function CalendarView({
   reservations,
   visitations,
   onUpdateReservationStatus,
@@ -32,7 +32,6 @@ function ReservationCalendar({
     setCurrentDate(new Date())
   }
 
-  // Find bookings for a given day
   const getBookingsForDay = (day) => {
     const formattedDay = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`
 
@@ -78,36 +77,36 @@ function ReservationCalendar({
   }
 
   return (
-    <div className="admin-calendar-container">
+    <div className="booking-calendar-view">
       {/* Calendar Header Navigation */}
-      <div className="admin-calendar-nav-bar">
-        <div className="admin-calendar-month-display">
-          <h2 className="admin-calendar-month-title">
+      <div className="calendar-nav-toolbar">
+        <div className="calendar-month-title-wrap">
+          <h2 className="calendar-month-heading">
             {monthNames[month]} {year}
           </h2>
-          <span className="admin-calendar-subtitle">
+          <span className="calendar-month-sub">
             Resort Schedule & Ocular Visitations Overview
           </span>
         </div>
 
-        <div className="admin-calendar-nav-buttons">
+        <div className="calendar-nav-buttons">
           <button
             type="button"
-            className="admin-cal-btn"
+            className="calendar-nav-btn"
             onClick={handlePrevMonth}
           >
             ← Previous
           </button>
           <button
             type="button"
-            className="admin-cal-btn admin-cal-btn-today"
+            className="calendar-nav-btn calendar-nav-btn-today"
             onClick={handleToday}
           >
             Today
           </button>
           <button
             type="button"
-            className="admin-cal-btn"
+            className="calendar-nav-btn"
             onClick={handleNextMonth}
           >
             Next →
@@ -116,46 +115,44 @@ function ReservationCalendar({
       </div>
 
       {/* Package Legend Bar */}
-      <div className="admin-calendar-legend">
-        <div className="admin-legend-tag-item">
+      <div className="calendar-legend-bar">
+        <div className="calendar-legend-item">
           <span className="cal-dot cal-dot-daytour"></span>
-          <span className="cal-legend-text">Day Tour (9:00 AM - 5:00 PM)</span>
+          <span>Day Tour (9:00 AM - 5:00 PM)</span>
         </div>
-        <div className="admin-legend-tag-item">
+        <div className="calendar-legend-item">
           <span className="cal-dot cal-dot-overnight"></span>
-          <span className="cal-legend-text">Overnight (8:00 PM - 6:00 AM)</span>
+          <span>Overnight (8:00 PM - 6:00 AM)</span>
         </div>
-        <div className="admin-legend-tag-item">
+        <div className="calendar-legend-item">
           <span className="cal-dot cal-dot-twentytwo"></span>
-          <span className="cal-legend-text">22 Hours (8 AM - 6 AM / 8 PM - 6 PM)</span>
+          <span>22 Hours (8 AM - 6 AM / 8 PM - 6 PM)</span>
         </div>
-        <div className="admin-legend-tag-item">
+        <div className="calendar-legend-item">
           <span className="cal-dot cal-dot-ocular"></span>
-          <span className="cal-legend-text">Ocular Visit (9-11 AM / 2-4 PM)</span>
+          <span>Ocular Visit (9-11 AM / 2-4 PM)</span>
         </div>
       </div>
 
-      {/* Calendar Grid */}
-      <div className="admin-calendar-grid-card">
-        {/* Days of Week Header */}
-        <div className="admin-calendar-weekdays-row">
-          <div className="admin-cal-weekday">Sun</div>
-          <div className="admin-cal-weekday">Mon</div>
-          <div className="admin-cal-weekday">Tue</div>
-          <div className="admin-cal-weekday">Wed</div>
-          <div className="admin-cal-weekday">Thu</div>
-          <div className="admin-cal-weekday">Fri</div>
-          <div className="admin-cal-weekday">Sat</div>
+      {/* Calendar Matrix Card */}
+      <div className="calendar-matrix-card">
+        {/* Weekdays */}
+        <div className="calendar-weekdays-bar">
+          <div className="cal-weekday-cell">Sun</div>
+          <div className="cal-weekday-cell">Mon</div>
+          <div className="cal-weekday-cell">Tue</div>
+          <div className="cal-weekday-cell">Wed</div>
+          <div className="cal-weekday-cell">Thu</div>
+          <div className="cal-weekday-cell">Fri</div>
+          <div className="cal-weekday-cell">Sat</div>
         </div>
 
         {/* Days Grid */}
-        <div className="admin-calendar-days-matrix">
-          {/* Leading Empty Slots */}
+        <div className="calendar-days-grid">
           {Array.from({ length: firstDayOfMonth }).map((_, i) => (
-            <div key={`empty-${i}`} className="admin-cal-cell admin-cal-cell-empty" />
+            <div key={`empty-${i}`} className="cal-day-cell cal-cell-empty" />
           ))}
 
-          {/* Month Days */}
           {Array.from({ length: daysInMonth }).map((_, index) => {
             const dayNumber = index + 1
             const { reservations: dayRes, visitations: dayVis, dateStr } = getBookingsForDay(dayNumber)
@@ -164,46 +161,42 @@ function ReservationCalendar({
             return (
               <div
                 key={`day-${dayNumber}`}
-                className={`admin-cal-cell ${hasBookings ? 'admin-cal-cell-has-data' : ''}`}
+                className={`cal-day-cell ${hasBookings ? 'cal-cell-active' : ''}`}
                 onClick={() => {
                   if (hasBookings) {
                     setSelectedDayDetails({ dayNumber, dateStr, dayRes, dayVis })
                   }
                 }}
               >
-                <div className="admin-cal-cell-header">
-                  <span className="admin-cal-date-number">{dayNumber}</span>
+                <div className="cal-cell-head">
+                  <span className="cal-cell-date-num">{dayNumber}</span>
                   {hasBookings && (
-                    <span className="admin-cal-count-badge">
+                    <span className="cal-cell-count-tag">
                       {dayRes.length + dayVis.length}
                     </span>
                   )}
                 </div>
 
-                <div className="admin-cal-items-stack">
+                <div className="cal-cell-badges">
                   {dayRes.map((res) => (
                     <div
                       key={res.reservation_id}
-                      className={`admin-cal-badge-pill ${getPackageBadgeClass(res.duration_id)} admin-cal-status-${res.reservation_status}`}
+                      className={`cal-badge-pill ${getPackageBadgeClass(res.duration_id)}`}
                       title={`${getPackageShortLabel(res.duration_id)} - ${res.customer_name} (${res.reservation_status})`}
                     >
-                      <span className="admin-cal-badge-type">
-                        {getPackageShortLabel(res.duration_id)}
-                      </span>
-                      <span className="admin-cal-badge-name">
-                        {res.customer_name || `Cust #${res.customer_id}`}
-                      </span>
+                      <span className="cal-badge-type">{getPackageShortLabel(res.duration_id)}</span>
+                      <span className="cal-badge-user">{res.customer_name || `Cust #${res.customer_id}`}</span>
                     </div>
                   ))}
 
                   {dayVis.map((vis) => (
                     <div
                       key={vis.visitation_id}
-                      className="admin-cal-badge-pill cal-badge-ocular"
+                      className="cal-badge-pill cal-badge-ocular"
                       title={`Ocular Visit: ${vis.customer_name} (${vis.slot_type})`}
                     >
-                      <span className="admin-cal-badge-type">Ocular</span>
-                      <span className="admin-cal-badge-name">{vis.customer_name}</span>
+                      <span className="cal-badge-type">Ocular</span>
+                      <span className="cal-badge-user">{vis.customer_name}</span>
                     </div>
                   ))}
                 </div>
@@ -213,58 +206,58 @@ function ReservationCalendar({
         </div>
       </div>
 
-      {/* Day Details Drawer/Modal */}
+      {/* Day Details Modal */}
       {selectedDayDetails && (
-        <div className="admin-modal-overlay" onClick={() => setSelectedDayDetails(null)}>
-          <div className="admin-modal-box" onClick={(e) => e.stopPropagation()}>
-            <div className="admin-modal-header">
-              <h3 className="admin-modal-title">
+        <div className="modal-backdrop" onClick={() => setSelectedDayDetails(null)}>
+          <div className="modal-dialog-card" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-card-header">
+              <h3 className="modal-card-title">
                 Schedule for {selectedDayDetails.dateStr}
               </h3>
               <button
                 type="button"
-                className="admin-modal-close-btn"
+                className="modal-close-x"
                 onClick={() => setSelectedDayDetails(null)}
               >
                 ✕
               </button>
             </div>
 
-            <div className="admin-modal-body">
+            <div className="modal-card-body">
               {selectedDayDetails.dayRes.length > 0 && (
-                <div className="admin-cal-modal-section">
-                  <h4 className="admin-cal-section-title">Resort Reservations</h4>
-                  <div className="admin-cal-details-list">
+                <div className="modal-sched-section">
+                  <h4 className="modal-sched-heading">Resort Reservations</h4>
+                  <div className="modal-sched-stack">
                     {selectedDayDetails.dayRes.map((r) => (
-                      <div key={r.reservation_id} className="admin-cal-detail-card">
-                        <div className="admin-cal-detail-head">
+                      <div key={r.reservation_id} className="modal-sched-item">
+                        <div className="modal-sched-item-header">
                           <strong>#{r.reservation_id} - {r.customer_name}</strong>
-                          <span className={`admin-status-badge admin-status-${r.reservation_status}`}>
+                          <span className={`booking-status-badge status-${r.reservation_status}`}>
                             {r.reservation_status.toUpperCase()}
                           </span>
                         </div>
-                        <div className="admin-cal-detail-body">
+                        <div className="modal-sched-item-body">
                           <div><strong>Package:</strong> {getPackageShortLabel(r.duration_id)} ({r.guest_count} Pax)</div>
-                          <div><strong>Event:</strong> {r.event_name || 'Family/Group Gathering'}</div>
+                          <div><strong>Event:</strong> {r.event_name || 'Group Gathering'}</div>
                           <div><strong>Contact:</strong> {r.customer_phone || '0917-xxx-xxxx'}</div>
                           <div><strong>Cost:</strong> PHP {((r.reservation_cost || 0) + (r.extra_charges || 0)).toLocaleString()}</div>
                         </div>
-                        <div className="admin-cal-detail-actions">
+                        <div className="modal-sched-item-actions">
                           {r.reservation_status === 'pending' && (
                             <button
                               type="button"
-                              className="admin-action-btn admin-btn-confirm"
+                              className="booking-btn-approve"
                               onClick={() => {
                                 onUpdateReservationStatus(r.reservation_id, 'confirmed')
                                 setSelectedDayDetails(null)
                               }}
                             >
-                              Approve Booking
+                              Approve
                             </button>
                           )}
                           <button
                             type="button"
-                            className="admin-action-btn admin-btn-receipt"
+                            className="booking-btn-receipt"
                             onClick={() => {
                               onOpenReceipt(r)
                               setSelectedDayDetails(null)
@@ -280,21 +273,21 @@ function ReservationCalendar({
               )}
 
               {selectedDayDetails.dayVis.length > 0 && (
-                <div className="admin-cal-modal-section">
-                  <h4 className="admin-cal-section-title">Ocular Visitations</h4>
-                  <div className="admin-cal-details-list">
+                <div className="modal-sched-section">
+                  <h4 className="modal-sched-heading">Ocular Visitations</h4>
+                  <div className="modal-sched-stack">
                     {selectedDayDetails.dayVis.map((v) => (
-                      <div key={v.visitation_id} className="admin-cal-detail-card">
-                        <div className="admin-cal-detail-head">
+                      <div key={v.visitation_id} className="modal-sched-item">
+                        <div className="modal-sched-item-header">
                           <strong>#{v.visitation_id} - {v.customer_name}</strong>
-                          <span className={`admin-status-badge admin-status-${v.visitation_status}`}>
+                          <span className={`booking-status-badge status-${v.visitation_status}`}>
                             {v.visitation_status.toUpperCase()}
                           </span>
                         </div>
-                        <div className="admin-cal-detail-body">
+                        <div className="modal-sched-item-body">
                           <div><strong>Timeslot:</strong> {v.slot_type}</div>
-                          <div><strong>Visitors:</strong> {v.guest_count} Person(s)</div>
-                          <div><strong>Inspection Purpose:</strong> {v.purpose}</div>
+                          <div><strong>Visitors:</strong> {v.guest_count}</div>
+                          <div><strong>Purpose:</strong> {v.purpose}</div>
                         </div>
                       </div>
                     ))}
@@ -303,10 +296,10 @@ function ReservationCalendar({
               )}
             </div>
 
-            <div className="admin-modal-footer">
+            <div className="modal-card-footer">
               <button
                 type="button"
-                className="admin-footer-btn admin-btn-close"
+                className="modal-close-btn"
                 onClick={() => setSelectedDayDetails(null)}
               >
                 Close
@@ -319,4 +312,4 @@ function ReservationCalendar({
   )
 }
 
-export default ReservationCalendar
+export default CalendarView

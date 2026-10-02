@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-function BookingCatalog({
+function ListView({
   reservations,
   visitations,
   onUpdateReservationStatus,
@@ -14,7 +14,6 @@ function BookingCatalog({
   const [selectedBookingDetails, setSelectedBookingDetails] = useState(null)
   const [extraChargesInput, setExtraChargesInput] = useState(0)
 
-  // Filter Logic
   const filteredReservations = reservations.filter((r) => {
     const matchesStatus = statusFilter === 'all' || r.reservation_status === statusFilter
     const matchesType = typeFilter === 'all' || typeFilter === 'resort'
@@ -65,13 +64,13 @@ function BookingCatalog({
   }
 
   return (
-    <div className="admin-catalog-container">
-      {/* Search & Filter Toolbar */}
-      <div className="admin-toolbar-row">
-        <div className="admin-search-wrapper">
+    <div className="booking-list-view">
+      {/* Search & Filter Controls */}
+      <div className="booking-toolbar-card">
+        <div className="booking-search-box">
           <input
             type="text"
-            className="admin-search-input"
+            className="booking-search-input"
             placeholder="Search by customer name, event name, or booking ID..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -79,7 +78,7 @@ function BookingCatalog({
           {searchTerm && (
             <button
               type="button"
-              className="admin-search-clear-btn"
+              className="booking-search-clear"
               onClick={() => setSearchTerm('')}
             >
               ✕
@@ -87,58 +86,58 @@ function BookingCatalog({
           )}
         </div>
 
-        <div className="admin-filter-pills-group">
-          <div className="admin-pill-selector">
-            <span className="admin-selector-label">Status:</span>
+        <div className="booking-filter-group">
+          <div className="booking-filter-row">
+            <span className="booking-filter-label">Status:</span>
             <button
               type="button"
-              className={statusFilter === 'all' ? 'admin-filter-pill admin-filter-pill-active' : 'admin-filter-pill'}
+              className={statusFilter === 'all' ? 'booking-filter-chip booking-filter-chip-active' : 'booking-filter-chip'}
               onClick={() => setStatusFilter('all')}
             >
               All
             </button>
             <button
               type="button"
-              className={statusFilter === 'pending' ? 'admin-filter-pill admin-filter-pill-active' : 'admin-filter-pill'}
+              className={statusFilter === 'pending' ? 'booking-filter-chip booking-filter-chip-active' : 'booking-filter-chip'}
               onClick={() => setStatusFilter('pending')}
             >
               Pending
             </button>
             <button
               type="button"
-              className={statusFilter === 'confirmed' ? 'admin-filter-pill admin-filter-pill-active' : 'admin-filter-pill'}
+              className={statusFilter === 'confirmed' ? 'booking-filter-chip booking-filter-chip-active' : 'booking-filter-chip'}
               onClick={() => setStatusFilter('confirmed')}
             >
               Confirmed
             </button>
             <button
               type="button"
-              className={statusFilter === 'cancelled' ? 'admin-filter-pill admin-filter-pill-active' : 'admin-filter-pill'}
+              className={statusFilter === 'cancelled' ? 'booking-filter-chip booking-filter-chip-active' : 'booking-filter-chip'}
               onClick={() => setStatusFilter('cancelled')}
             >
               Cancelled
             </button>
           </div>
 
-          <div className="admin-pill-selector">
-            <span className="admin-selector-label">Type:</span>
+          <div className="booking-filter-row">
+            <span className="booking-filter-label">Category:</span>
             <button
               type="button"
-              className={typeFilter === 'all' ? 'admin-filter-pill admin-filter-pill-active' : 'admin-filter-pill'}
+              className={typeFilter === 'all' ? 'booking-filter-chip booking-filter-chip-active' : 'booking-filter-chip'}
               onClick={() => setTypeFilter('all')}
             >
-              All Types
+              All
             </button>
             <button
               type="button"
-              className={typeFilter === 'resort' ? 'admin-filter-pill admin-filter-pill-active' : 'admin-filter-pill'}
+              className={typeFilter === 'resort' ? 'booking-filter-chip booking-filter-chip-active' : 'booking-filter-chip'}
               onClick={() => setTypeFilter('resort')}
             >
               Resort Bookings
             </button>
             <button
               type="button"
-              className={typeFilter === 'ocular' ? 'admin-filter-pill admin-filter-pill-active' : 'admin-filter-pill'}
+              className={typeFilter === 'ocular' ? 'booking-filter-chip booking-filter-chip-active' : 'booking-filter-chip'}
               onClick={() => setTypeFilter('ocular')}
             >
               Ocular Visits
@@ -149,125 +148,94 @@ function BookingCatalog({
 
       {/* Resort Reservations Table */}
       {(typeFilter === 'all' || typeFilter === 'resort') && (
-        <div className="admin-table-section">
-          <div className="admin-table-header-bar">
-            <h3 className="admin-table-title">
+        <div className="booking-table-card">
+          <div className="booking-table-header">
+            <h3 className="booking-table-title">
               Resort Package Reservations ({filteredReservations.length})
             </h3>
           </div>
 
-          <div className="admin-table-scroll-wrap">
-            <table className="admin-data-table">
+          <div className="booking-table-scroll">
+            <table className="booking-data-table">
               <thead>
                 <tr>
-                  <th className="admin-th">ID</th>
-                  <th className="admin-th">Customer & Contact</th>
-                  <th className="admin-th">Package & Event</th>
-                  <th className="admin-th">Date & Timeslot</th>
-                  <th className="admin-th">Guests</th>
-                  <th className="admin-th">Pricing & Deposit</th>
-                  <th className="admin-th">Payment</th>
-                  <th className="admin-th">Status</th>
-                  <th className="admin-th">Actions</th>
+                  <th>ID</th>
+                  <th>Customer & Contact</th>
+                  <th>Package & Event</th>
+                  <th>Date & Timeslot</th>
+                  <th>Guests</th>
+                  <th>Cost & Deposit</th>
+                  <th>Payment</th>
+                  <th>Status</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredReservations.length === 0 ? (
                   <tr>
-                    <td colSpan="9" className="admin-empty-table-cell">
-                      No resort reservations match the selected filters.
+                    <td colSpan="9" className="booking-empty-cell">
+                      No resort reservations match the filters.
                     </td>
                   </tr>
                 ) : (
                   filteredReservations.map((res) => (
-                    <tr key={res.reservation_id} className="admin-table-row">
-                      <td className="admin-td admin-td-id">#{res.reservation_id}</td>
-                      <td className="admin-td">
-                        <div className="admin-customer-info-cell">
-                          <span className="admin-customer-name-text">
-                            {res.customer_name || `Customer #${res.customer_id}`}
-                          </span>
-                          <span className="admin-customer-phone-sub">
-                            {res.customer_phone || '0917-xxx-xxxx'}
-                          </span>
+                    <tr key={res.reservation_id}>
+                      <td className="booking-id-cell">#{res.reservation_id}</td>
+                      <td>
+                        <div className="booking-cust-info">
+                          <span className="booking-cust-name">{res.customer_name || `Customer #${res.customer_id}`}</span>
+                          <span className="booking-cust-phone">{res.customer_phone || '0917-xxx-xxxx'}</span>
                         </div>
                       </td>
-                      <td className="admin-td">
-                        <div className="admin-package-cell">
-                          <span className="admin-package-name-tag">
-                            {getPackageName(res.duration_id)}
-                          </span>
-                          {res.event_name && (
-                            <span className="admin-event-name-sub">
-                              {res.event_name}
-                            </span>
-                          )}
+                      <td>
+                        <div className="booking-package-info">
+                          <span className="booking-package-name">{getPackageName(res.duration_id)}</span>
+                          {res.event_name && <span className="booking-event-sub">{res.event_name}</span>}
                         </div>
                       </td>
-                      <td className="admin-td admin-td-datetime">
-                        <div>
-                          <strong>{res.start_date ? res.start_date.split('T')[0] : 'N/A'}</strong>
-                        </div>
-                        <span className="admin-timeslot-text">
+                      <td>
+                        <strong>{res.start_date ? res.start_date.split('T')[0] : 'N/A'}</strong>
+                        <div className="booking-timeslot-sub">
                           {res.start_date ? res.start_date.split('T')[1]?.substring(0, 5) : ''} -{' '}
                           {res.end_date ? res.end_date.split('T')[1]?.substring(0, 5) : ''}
-                        </span>
+                        </div>
                       </td>
-                      <td className="admin-td">
-                        <span className="admin-guest-count-badge">
-                          {res.guest_count} Pax
-                        </span>
+                      <td>
+                        <span className="booking-pax-badge">{res.guest_count} Pax</span>
                       </td>
-                      <td className="admin-td">
-                        <div className="admin-pricing-cell">
-                          <span className="admin-cost-text">
+                      <td>
+                        <div className="booking-pricing-info">
+                          <span className="booking-amount-text">
                             PHP {((res.reservation_cost || 0) + (res.extra_charges || 0)).toLocaleString()}
                           </span>
-                          <span
-                            className={
-                              res.has_paid_sec_dep
-                                ? 'admin-sec-dep-tag admin-dep-paid'
-                                : 'admin-sec-dep-tag admin-dep-unpaid'
-                            }
-                          >
+                          <span className={`booking-deposit-tag ${res.has_paid_sec_dep ? 'deposit-paid' : 'deposit-unpaid'}`}>
                             Sec Dep: {res.has_paid_sec_dep ? '✓ 2k Paid' : 'Pending 2k'}
                           </span>
                         </div>
                       </td>
-                      <td className="admin-td">
-                        <div className="admin-payment-status-cell">
-                          <span className="admin-payment-method-text">
-                            {res.payment_method || 'GCash'}
-                          </span>
+                      <td>
+                        <div className="booking-pay-info">
+                          <span className="booking-method-text">{res.payment_method || 'GCash'}</span>
                           {res.payment_reference && (
-                            <span className="admin-payment-ref-text">
-                              Ref: {res.payment_reference}
-                            </span>
+                            <span className="booking-ref-text">Ref: {res.payment_reference}</span>
                           )}
-                          <span
-                            className={
-                              res.has_paid_reservation
-                                ? 'admin-pay-badge admin-pay-full'
-                                : 'admin-pay-badge admin-pay-partial'
-                            }
-                          >
+                          <span className={`booking-pay-status-tag ${res.has_paid_reservation ? 'pay-full' : 'pay-pending'}`}>
                             {res.has_paid_reservation ? 'Fully Paid' : 'Pending Balance'}
                           </span>
                         </div>
                       </td>
-                      <td className="admin-td">
-                        <span className={`admin-status-badge admin-status-${res.reservation_status}`}>
+                      <td>
+                        <span className={`booking-status-badge status-${res.reservation_status}`}>
                           {res.reservation_status.toUpperCase()}
                         </span>
                       </td>
-                      <td className="admin-td">
-                        <div className="admin-row-actions">
+                      <td>
+                        <div className="booking-row-actions">
                           {res.reservation_status === 'pending' && (
                             <button
                               type="button"
-                              className="admin-action-btn admin-btn-confirm"
+                              className="booking-btn-approve"
                               onClick={() => onUpdateReservationStatus(res.reservation_id, 'confirmed')}
-                              title="Confirm Reservation"
                             >
                               Approve
                             </button>
@@ -275,26 +243,23 @@ function BookingCatalog({
                           {res.reservation_status !== 'cancelled' && (
                             <button
                               type="button"
-                              className="admin-action-btn admin-btn-cancel"
+                              className="booking-btn-cancel"
                               onClick={() => onUpdateReservationStatus(res.reservation_id, 'cancelled')}
-                              title="Cancel Reservation"
                             >
                               Cancel
                             </button>
                           )}
                           <button
                             type="button"
-                            className="admin-action-btn admin-btn-receipt"
+                            className="booking-btn-receipt"
                             onClick={() => onOpenReceipt(res)}
-                            title="Generate Official Printable Receipt"
                           >
                             Receipt
                           </button>
                           <button
                             type="button"
-                            className="admin-action-btn admin-btn-details"
+                            className="booking-btn-manage"
                             onClick={() => handleOpenDetailsModal(res)}
-                            title="View Full Booking Details & Extra Charges"
                           >
                             Manage
                           </button>
@@ -309,64 +274,59 @@ function BookingCatalog({
         </div>
       )}
 
-      {/* Ocular Visitations Section */}
+      {/* Ocular Visitations Table */}
       {(typeFilter === 'all' || typeFilter === 'ocular') && (
-        <div className="admin-table-section">
-          <div className="admin-table-header-bar">
-            <h3 className="admin-table-title">
-              Ocular Visitations Catalog ({filteredVisitations.length})
+        <div className="booking-table-card">
+          <div className="booking-table-header">
+            <h3 className="booking-table-title">
+              Ocular Visitations ({filteredVisitations.length})
             </h3>
-            <span className="admin-table-subtitle">
-              Personal resort walk-throughs (Morning: 9am-11am, Afternoon: 2pm-4pm)
-            </span>
           </div>
 
-          <div className="admin-table-scroll-wrap">
-            <table className="admin-data-table">
+          <div className="booking-table-scroll">
+            <table className="booking-data-table">
               <thead>
                 <tr>
-                  <th className="admin-th">ID</th>
-                  <th className="admin-th">Visitor Name</th>
-                  <th className="admin-th">Contact</th>
-                  <th className="admin-th">Date & Scheduled Slot</th>
-                  <th className="admin-th">Visitors Count</th>
-                  <th className="admin-th">Inspection Purpose</th>
-                  <th className="admin-th">Status</th>
-                  <th className="admin-th">Actions</th>
+                  <th>ID</th>
+                  <th>Visitor Name</th>
+                  <th>Contact</th>
+                  <th>Date & Timeslot</th>
+                  <th>Visitors</th>
+                  <th>Inspection Purpose</th>
+                  <th>Status</th>
+                  <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
                 {filteredVisitations.length === 0 ? (
                   <tr>
-                    <td colSpan="8" className="admin-empty-table-cell">
+                    <td colSpan="8" className="booking-empty-cell">
                       No ocular visitations found.
                     </td>
                   </tr>
                 ) : (
                   filteredVisitations.map((vis) => (
-                    <tr key={vis.visitation_id} className="admin-table-row">
-                      <td className="admin-td admin-td-id">#{vis.visitation_id}</td>
-                      <td className="admin-td admin-strong-text">{vis.customer_name}</td>
-                      <td className="admin-td">{vis.customer_phone || '0928-xxx-xxxx'}</td>
-                      <td className="admin-td">
+                    <tr key={vis.visitation_id}>
+                      <td className="booking-id-cell">#{vis.visitation_id}</td>
+                      <td><strong>{vis.customer_name}</strong></td>
+                      <td>{vis.customer_phone || '0928-xxx-xxxx'}</td>
+                      <td>
                         <strong>{vis.visitation_start_date ? vis.visitation_start_date.split('T')[0] : 'N/A'}</strong>
-                        <div className="admin-timeslot-text">{vis.slot_type || 'Morning (9:00 AM - 11:00 AM)'}</div>
+                        <div className="booking-timeslot-sub">{vis.slot_type || 'Morning (9:00 AM - 11:00 AM)'}</div>
                       </td>
-                      <td className="admin-td">
-                        <span className="admin-guest-count-badge">{vis.guest_count} Visitors</span>
-                      </td>
-                      <td className="admin-td">{vis.purpose || 'Venue preview'}</td>
-                      <td className="admin-td">
-                        <span className={`admin-status-badge admin-status-${vis.visitation_status}`}>
+                      <td><span className="booking-pax-badge">{vis.guest_count} Visitors</span></td>
+                      <td>{vis.purpose || 'Venue preview'}</td>
+                      <td>
+                        <span className={`booking-status-badge status-${vis.visitation_status}`}>
                           {vis.visitation_status.toUpperCase()}
                         </span>
                       </td>
-                      <td className="admin-td">
-                        <div className="admin-row-actions">
+                      <td>
+                        <div className="booking-row-actions">
                           {vis.visitation_status === 'pending' && (
                             <button
                               type="button"
-                              className="admin-action-btn admin-btn-confirm"
+                              className="booking-btn-approve"
                               onClick={() => onUpdateVisitationStatus(vis.visitation_id, 'confirmed')}
                             >
                               Approve
@@ -375,7 +335,7 @@ function BookingCatalog({
                           {vis.visitation_status !== 'cancelled' && (
                             <button
                               type="button"
-                              className="admin-action-btn admin-btn-cancel"
+                              className="booking-btn-cancel"
                               onClick={() => onUpdateVisitationStatus(vis.visitation_id, 'cancelled')}
                             >
                               Cancel
@@ -394,63 +354,49 @@ function BookingCatalog({
 
       {/* Details & Payment Adjustment Modal */}
       {selectedBookingDetails && (
-        <div className="admin-modal-overlay" onClick={() => setSelectedBookingDetails(null)}>
-          <div className="admin-modal-box" onClick={(e) => e.stopPropagation()}>
-            <div className="admin-modal-header">
-              <h3 className="admin-modal-title">
+        <div className="modal-backdrop" onClick={() => setSelectedBookingDetails(null)}>
+          <div className="modal-dialog-card" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-card-header">
+              <h3 className="modal-card-title">
                 Manage Reservation #{selectedBookingDetails.reservation_id}
               </h3>
               <button
                 type="button"
-                className="admin-modal-close-btn"
+                className="modal-close-x"
                 onClick={() => setSelectedBookingDetails(null)}
               >
                 ✕
               </button>
             </div>
 
-            <div className="admin-modal-body">
-              <div className="admin-modal-info-grid">
-                <div className="admin-modal-field">
-                  <label className="admin-modal-label">Customer Name</label>
-                  <span className="admin-modal-value">{selectedBookingDetails.customer_name}</span>
+            <div className="modal-card-body">
+              <div className="modal-info-grid">
+                <div className="modal-field-unit">
+                  <label className="modal-unit-label">Customer Name</label>
+                  <span className="modal-unit-val">{selectedBookingDetails.customer_name}</span>
                 </div>
-
-                <div className="admin-modal-field">
-                  <label className="admin-modal-label">Contact Phone</label>
-                  <span className="admin-modal-value">{selectedBookingDetails.customer_phone}</span>
+                <div className="modal-field-unit">
+                  <label className="modal-unit-label">Contact Phone</label>
+                  <span className="modal-unit-val">{selectedBookingDetails.customer_phone}</span>
                 </div>
-
-                <div className="admin-modal-field">
-                  <label className="admin-modal-label">Package Type</label>
-                  <span className="admin-modal-value">{getPackageName(selectedBookingDetails.duration_id)}</span>
+                <div className="modal-field-unit">
+                  <label className="modal-unit-label">Package Type</label>
+                  <span className="modal-unit-val">{getPackageName(selectedBookingDetails.duration_id)}</span>
                 </div>
-
-                <div className="admin-modal-field">
-                  <label className="admin-modal-label">Event Name</label>
-                  <span className="admin-modal-value">{selectedBookingDetails.event_name || 'Standard Resort Stay'}</span>
-                </div>
-
-                <div className="admin-modal-field">
-                  <label className="admin-modal-label">Guest Count</label>
-                  <span className="admin-modal-value">{selectedBookingDetails.guest_count} Guests</span>
-                </div>
-
-                <div className="admin-modal-field">
-                  <label className="admin-modal-label">Payment Reference</label>
-                  <span className="admin-modal-value">{selectedBookingDetails.payment_reference || 'N/A'}</span>
+                <div className="modal-field-unit">
+                  <label className="modal-unit-label">Guest Count</label>
+                  <span className="modal-unit-val">{selectedBookingDetails.guest_count} Guests</span>
                 </div>
               </div>
 
-              {/* Payment & Charges Management */}
-              <div className="admin-modal-charges-card">
-                <h4 className="admin-charges-card-title">Payment & Charges Management</h4>
+              {/* Charges Management */}
+              <div className="modal-charges-card">
+                <h4 className="modal-charges-title">Payment & Charges Management</h4>
 
-                <div className="admin-toggles-row">
-                  <label className="admin-checkbox-label">
+                <div className="modal-toggles-stack">
+                  <label className="modal-checkbox-row">
                     <input
                       type="checkbox"
-                      className="admin-checkbox-input"
                       checked={!!selectedBookingDetails.has_paid_sec_dep}
                       onChange={(e) => {
                         const val = e.target.checked
@@ -463,10 +409,9 @@ function BookingCatalog({
                     <span>Security Deposit (PHP 2,000) Received</span>
                   </label>
 
-                  <label className="admin-checkbox-label">
+                  <label className="modal-checkbox-row">
                     <input
                       type="checkbox"
-                      className="admin-checkbox-input"
                       checked={!!selectedBookingDetails.has_paid_reservation}
                       onChange={(e) => {
                         const val = e.target.checked
@@ -480,43 +425,43 @@ function BookingCatalog({
                   </label>
                 </div>
 
-                <div className="admin-extra-charges-row">
-                  <div className="admin-extra-field">
-                    <label className="admin-modal-label">
+                <div className="modal-extra-row">
+                  <div className="modal-extra-input-wrap">
+                    <label className="modal-unit-label">
                       Extra Charges (PHP)
-                      <span className="admin-field-hint">
+                      <span className="modal-hint-text">
                         (PHP 200 per head exceeding pax / PHP 700-800 per hr extension)
                       </span>
                     </label>
                     <input
                       type="number"
-                      className="admin-number-input"
+                      className="modal-number-input"
                       value={extraChargesInput}
                       onChange={(e) => setExtraChargesInput(e.target.value)}
                     />
                   </div>
                   <button
                     type="button"
-                    className="admin-save-charges-btn"
+                    className="modal-save-btn"
                     onClick={handleSaveExtraCharges}
                   >
                     Save Charges
                   </button>
                 </div>
 
-                <div className="admin-total-summary-row">
-                  <span className="admin-summary-label">Total Booking Amount:</span>
-                  <span className="admin-summary-amount">
+                <div className="modal-total-summary">
+                  <span>Total Booking Amount:</span>
+                  <strong>
                     PHP {((selectedBookingDetails.reservation_cost || 0) + Number(extraChargesInput || 0)).toLocaleString()}
-                  </span>
+                  </strong>
                 </div>
               </div>
             </div>
 
-            <div className="admin-modal-footer">
+            <div className="modal-card-footer">
               <button
                 type="button"
-                className="admin-footer-btn admin-btn-receipt"
+                className="booking-btn-receipt"
                 onClick={() => {
                   onOpenReceipt(selectedBookingDetails)
                   setSelectedBookingDetails(null)
@@ -526,7 +471,7 @@ function BookingCatalog({
               </button>
               <button
                 type="button"
-                className="admin-footer-btn admin-btn-close"
+                className="modal-close-btn"
                 onClick={() => setSelectedBookingDetails(null)}
               >
                 Close
@@ -539,4 +484,4 @@ function BookingCatalog({
   )
 }
 
-export default BookingCatalog
+export default ListView
