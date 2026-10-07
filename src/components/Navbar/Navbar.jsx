@@ -5,7 +5,7 @@ import './styles.css'
 function Navbar({ currentPage, onNavigate, onToggleSidebar }) {
   const { user, isAuthenticated, isAdmin, logout, openAuthModal } = useAuth()
 
-  const navItems = [
+  const guestNavItems = [
     { id: 'home', label: 'Home' },
     { id: 'about', label: 'About' },
     { id: 'facilities', label: 'Facilities' },
@@ -14,6 +14,17 @@ function Navbar({ currentPage, onNavigate, onToggleSidebar }) {
     { id: 'directions', label: 'Directions' },
     { id: 'support', label: 'Support' },
   ]
+
+  const adminNavItems = [
+    { id: 'dashboard', label: '🏠 Home' },
+    { id: 'booking-catalog', label: '📋 Bookings' },
+    { id: 'customer-records', label: '👥 Customers' },
+    { id: 'customer-inquiries', label: '💬 Inquiries' },
+    { id: 'customer-reviews', label: '⭐ Reviews' },
+    { id: 'analytics', label: '📈 Analytics' },
+  ]
+
+  const navItems = isAdmin ? adminNavItems : guestNavItems
 
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 })
   const buttonRefs = useRef({})
@@ -35,11 +46,11 @@ function Navbar({ currentPage, onNavigate, onToggleSidebar }) {
     updateIndicator()
     window.addEventListener('resize', updateIndicator)
     return () => window.removeEventListener('resize', updateIndicator)
-  }, [updateIndicator])
+  }, [updateIndicator, isAdmin])
 
   return (
     <header className="navbar-wrapper">
-      {/* Pure Burger Icon Button (Close to the navbar pill, only when logged in) */}
+      {/* Burger Icon Button (Only when logged in) */}
       {isAuthenticated && (
         <button
           type="button"
@@ -83,16 +94,24 @@ function Navbar({ currentPage, onNavigate, onToggleSidebar }) {
         </ul>
       </nav>
 
-      {/* Book Now Button right next to the navbar */}
-      <button
-        type="button"
-        className={currentPage === 'reservation' ? 'book-now-button book-now-button-active' : 'book-now-button'}
-        onClick={() => onNavigate('reservation')}
-      >
-        Book Now
-      </button>
+      {/* Book Now Button (Only for Guest/Customer users) */}
+      {!isAdmin && (
+        <button
+          type="button"
+          className={currentPage === 'reservation' ? 'book-now-button book-now-button-active' : 'book-now-button'}
+          onClick={() => {
+            if (!isAuthenticated) {
+              openAuthModal('signup')
+            } else {
+              onNavigate('reservation')
+            }
+          }}
+        >
+          Book Now
+        </button>
+      )}
 
-      {/* Far Right Edge Actions */}
+      {/* Right Actions */}
       <div className="navbar-right-actions">
         {isAuthenticated ? (
           <div className="navbar-user-container">

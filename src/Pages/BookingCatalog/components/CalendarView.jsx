@@ -6,7 +6,7 @@ function CalendarView({
   onUpdateReservationStatus,
   onOpenReceipt,
 }) {
-  const [currentDate, setCurrentDate] = useState(new Date(2026, 9, 1)) // October 2026
+  const [currentDate, setCurrentDate] = useState(new Date())
   const [selectedDayDetails, setSelectedDayDetails] = useState(null)
 
   const year = currentDate.getFullYear()

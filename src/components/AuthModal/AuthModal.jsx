@@ -3,7 +3,7 @@ import { useAuth } from '../../context/AuthContext'
 import galleryImg from '../../../resources/Gallery_Image.jpg'
 import './styles.css'
 
-function AuthModal() {
+function AuthModal({ onAdminLoggedIn }) {
   const {
     isAuthModalOpen,
     closeAuthModal,
@@ -34,11 +34,15 @@ function AuthModal() {
       return
     }
 
-    await login({
+    const res = await login({
       identifier: usernameOrEmail,
       password: password,
       roleOverride: selectedRole,
     })
+
+    if (res?.user?.role === 'admin' && onAdminLoggedIn) {
+      onAdminLoggedIn()
+    }
   }
 
   const handleSignUpSubmit = async (e) => {
@@ -49,13 +53,17 @@ function AuthModal() {
       return
     }
 
-    await signup({
+    const res = await signup({
       username: username,
       birthday: birthday,
       email: email,
       password: signupPassword,
       role: selectedRole,
     })
+
+    if (res?.user?.role === 'admin' && onAdminLoggedIn) {
+      onAdminLoggedIn()
+    }
   }
 
   const handleQuickFillAdmin = () => {

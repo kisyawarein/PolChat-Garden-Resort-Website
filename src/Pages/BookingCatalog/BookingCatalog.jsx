@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { DataService } from '../../services/dataService'
+import SummaryCards from './components/SummaryCards'
+import PriorityPendingList from './components/PriorityPendingList'
 import ListView from './components/ListView'
 import CalendarView from './components/CalendarView'
 import PrintableReceipt from './components/PrintableReceipt'
@@ -19,8 +21,8 @@ function BookingCatalog() {
       DataService.getReservations(),
       DataService.getVisitations(),
     ])
-    setReservations(resData)
-    setVisitations(visData)
+    setReservations(resData || [])
+    setVisitations(visData || [])
   }
 
   useEffect(() => {
@@ -34,6 +36,7 @@ function BookingCatalog() {
     }, 3500)
   }
 
+  // Optimistic status update for resort reservations
   const handleUpdateReservationStatus = async (reservationId, status) => {
     setReservations((prev) =>
       prev.map((r) => (r.reservation_id === reservationId ? { ...r, reservation_status: status } : r))
@@ -42,6 +45,7 @@ function BookingCatalog() {
     await DataService.updateReservationStatus(reservationId, status)
   }
 
+  // Optimistic payment update for resort reservations
   const handleUpdateReservationPayment = async (reservationId, updates) => {
     setReservations((prev) =>
       prev.map((r) => (r.reservation_id === reservationId ? { ...r, ...updates } : r))
@@ -50,6 +54,7 @@ function BookingCatalog() {
     await DataService.updateReservationPayment(reservationId, updates)
   }
 
+  // Optimistic status update for ocular visitations
   const handleUpdateVisitationStatus = async (visitationId, status) => {
     setVisitations((prev) =>
       prev.map((v) => (v.visitation_id === visitationId ? { ...v, visitation_status: status } : v))
@@ -86,51 +91,71 @@ function BookingCatalog() {
         </div>
       )}
 
-      {/* Page Header with Mode Switcher */}
+      {/* Main Top Header Bar */}
       <div className="booking-catalog-header-bar">
         <div className="catalog-title-group">
-          <span className="catalog-tag">POLCHAT MANAGEMENT</span>
           <h1 className="catalog-main-title">Reservations & Bookings Catalog</h1>
         </div>
 
-        {/* List Mode / Calendar Mode Toggle */}
+        {/* List / Calendar Mode Switcher */}
         <div className="catalog-mode-switcher">
           <button
             type="button"
             className={`catalog-mode-btn ${viewMode === 'list' ? 'catalog-mode-btn-active' : ''}`}
             onClick={() => setViewMode('list')}
           >
-            📋 List View
+            📋 Consolidated List
           </button>
           <button
             type="button"
             className={`catalog-mode-btn ${viewMode === 'calendar' ? 'catalog-mode-btn-active' : ''}`}
             onClick={() => setViewMode('calendar')}
           >
-            📅 Calendar View
+            📅 Calendar Schedule
           </button>
         </div>
       </div>
 
-      {/* Mode View Rendering */}
-      <div className="catalog-content-wrapper">
-        {viewMode === 'list' ? (
-          <ListView
+      {/* Top Row: Shared Summary Cards across full width */}
+      <div className="catalog-top-summary-wrap">
+        <SummaryCards reservations={reservations} visitations={visitations} />
+      </div>
+
+      {/* Main 2-Column Layout (Left: Priority Pending Queue, Right: Main Schedule List / Calendar) */}
+      <div className="catalog-dashboard-layout">
+        {/* Left Column: Priority Pending List */}
+        <div className="catalog-left-column">
+          <PriorityPendingList
             reservations={reservations}
             visitations={visitations}
             onUpdateReservationStatus={handleUpdateReservationStatus}
-            onUpdateReservationPayment={handleUpdateReservationPayment}
             onUpdateVisitationStatus={handleUpdateVisitationStatus}
             onOpenReceipt={setReceiptItem}
           />
-        ) : (
-          <CalendarView
-            reservations={reservations}
-            visitations={visitations}
-            onUpdateReservationStatus={handleUpdateReservationStatus}
-            onOpenReceipt={setReceiptItem}
-          />
-        )}
+        </div>
+
+        {/* Right Column: Consolidated List & Calendar Schedule */}
+        <div className="catalog-right-column">
+          <div className="catalog-schedule-panel">
+            {viewMode === 'list' ? (
+              <ListView
+                reservations={reservations}
+                visitations={visitations}
+                onUpdateReservationStatus={handleUpdateReservationStatus}
+                onUpdateReservationPayment={handleUpdateReservationPayment}
+                onUpdateVisitationStatus={handleUpdateVisitationStatus}
+                onOpenReceipt={setReceiptItem}
+              />
+            ) : (
+              <CalendarView
+                reservations={reservations}
+                visitations={visitations}
+                onUpdateReservationStatus={handleUpdateReservationStatus}
+                onOpenReceipt={setReceiptItem}
+              />
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Printable Receipt Modal */}

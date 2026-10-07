@@ -14,40 +14,6 @@ function ListView({
   const [selectedBookingDetails, setSelectedBookingDetails] = useState(null)
   const [extraChargesInput, setExtraChargesInput] = useState(0)
 
-  const filteredReservations = reservations.filter((r) => {
-    const matchesStatus = statusFilter === 'all' || r.reservation_status === statusFilter
-    const matchesType = typeFilter === 'all' || typeFilter === 'resort'
-    const nameMatch = (r.customer_name || '').toLowerCase().includes(searchTerm.toLowerCase())
-    const eventMatch = (r.event_name || '').toLowerCase().includes(searchTerm.toLowerCase())
-    const idMatch = String(r.reservation_id).includes(searchTerm)
-    return matchesStatus && matchesType && (nameMatch || eventMatch || idMatch)
-  })
-
-  const filteredVisitations = visitations.filter((v) => {
-    const matchesStatus = statusFilter === 'all' || v.visitation_status === statusFilter
-    const matchesType = typeFilter === 'all' || typeFilter === 'ocular'
-    const nameMatch = (v.customer_name || '').toLowerCase().includes(searchTerm.toLowerCase())
-    const purposeMatch = (v.purpose || '').toLowerCase().includes(searchTerm.toLowerCase())
-    const idMatch = String(v.visitation_id).includes(searchTerm)
-    return matchesStatus && matchesType && (nameMatch || purposeMatch || idMatch)
-  })
-
-  const handleOpenDetailsModal = (item) => {
-    setSelectedBookingDetails(item)
-    setExtraChargesInput(item.extra_charges || 0)
-  }
-
-  const handleSaveExtraCharges = () => {
-    if (!selectedBookingDetails) return
-    onUpdateReservationPayment(selectedBookingDetails.reservation_id, {
-      extra_charges: Number(extraChargesInput),
-    })
-    setSelectedBookingDetails({
-      ...selectedBookingDetails,
-      extra_charges: Number(extraChargesInput),
-    })
-  }
-
   const getPackageName = (durationId) => {
     switch (durationId) {
       case 1:
@@ -63,294 +29,329 @@ function ListView({
     }
   }
 
+  // Merge into a single consolidated list
+  const consolidatedList = [
+    ...reservations.map((r) => ({
+      uniqueKey: `res-${r.reservation_id}`,
+      id: r.reservation_id,
+      itemType: 'resort',
+      typeBadge: 'Resort Stay',
+      customerName: r.customer_name || `Customer #${r.customer_id}`,
+      customerPhone: r.customer_phone || '0917-xxx-xxxx',
+      packageName: getPackageName(r.duration_id),
+      detailSub: r.event_name || 'Resort Stay',
+      dateStr: r.start_date ? r.start_date.split('T')[0] : 'N/A',
+      timeSlot: r.start_date
+        ? `${r.start_date.split('T')[1]?.substring(0, 5) || ''} - ${r.end_date?.split('T')[1]?.substring(0, 5) || ''}`
+        : '',
+      pax: r.guest_count,
+      cost: (r.reservation_cost || 0) + (r.extra_charges || 0),
+      hasSecDep: r.has_paid_sec_dep,
+      hasPaidFull: r.has_paid_reservation,
+      paymentMethod: r.payment_method || 'GCash',
+      paymentRef: r.payment_reference,
+      status: r.reservation_status || 'pending',
+      raw: r,
+    })),
+    ...visitations.map((v) => ({
+      uniqueKey: `vis-${v.visitation_id}`,
+      id: v.visitation_id,
+      itemType: 'ocular',
+      typeBadge: 'Ocular Visit',
+      customerName: v.customer_name || `Customer #${v.customer_id}`,
+      customerPhone: v.customer_phone || '0928-xxx-xxxx',
+      packageName: 'Ocular Inspection',
+      detailSub: v.purpose || 'Venue preview',
+      dateStr: v.visitation_start_date ? v.visitation_start_date.split('T')[0] : 'N/A',
+      timeSlot: v.slot_type || 'Morning (9:00 AM - 11:00 AM)',
+      pax: v.guest_count,
+      cost: 0,
+      hasSecDep: false,
+      hasPaidFull: true,
+      paymentMethod: 'Free Service',
+      paymentRef: '',
+      status: v.visitation_status || 'pending',
+      raw: v,
+    })),
+  ]
+
+  // Filter the consolidated list
+  const filteredList = consolidatedList.filter((item) => {
+    const matchesStatus = statusFilter === 'all' || item.status === statusFilter
+    const matchesType = typeFilter === 'all' || item.itemType === typeFilter
+
+    const q = searchTerm.toLowerCase()
+    const nameMatch = item.customerName.toLowerCase().includes(q)
+    const phoneMatch = item.customerPhone.toLowerCase().includes(q)
+    const detailMatch = item.detailSub.toLowerCase().includes(q)
+    const packageMatch = item.packageName.toLowerCase().includes(q)
+    const idMatch = String(item.id).includes(q)
+
+    return matchesStatus && matchesType && (nameMatch || phoneMatch || detailMatch || packageMatch || idMatch)
+  })
+
+  // Sort by date or ID descending
+  filteredList.sort((a, b) => {
+    if (a.dateStr && b.dateStr && a.dateStr !== b.dateStr) {
+      return b.dateStr.localeCompare(a.dateStr)
+    }
+    return b.id - a.id
+  })
+
+  const handleOpenDetailsModal = (item) => {
+    setSelectedBookingDetails(item.raw)
+    setExtraChargesInput(item.raw.extra_charges || 0)
+  }
+
+  const handleSaveExtraCharges = () => {
+    if (!selectedBookingDetails) return
+    onUpdateReservationPayment(selectedBookingDetails.reservation_id, {
+      extra_charges: Number(extraChargesInput),
+    })
+    setSelectedBookingDetails({
+      ...selectedBookingDetails,
+      extra_charges: Number(extraChargesInput),
+    })
+  }
+
   return (
-    <div className="booking-list-view">
-      {/* Search & Filter Controls */}
-      <div className="booking-toolbar-card">
-        <div className="booking-search-box">
-          <input
-            type="text"
-            className="booking-search-input"
-            placeholder="Search by customer name, event name, or booking ID..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          {searchTerm && (
-            <button
-              type="button"
-              className="booking-search-clear"
-              onClick={() => setSearchTerm('')}
-            >
-              ✕
-            </button>
-          )}
+    <div className="dash-panel-box consolidated-booking-panel">
+      {/* Panel Header */}
+      <div className="dash-panel-bar">
+        <div className="dash-panel-heading">
+          <span className="dash-panel-title-text">All Reservations & Schedules</span>
         </div>
-
-        <div className="booking-filter-group">
-          <div className="booking-filter-row">
-            <span className="booking-filter-label">Status:</span>
-            <button
-              type="button"
-              className={statusFilter === 'all' ? 'booking-filter-chip booking-filter-chip-active' : 'booking-filter-chip'}
-              onClick={() => setStatusFilter('all')}
-            >
-              All
-            </button>
-            <button
-              type="button"
-              className={statusFilter === 'pending' ? 'booking-filter-chip booking-filter-chip-active' : 'booking-filter-chip'}
-              onClick={() => setStatusFilter('pending')}
-            >
-              Pending
-            </button>
-            <button
-              type="button"
-              className={statusFilter === 'confirmed' ? 'booking-filter-chip booking-filter-chip-active' : 'booking-filter-chip'}
-              onClick={() => setStatusFilter('confirmed')}
-            >
-              Confirmed
-            </button>
-            <button
-              type="button"
-              className={statusFilter === 'cancelled' ? 'booking-filter-chip booking-filter-chip-active' : 'booking-filter-chip'}
-              onClick={() => setStatusFilter('cancelled')}
-            >
-              Cancelled
-            </button>
-          </div>
-
-          <div className="booking-filter-row">
-            <span className="booking-filter-label">Category:</span>
-            <button
-              type="button"
-              className={typeFilter === 'all' ? 'booking-filter-chip booking-filter-chip-active' : 'booking-filter-chip'}
-              onClick={() => setTypeFilter('all')}
-            >
-              All
-            </button>
-            <button
-              type="button"
-              className={typeFilter === 'resort' ? 'booking-filter-chip booking-filter-chip-active' : 'booking-filter-chip'}
-              onClick={() => setTypeFilter('resort')}
-            >
-              Resort Bookings
-            </button>
-            <button
-              type="button"
-              className={typeFilter === 'ocular' ? 'booking-filter-chip booking-filter-chip-active' : 'booking-filter-chip'}
-              onClick={() => setTypeFilter('ocular')}
-            >
-              Ocular Visits
-            </button>
-          </div>
-        </div>
+        <span className="dash-count-pill">{filteredList.length} Total Records</span>
       </div>
 
-      {/* Resort Reservations Table */}
-      {(typeFilter === 'all' || typeFilter === 'resort') && (
-        <div className="booking-table-card">
-          <div className="booking-table-header">
-            <h3 className="booking-table-title">
-              Resort Package Reservations ({filteredReservations.length})
-            </h3>
+      <div className="dash-panel-content">
+        {/* Search & Filter Toolbar */}
+        <div className="consolidated-toolbar-card">
+          <div className="consolidated-search-wrap">
+            <span className="consolidated-search-icon">🔍</span>
+            <input
+              type="text"
+              className="consolidated-search-input"
+              placeholder="Search bookings by customer, phone, event, or ID..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+            {searchTerm && (
+              <button
+                type="button"
+                className="consolidated-search-clear"
+                onClick={() => setSearchTerm('')}
+              >
+                ✕
+              </button>
+            )}
           </div>
 
-          <div className="booking-table-scroll">
-            <table className="booking-data-table">
+          {/* Filter Dropdowns */}
+          <div className="consolidated-filters-wrap">
+            {/* Type Dropdown */}
+            <div className="consolidated-filter-row">
+              <label className="consolidated-filter-title" htmlFor="catalog-type-filter">Category:</label>
+              <select
+                id="catalog-type-filter"
+                className="consolidated-select-dropdown"
+                value={typeFilter}
+                onChange={(e) => setTypeFilter(e.target.value)}
+              >
+                <option value="all">All Types ({consolidatedList.length})</option>
+                <option value="resort">Resort Bookings ({reservations.length})</option>
+                <option value="ocular">Ocular Visits ({visitations.length})</option>
+              </select>
+            </div>
+
+            {/* Status Dropdown */}
+            <div className="consolidated-filter-row">
+              <label className="consolidated-filter-title" htmlFor="catalog-status-filter">Status:</label>
+              <select
+                id="catalog-status-filter"
+                className="consolidated-select-dropdown"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="all">All Statuses</option>
+                <option value="pending">Pending</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {/* Consolidated Data Table */}
+        <div className="consolidated-table-card">
+          <div className="consolidated-table-scroll">
+            <table className="consolidated-data-table">
               <thead>
+              <tr>
+                <th>Booking Ref</th>
+                <th>Customer & Contact</th>
+                <th>Type & Package / Purpose</th>
+                <th>Schedule Date</th>
+                <th>Guests</th>
+                <th>Cost & Payment</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {filteredList.length === 0 ? (
                 <tr>
-                  <th>ID</th>
-                  <th>Customer & Contact</th>
-                  <th>Package & Event</th>
-                  <th>Date & Timeslot</th>
-                  <th>Guests</th>
-                  <th>Cost & Deposit</th>
-                  <th>Payment</th>
-                  <th>Status</th>
-                  <th>Actions</th>
+                  <td colSpan="8" className="consolidated-empty-cell">
+                    No bookings found matching the selected filters.
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {filteredReservations.length === 0 ? (
-                  <tr>
-                    <td colSpan="9" className="booking-empty-cell">
-                      No resort reservations match the filters.
-                    </td>
-                  </tr>
-                ) : (
-                  filteredReservations.map((res) => (
-                    <tr key={res.reservation_id}>
-                      <td className="booking-id-cell">#{res.reservation_id}</td>
-                      <td>
-                        <div className="booking-cust-info">
-                          <span className="booking-cust-name">{res.customer_name || `Customer #${res.customer_id}`}</span>
-                          <span className="booking-cust-phone">{res.customer_phone || '0917-xxx-xxxx'}</span>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="booking-package-info">
-                          <span className="booking-package-name">{getPackageName(res.duration_id)}</span>
-                          {res.event_name && <span className="booking-event-sub">{res.event_name}</span>}
-                        </div>
-                      </td>
-                      <td>
-                        <strong>{res.start_date ? res.start_date.split('T')[0] : 'N/A'}</strong>
-                        <div className="booking-timeslot-sub">
-                          {res.start_date ? res.start_date.split('T')[1]?.substring(0, 5) : ''} -{' '}
-                          {res.end_date ? res.end_date.split('T')[1]?.substring(0, 5) : ''}
-                        </div>
-                      </td>
-                      <td>
-                        <span className="booking-pax-badge">{res.guest_count} Pax</span>
-                      </td>
-                      <td>
-                        <div className="booking-pricing-info">
-                          <span className="booking-amount-text">
-                            PHP {((res.reservation_cost || 0) + (res.extra_charges || 0)).toLocaleString()}
-                          </span>
-                          <span className={`booking-deposit-tag ${res.has_paid_sec_dep ? 'deposit-paid' : 'deposit-unpaid'}`}>
-                            Sec Dep: {res.has_paid_sec_dep ? '✓ 2k Paid' : 'Pending 2k'}
-                          </span>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="booking-pay-info">
-                          <span className="booking-method-text">{res.payment_method || 'GCash'}</span>
-                          {res.payment_reference && (
-                            <span className="booking-ref-text">Ref: {res.payment_reference}</span>
-                          )}
-                          <span className={`booking-pay-status-tag ${res.has_paid_reservation ? 'pay-full' : 'pay-pending'}`}>
-                            {res.has_paid_reservation ? 'Fully Paid' : 'Pending Balance'}
-                          </span>
-                        </div>
-                      </td>
-                      <td>
-                        <span className={`booking-status-badge status-${res.reservation_status}`}>
-                          {res.reservation_status.toUpperCase()}
+              ) : (
+                filteredList.map((item) => (
+                  <tr key={item.uniqueKey} className={`table-row-${item.itemType}`}>
+                    {/* Booking Ref & Type */}
+                    <td>
+                      <div className="cell-ref-group">
+                        <span className="cell-id-text">#{item.id}</span>
+                        <span className={`cell-type-badge type-badge-${item.itemType}`}>
+                          {item.typeBadge}
                         </span>
-                      </td>
-                      <td>
-                        <div className="booking-row-actions">
-                          {res.reservation_status === 'pending' && (
-                            <button
-                              type="button"
-                              className="booking-btn-approve"
-                              onClick={() => onUpdateReservationStatus(res.reservation_id, 'confirmed')}
-                            >
-                              Approve
-                            </button>
-                          )}
-                          {res.reservation_status !== 'cancelled' && (
-                            <button
-                              type="button"
-                              className="booking-btn-cancel"
-                              onClick={() => onUpdateReservationStatus(res.reservation_id, 'cancelled')}
-                            >
-                              Cancel
-                            </button>
-                          )}
+                      </div>
+                    </td>
+
+                    {/* Customer */}
+                    <td>
+                      <div className="cell-cust-group">
+                        <strong className="cell-cust-name">{item.customerName}</strong>
+                        <span className="cell-cust-phone">{item.customerPhone}</span>
+                      </div>
+                    </td>
+
+                    {/* Package / Details */}
+                    <td>
+                      <div className="cell-details-group">
+                        <span className="cell-package-name">{item.packageName}</span>
+                        <span className="cell-details-sub">{item.detailSub}</span>
+                      </div>
+                    </td>
+
+                    {/* Schedule Date */}
+                    <td>
+                      <div className="cell-schedule-group">
+                        <strong className="cell-date-text">{item.dateStr}</strong>
+                        {item.timeSlot && (
+                          <span className="cell-timeslot-text">{item.timeSlot}</span>
+                        )}
+                      </div>
+                    </td>
+
+                    {/* Guests */}
+                    <td>
+                      <span className="cell-pax-pill">
+                        {item.pax} {item.itemType === 'resort' ? 'Pax' : 'Visitors'}
+                      </span>
+                    </td>
+
+                    {/* Cost & Payment */}
+                    <td>
+                      {item.itemType === 'resort' ? (
+                        <div className="cell-payment-group">
+                          <span className="cell-amount-text">PHP {item.cost.toLocaleString()}</span>
+                          <div className="cell-badges-row">
+                            <span className={`cell-mini-pill ${item.hasSecDep ? 'pill-green' : 'pill-yellow'}`}>
+                              {item.hasSecDep ? 'Dep Paid' : 'Dep Pending'}
+                            </span>
+                            <span className={`cell-mini-pill ${item.hasPaidFull ? 'pill-green' : 'pill-red'}`}>
+                              {item.hasPaidFull ? 'Full Paid' : 'Pending Bal'}
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="cell-payment-group">
+                          <span className="cell-free-tag">Free Visit</span>
+                          <span className="cell-mini-pill pill-green">Approved Slot</span>
+                        </div>
+                      )}
+                    </td>
+
+                    {/* Status */}
+                    <td>
+                      <span className={`consolidated-status-badge status-${item.status}`}>
+                        {item.status.toUpperCase()}
+                      </span>
+                    </td>
+
+                    {/* Actions */}
+                    <td>
+                      <div className="cell-actions-group">
+                        {/* Approve Action */}
+                        {item.status === 'pending' && (
                           <button
                             type="button"
-                            className="booking-btn-receipt"
-                            onClick={() => onOpenReceipt(res)}
+                            className="btn-action-approve"
+                            title="Approve booking"
+                            onClick={() => {
+                              if (item.itemType === 'resort') {
+                                onUpdateReservationStatus(item.id, 'confirmed')
+                              } else {
+                                onUpdateVisitationStatus(item.id, 'confirmed')
+                              }
+                            }}
+                          >
+                            Approve
+                          </button>
+                        )}
+
+                        {/* Cancel Action */}
+                        {item.status !== 'cancelled' && (
+                          <button
+                            type="button"
+                            className="btn-action-cancel"
+                            title="Cancel booking"
+                            onClick={() => {
+                              if (item.itemType === 'resort') {
+                                onUpdateReservationStatus(item.id, 'cancelled')
+                              } else {
+                                onUpdateVisitationStatus(item.id, 'cancelled')
+                              }
+                            }}
+                          >
+                            Cancel
+                          </button>
+                        )}
+
+                        {/* Receipt Action for Resort */}
+                        {item.itemType === 'resort' && (
+                          <button
+                            type="button"
+                            className="btn-action-receipt"
+                            title="View / Print Official Receipt"
+                            onClick={() => onOpenReceipt(item.raw)}
                           >
                             Receipt
                           </button>
+                        )}
+
+                        {/* Manage Action for Resort */}
+                        {item.itemType === 'resort' && (
                           <button
                             type="button"
-                            className="booking-btn-manage"
-                            onClick={() => handleOpenDetailsModal(res)}
+                            className="btn-action-manage"
+                            title="Manage payments & extra charges"
+                            onClick={() => handleOpenDetailsModal(item)}
                           >
                             Manage
                           </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
-
-      {/* Ocular Visitations Table */}
-      {(typeFilter === 'all' || typeFilter === 'ocular') && (
-        <div className="booking-table-card">
-          <div className="booking-table-header">
-            <h3 className="booking-table-title">
-              Ocular Visitations ({filteredVisitations.length})
-            </h3>
-          </div>
-
-          <div className="booking-table-scroll">
-            <table className="booking-data-table">
-              <thead>
-                <tr>
-                  <th>ID</th>
-                  <th>Visitor Name</th>
-                  <th>Contact</th>
-                  <th>Date & Timeslot</th>
-                  <th>Visitors</th>
-                  <th>Inspection Purpose</th>
-                  <th>Status</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredVisitations.length === 0 ? (
-                  <tr>
-                    <td colSpan="8" className="booking-empty-cell">
-                      No ocular visitations found.
+                        )}
+                      </div>
                     </td>
                   </tr>
-                ) : (
-                  filteredVisitations.map((vis) => (
-                    <tr key={vis.visitation_id}>
-                      <td className="booking-id-cell">#{vis.visitation_id}</td>
-                      <td><strong>{vis.customer_name}</strong></td>
-                      <td>{vis.customer_phone || '0928-xxx-xxxx'}</td>
-                      <td>
-                        <strong>{vis.visitation_start_date ? vis.visitation_start_date.split('T')[0] : 'N/A'}</strong>
-                        <div className="booking-timeslot-sub">{vis.slot_type || 'Morning (9:00 AM - 11:00 AM)'}</div>
-                      </td>
-                      <td><span className="booking-pax-badge">{vis.guest_count} Visitors</span></td>
-                      <td>{vis.purpose || 'Venue preview'}</td>
-                      <td>
-                        <span className={`booking-status-badge status-${vis.visitation_status}`}>
-                          {vis.visitation_status.toUpperCase()}
-                        </span>
-                      </td>
-                      <td>
-                        <div className="booking-row-actions">
-                          {vis.visitation_status === 'pending' && (
-                            <button
-                              type="button"
-                              className="booking-btn-approve"
-                              onClick={() => onUpdateVisitationStatus(vis.visitation_id, 'confirmed')}
-                            >
-                              Approve
-                            </button>
-                          )}
-                          {vis.visitation_status !== 'cancelled' && (
-                            <button
-                              type="button"
-                              className="booking-btn-cancel"
-                              onClick={() => onUpdateVisitationStatus(vis.visitation_id, 'cancelled')}
-                            >
-                              Cancel
-                            </button>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
+                ))
+              )}
+            </tbody>
+          </table>
         </div>
-      )}
+        </div>
+      </div>
 
       {/* Details & Payment Adjustment Modal */}
       {selectedBookingDetails && (
@@ -461,7 +462,7 @@ function ListView({
             <div className="modal-card-footer">
               <button
                 type="button"
-                className="booking-btn-receipt"
+                className="btn-action-receipt modal-receipt-btn"
                 onClick={() => {
                   onOpenReceipt(selectedBookingDetails)
                   setSelectedBookingDetails(null)

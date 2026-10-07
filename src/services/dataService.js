@@ -1,636 +1,622 @@
 import { supabase } from './supabase'
 
-// Fallback seed data in case Supabase tables are fresh or loading
-const INITIAL_CUSTOMERS = [
-  {
-    customer_id: 101,
-    first_name: 'Juan',
-    last_name: 'Dela Cruz',
-    phone_number: 9171234567,
-    date_create: '2026-01-15',
-    date_modified: '2026-03-01',
-    email: 'juan.delacruz@gmail.com',
-  },
-  {
-    customer_id: 102,
-    first_name: 'Maria',
-    last_name: 'Santos',
-    phone_number: 9289876543,
-    date_create: '2026-02-10',
-    date_modified: '2026-03-12',
-    email: 'maria.santos@yahoo.com',
-  },
-  {
-    customer_id: 103,
-    first_name: 'Carlos',
-    last_name: 'Reyes',
-    phone_number: 9355551234,
-    date_create: '2026-02-28',
-    date_modified: '2026-03-18',
-    email: 'carlos.reyes@outlook.com',
-  },
-  {
-    customer_id: 104,
-    first_name: 'Elena',
-    last_name: 'Bautista',
-    phone_number: 9491112233,
-    date_create: '2026-03-05',
-    date_modified: '2026-03-20',
-    email: 'elena.bautista@gmail.com',
-  },
-]
-
-const INITIAL_DURATION_TYPES = [
-  {
-    duration_id: 1,
-    duration_name: 'Day Tour (9:00 AM - 5:00 PM)',
-    duration_hours: 8,
-    duration_price: 9000,
-    duration_extra_pax_charge: 200,
-    duration_extension_charge: 700,
-    duration_event_rate: 1500,
-    duration_start: '09:00:00',
-    duration_end: '17:00:00',
-    max_pax: 35,
-    sec_dep: 2000,
-  },
-  {
-    duration_id: 2,
-    duration_name: 'Overnight (8:00 PM - 6:00 AM)',
-    duration_hours: 10,
-    duration_price: 10000,
-    duration_extra_pax_charge: 200,
-    duration_extension_charge: 800,
-    duration_event_rate: 2000,
-    duration_start: '20:00:00',
-    duration_end: '06:00:00',
-    max_pax: 25,
-    sec_dep: 2000,
-  },
-  {
-    duration_id: 3,
-    duration_name: '22 Hours (8:00 AM - 6:00 AM)',
-    duration_hours: 22,
-    duration_price: 17000,
-    duration_extra_pax_charge: 200,
-    duration_extension_charge: 700,
-    duration_event_rate: 3000,
-    duration_start: '08:00:00',
-    duration_end: '06:00:00',
-    max_pax: 35,
-    sec_dep: 2000,
-  },
-  {
-    duration_id: 4,
-    duration_name: '22 Hours (8:00 PM - 6:00 PM)',
-    duration_hours: 22,
-    duration_price: 17000,
-    duration_extra_pax_charge: 200,
-    duration_extension_charge: 800,
-    duration_event_rate: 3000,
-    duration_start: '20:00:00',
-    duration_end: '18:00:00',
-    max_pax: 35,
-    sec_dep: 2000,
-  },
-]
-
-const INITIAL_RESERVATIONS = [
-  {
-    reservation_id: 1001,
-    customer_id: 101,
-    guest_count: 28,
-    duration_id: 1,
-    start_date: '2026-10-05T09:00:00',
-    end_date: '2026-10-05T17:00:00',
-    extension_duration: null,
-    has_paid_sec_dep: true,
-    has_paid_reservation: true,
-    reservation_cost: 9000,
-    extra_charges: 0,
-    reservation_status: 'confirmed',
-    event_name: 'Dela Cruz Family Reunion',
-    payment_method: 'GCash',
-    payment_reference: 'GCASH-98234710',
-    customer_name: 'Juan Dela Cruz',
-    customer_phone: '09171234567',
-  },
-  {
-    reservation_id: 1002,
-    customer_id: 102,
-    guest_count: 22,
-    duration_id: 2,
-    start_date: '2026-10-07T20:00:00',
-    end_date: '2026-10-08T06:00:00',
-    extension_duration: null,
-    has_paid_sec_dep: true,
-    has_paid_reservation: false,
-    reservation_cost: 10000,
-    extra_charges: 0,
-    reservation_status: 'pending',
-    event_name: 'Maria 25th Birthday Bash',
-    payment_method: 'GCash',
-    payment_reference: 'GCASH-77182903',
-    customer_name: 'Maria Santos',
-    customer_phone: '09289876543',
-  },
-  {
-    reservation_id: 1003,
-    customer_id: 103,
-    guest_count: 32,
-    duration_id: 3,
-    start_date: '2026-10-12T08:00:00',
-    end_date: '2026-10-13T06:00:00',
-    extension_duration: null,
-    has_paid_sec_dep: true,
-    has_paid_reservation: true,
-    reservation_cost: 17000,
-    extra_charges: 1400,
-    reservation_status: 'confirmed',
-    event_name: 'Tech Horizon Team Building',
-    payment_method: 'Bank Transfer',
-    payment_reference: 'BDO-00918234',
-    customer_name: 'Carlos Reyes',
-    customer_phone: '09355551234',
-  },
-  {
-    reservation_id: 1004,
-    customer_id: 104,
-    guest_count: 15,
-    duration_id: 1,
-    start_date: '2026-10-18T09:00:00',
-    end_date: '2026-10-18T17:00:00',
-    extension_duration: null,
-    has_paid_sec_dep: false,
-    has_paid_reservation: false,
-    reservation_cost: 9000,
-    extra_charges: 0,
-    reservation_status: 'cancelled',
-    event_name: 'Elena Weekend Chill',
-    payment_method: 'GCash',
-    payment_reference: null,
-    customer_name: 'Elena Bautista',
-    customer_phone: '09491112233',
-  },
-]
-
-const INITIAL_VISITATIONS = [
-  {
-    visitation_id: 501,
-    customer_id: 102,
-    guest_count: 2,
-    visitation_start_date: '2026-10-04T09:00:00',
-    visitation_end_date: '2026-10-04T11:00:00',
-    visitation_status: 'confirmed',
-    slot_type: 'Morning (9:00 AM - 11:00 AM)',
-    customer_name: 'Maria Santos',
-    customer_phone: '09289876543',
-    purpose: 'Wedding venue inspection',
-  },
-  {
-    visitation_id: 502,
-    customer_id: 104,
-    guest_count: 3,
-    visitation_start_date: '2026-10-09T14:00:00',
-    visitation_end_date: '2026-10-09T16:00:00',
-    visitation_status: 'pending',
-    slot_type: 'Afternoon (2:00 PM - 4:00 PM)',
-    customer_name: 'Elena Bautista',
-    customer_phone: '09491112233',
-    purpose: 'Family celebration preview',
-  },
-]
-
-const INITIAL_INQUIRIES = [
-  {
-    inquiry_id: 301,
-    inquiry_label: 'Catering & Extra Pax Inquiry',
-    customer_id: 101,
-    customer_name: 'Juan Dela Cruz',
-    inquiry_status: 'in-progress',
-    created_at: '2026-10-01T10:15:00',
-    updated_at: '2026-10-01T11:30:00',
-    admin_responder: 'Admin Sarah',
-  },
-  {
-    inquiry_id: 302,
-    inquiry_label: 'GCash Payment Verification',
-    customer_id: 102,
-    customer_name: 'Maria Santos',
-    inquiry_status: 'open',
-    created_at: '2026-10-02T14:20:00',
-    updated_at: '2026-10-02T14:20:00',
-    admin_responder: null,
-  },
-]
-
-const INITIAL_CHATS = [
-  {
-    chat_id: 1,
-    inquiry_id: 301,
-    sender: 'customer',
-    sender_name: 'Juan Dela Cruz',
-    message: 'Hello! Can we bring an outside catering setup for 40 guests for the day tour?',
-    sent_at: '2026-10-01T10:15:00',
-  },
-  {
-    chat_id: 2,
-    inquiry_id: 301,
-    sender: 'admin',
-    sender_name: 'Admin Sarah',
-    message: 'Hi Juan! Yes, outside catering is allowed with no corkage fee. For 40 guests, there is an extra pax fee of PHP 200 per head exceeding 35 pax.',
-    sent_at: '2026-10-01T11:30:00',
-  },
-  {
-    chat_id: 3,
-    inquiry_id: 302,
-    sender: 'customer',
-    sender_name: 'Maria Santos',
-    message: 'Good day! I have sent the 2k security deposit via GCash ref #77182903. Can you verify receipt?',
-    sent_at: '2026-10-02T14:20:00',
-  },
-]
-
-const INITIAL_REVIEWS = [
-  {
-    review_id: 1,
-    customer_id: 101,
-    customer_name: 'Juan Dela Cruz',
-    review_stars: 5,
-    review_comment: 'Super spacious and clean resort! The pool and garden view were breathtaking for our family reunion. Will definitely book again!',
-    date_submitted: '2026-09-20T16:00:00',
-  },
-  {
-    review_id: 2,
-    customer_id: 103,
-    customer_name: 'Carlos Reyes',
-    review_stars: 5,
-    review_comment: 'Our team building was a huge success. Staff were accommodating and amenities are top tier. Highly recommended!',
-    date_submitted: '2026-09-25T11:45:00',
-  },
-]
-
-// Storage helpers
-function getLocalData(key, fallback) {
-  try {
-    const saved = localStorage.getItem(`polchat_${key}`)
-    return saved ? JSON.parse(saved) : fallback
-  } catch {
-    return fallback
-  }
-}
-
-function setLocalData(key, data) {
-  try {
-    localStorage.setItem(`polchat_${key}`, JSON.stringify(data))
-  } catch (err) {
-    console.error('Storage error:', err)
-  }
-}
-
 export const DataService = {
-  // Customers
+  // Helper: Ensure customer exists in customer_accounts table
+  async ensureCustomer({ customerId, customerName, phone = 9171234567 }) {
+    try {
+      if (customerId && typeof customerId === 'number' && customerId < 100000000000) {
+        const { data: existing } = await supabase
+          .from('customer_accounts')
+          .select('customer_id')
+          .eq('customer_id', customerId)
+          .maybeSingle()
+
+        if (existing) {
+          return existing.customer_id
+        }
+      }
+
+      // Check by name or create a new customer
+      const nameParts = (customerName || 'Juan Dela Cruz').trim().split(' ')
+      const firstName = nameParts[0] || 'Juan'
+      const lastName = nameParts.slice(1).join(' ') || 'Dela Cruz'
+
+      const { data: matchByName } = await supabase
+        .from('customer_accounts')
+        .select('customer_id')
+        .eq('first_name', firstName)
+        .eq('last_name', lastName)
+        .limit(1)
+
+      if (matchByName && matchByName.length > 0) {
+        return matchByName[0].customer_id
+      }
+
+      // Insert new customer into customer_accounts
+      const { data: inserted, error } = await supabase
+        .from('customer_accounts')
+        .insert([
+          {
+            first_name: firstName,
+            last_name: lastName,
+            phone_number: Number(phone) || 9171234567,
+            date_create: new Date().toISOString().split('T')[0],
+            date_modified: new Date().toISOString().split('T')[0],
+          },
+        ])
+        .select()
+
+      if (!error && inserted && inserted.length > 0) {
+        return inserted[0].customer_id
+      }
+
+      // Fallback: fetch any existing customer or default to 1
+      const { data: anyCust } = await supabase
+        .from('customer_accounts')
+        .select('customer_id')
+        .limit(1)
+
+      if (anyCust && anyCust.length > 0) {
+        return anyCust[0].customer_id
+      }
+    } catch (err) {
+      console.error('Error ensuring customer:', err)
+    }
+    return 1
+  },
+
+  // ==========================================
+  // 1. CUSTOMER ACCOUNTS
+  // ==========================================
   async getCustomers() {
     try {
-      const { data, error } = await supabase.from('customer_accounts').select('*')
-      if (!error && data && data.length > 0) {
-        setLocalData('customers', data)
-        return data
+      const { data, error } = await supabase
+        .from('customer_accounts')
+        .select('*')
+        .order('customer_id', { ascending: false })
+
+      if (error) {
+        console.error('Error fetching customer_accounts:', error)
+        return []
       }
-    } catch {
-      // ignore
+      return data || []
+    } catch (err) {
+      console.error('Customer fetch exception:', err)
+      return []
     }
-    return getLocalData('customers', INITIAL_CUSTOMERS)
   },
 
   async addCustomer(customer) {
-    const local = getLocalData('customers', INITIAL_CUSTOMERS)
-    const newCustomer = {
-      customer_id: customer.customer_id || Date.now(),
-      first_name: customer.first_name,
-      last_name: customer.last_name || '',
-      phone_number: customer.phone_number || '',
-      email: customer.email || '',
-      date_create: new Date().toISOString().split('T')[0],
-      date_modified: new Date().toISOString().split('T')[0],
-    }
-    const updated = [newCustomer, ...local]
-    setLocalData('customers', updated)
-
     try {
-      await supabase.from('customer_accounts').insert([newCustomer])
-    } catch {
-      // offline fallback
+      const newCustomer = {
+        first_name: customer.first_name,
+        last_name: customer.last_name || '',
+        phone_number: customer.phone_number ? Number(customer.phone_number) : null,
+        date_create: new Date().toISOString().split('T')[0],
+        date_modified: new Date().toISOString().split('T')[0],
+      }
+
+      const { data, error } = await supabase
+        .from('customer_accounts')
+        .insert([newCustomer])
+        .select()
+
+      if (error) {
+        console.error('Error inserting customer:', error)
+        return null
+      }
+      return data?.[0] || newCustomer
+    } catch (err) {
+      console.error('Customer insert exception:', err)
+      return null
     }
-    return newCustomer
   },
 
-  // Duration Types
+  // ==========================================
+  // 2. DURATION TYPES (RESORT PACKAGES)
+  // ==========================================
   async getDurationTypes() {
     try {
-      const { data, error } = await supabase.from('duration_types').select('*')
+      const { data, error } = await supabase
+        .from('duration_types')
+        .select('*')
+        .order('duration_id', { ascending: true })
+
       if (!error && data && data.length > 0) {
         return data
       }
-    } catch {
-      // ignore
+    } catch (err) {
+      console.error('Duration types fetch exception:', err)
     }
-    return INITIAL_DURATION_TYPES
+
+    return [
+      {
+        duration_id: 1,
+        duration_name: 'Day Tour (9:00 AM - 5:00 PM)',
+        duration_hours: 8,
+        duration_price: 9000,
+        duration_extra_pax_charge: 200,
+        duration_extension_charge: 700,
+        duration_event_rate: 1500,
+        duration_start: '09:00:00',
+        duration_end: '17:00:00',
+        max_pax: 35,
+        sec_dep: 2000,
+      },
+      {
+        duration_id: 2,
+        duration_name: 'Overnight (8:00 PM - 6:00 AM)',
+        duration_hours: 10,
+        duration_price: 10000,
+        duration_extra_pax_charge: 200,
+        duration_extension_charge: 800,
+        duration_event_rate: 2000,
+        duration_start: '20:00:00',
+        duration_end: '06:00:00',
+        max_pax: 25,
+        sec_dep: 2000,
+      },
+      {
+        duration_id: 3,
+        duration_name: '22 Hours - Day Start (8:00 AM - 6:00 AM)',
+        duration_hours: 22,
+        duration_price: 17000,
+        duration_extra_pax_charge: 200,
+        duration_extension_charge: 700,
+        duration_event_rate: 3000,
+        duration_start: '08:00:00',
+        duration_end: '06:00:00',
+        max_pax: 35,
+        sec_dep: 2000,
+      },
+      {
+        duration_id: 4,
+        duration_name: '22 Hours - Night Start (8:00 PM - 6:00 PM)',
+        duration_hours: 22,
+        duration_price: 17000,
+        duration_extra_pax_charge: 200,
+        duration_extension_charge: 800,
+        duration_event_rate: 3000,
+        duration_start: '20:00:00',
+        duration_end: '18:00:00',
+        max_pax: 35,
+        sec_dep: 2000,
+      },
+    ]
   },
 
-  // Reservations
-  async getReservations() {
-    try {
-      const { data, error } = await supabase.from('resort_reservations').select('*')
-      if (!error && data && data.length > 0) {
-        setLocalData('reservations', data)
-        return data
-      }
-    } catch {
-      // ignore
-    }
-    return getLocalData('reservations', INITIAL_RESERVATIONS)
-  },
-
-  async updateReservationStatus(reservationId, newStatus) {
-    const local = getLocalData('reservations', INITIAL_RESERVATIONS)
-    const updated = local.map((r) =>
-      r.reservation_id === reservationId ? { ...r, reservation_status: newStatus } : r
-    )
-    setLocalData('reservations', updated)
-
-    try {
-      await supabase
-        .from('resort_reservations')
-        .update({ reservation_status: newStatus })
-        .eq('reservation_id', reservationId)
-    } catch {
-      // ignore
-    }
-    return updated
-  },
-
-  async updateReservationPayment(reservationId, updates) {
-    const local = getLocalData('reservations', INITIAL_RESERVATIONS)
-    const updated = local.map((r) =>
-      r.reservation_id === reservationId ? { ...r, ...updates } : r
-    )
-    setLocalData('reservations', updated)
-
-    try {
-      await supabase
-        .from('resort_reservations')
-        .update(updates)
-        .eq('reservation_id', reservationId)
-    } catch {
-      // ignore
-    }
-    return updated
-  },
-
-  // Visitations
-  async getVisitations() {
-    try {
-      const { data, error } = await supabase.from('resort_visitations').select('*')
-      if (!error && data && data.length > 0) {
-        setLocalData('visitations', data)
-        return data
-      }
-    } catch {
-      // ignore
-    }
-    return getLocalData('visitations', INITIAL_VISITATIONS)
-  },
-
-  async updateVisitationStatus(visitationId, newStatus) {
-    const local = getLocalData('visitations', INITIAL_VISITATIONS)
-    const updated = local.map((v) =>
-      v.visitation_id === visitationId ? { ...v, visitation_status: newStatus } : v
-    )
-    setLocalData('visitations', updated)
-
-    try {
-      await supabase
-        .from('resort_visitations')
-        .update({ visitation_status: newStatus })
-        .eq('visitation_id', visitationId)
-    } catch {
-      // ignore
-    }
-    return updated
-  },
-
-  // Inquiries
+  // ==========================================
+  // 3. RESORT INQUIRIES & CHATS
+  // ==========================================
   async getInquiries() {
     try {
-      const { data, error } = await supabase.from('resort_inquiries').select('*')
-      if (!error && data && data.length > 0) {
-        setLocalData('inquiries', data)
-        return data
+      const { data, error } = await supabase
+        .from('resort_inquiries')
+        .select(`
+          *,
+          customer:customer_accounts(first_name, last_name, phone_number)
+        `)
+        .order('inquiry_id', { ascending: false })
+
+      if (error) {
+        console.error('Error fetching resort_inquiries from Supabase:', error)
+        return []
       }
-    } catch {
-      // ignore
+
+      return (data || []).map((i) => ({
+        ...i,
+        customer_name: i.customer
+          ? `${i.customer.first_name} ${i.customer.last_name || ''}`.trim()
+          : `Customer #${i.customer_id}`,
+      }))
+    } catch (err) {
+      console.error('Inquiries query exception:', err)
+      return []
     }
-    return getLocalData('inquiries', INITIAL_INQUIRIES)
   },
 
   async createInquiry({ label, message, customerId, customerName }) {
-    const localInquiries = getLocalData('inquiries', INITIAL_INQUIRIES)
-    const localChats = getLocalData('chats', INITIAL_CHATS)
-
-    const newInquiryId = Date.now()
     const nowIso = new Date().toISOString()
 
-    const newInquiry = {
-      inquiry_id: newInquiryId,
-      inquiry_label: label,
-      customer_id: customerId || 101,
-      customer_name: customerName || 'Guest User',
-      inquiry_status: 'open',
-      created_at: nowIso,
-      updated_at: nowIso,
-      admin_responder: null,
-    }
-
-    const firstChat = {
-      chat_id: Date.now() + 1,
-      inquiry_id: newInquiryId,
-      sender: 'customer',
-      sender_name: customerName || 'Guest User',
-      message: message,
-      sent_at: nowIso,
-    }
-
-    const updatedInquiries = [newInquiry, ...localInquiries]
-    const updatedChats = [...localChats, firstChat]
-
-    setLocalData('inquiries', updatedInquiries)
-    setLocalData('chats', updatedChats)
-
     try {
-      await supabase.from('resort_inquiries').insert([
-        {
-          inquiry_id: newInquiryId,
-          inquiry_label: label,
-          customer_id: customerId,
-          inquiry_status: 'open',
-          created_at: nowIso,
-          updated_at: nowIso,
-        },
-      ])
-      await supabase.from('inquiry_chats').insert([
-        {
-          chat_id: firstChat.chat_id,
-          inquiry_id: newInquiryId,
-          sender: 'customer',
-          message: message,
-          sent_at: nowIso,
-        },
-      ])
-    } catch {
-      // ignore
-    }
+      // 1. Ensure a valid customer_id in customer_accounts to prevent FK 409 Conflict
+      const validCustomerId = await this.ensureCustomer({
+        customerId,
+        customerName,
+      })
 
-    return { newInquiry, firstChat }
+      // 2. Insert into resort_inquiries
+      const { data: inqData, error: inqError } = await supabase
+        .from('resort_inquiries')
+        .insert([
+          {
+            inquiry_label: label,
+            customer_id: validCustomerId,
+            inquiry_status: 'open',
+            created_at: nowIso,
+            updated_at: nowIso,
+          },
+        ])
+        .select()
+
+      if (inqError || !inqData || inqData.length === 0) {
+        console.error('Error creating resort_inquiry in Supabase:', inqError)
+        return null
+      }
+
+      const createdInquiry = inqData[0]
+
+      // 3. Insert initial message into inquiry_chats
+      const { data: chatData, error: chatError } = await supabase
+        .from('inquiry_chats')
+        .insert([
+          {
+            inquiry_id: createdInquiry.inquiry_id,
+            sender: 'customer',
+            message: message,
+            sent_at: nowIso,
+          },
+        ])
+        .select()
+
+      if (chatError) {
+        console.error('Error inserting initial chat message:', chatError)
+      }
+
+      const firstChat = chatData?.[0] || {
+        chat_id: Date.now(),
+        inquiry_id: createdInquiry.inquiry_id,
+        sender: 'customer',
+        sender_name: customerName,
+        message: message,
+        sent_at: nowIso,
+      }
+
+      return {
+        newInquiry: {
+          ...createdInquiry,
+          customer_name: customerName,
+        },
+        firstChat: {
+          ...firstChat,
+          sender_name: customerName,
+        },
+      }
+    } catch (err) {
+      console.error('Create inquiry exception:', err)
+      return null
+    }
   },
 
   async assignAdminResponder(inquiryId, adminName) {
-    const local = getLocalData('inquiries', INITIAL_INQUIRIES)
-    const updated = local.map((inq) =>
-      inq.inquiry_id === inquiryId
-        ? {
-            ...inq,
-            admin_responder: adminName,
-            inquiry_status: inq.inquiry_status === 'open' ? 'in-progress' : inq.inquiry_status,
-            updated_at: new Date().toISOString(),
-          }
-        : inq
-    )
-    setLocalData('inquiries', updated)
-
+    const nowIso = new Date().toISOString()
     try {
-      await supabase
+      const { error } = await supabase
         .from('resort_inquiries')
         .update({
           admin_responder: adminName,
           inquiry_status: 'in-progress',
-          updated_at: new Date().toISOString(),
+          updated_at: nowIso,
         })
         .eq('inquiry_id', inquiryId)
-    } catch {
-      // ignore
+
+      if (error) {
+        console.error('Error assigning admin responder:', error)
+      }
+    } catch (err) {
+      console.error('Assign admin responder exception:', err)
     }
-    return updated
+    return this.getInquiries()
   },
 
   async updateInquiryStatus(inquiryId, status) {
-    const local = getLocalData('inquiries', INITIAL_INQUIRIES)
-    const updated = local.map((inq) =>
-      inq.inquiry_id === inquiryId
-        ? { ...inq, inquiry_status: status, updated_at: new Date().toISOString() }
-        : inq
-    )
-    setLocalData('inquiries', updated)
-
+    const nowIso = new Date().toISOString()
     try {
-      await supabase
+      const { error } = await supabase
         .from('resort_inquiries')
-        .update({ inquiry_status: status, updated_at: new Date().toISOString() })
+        .update({
+          inquiry_status: status,
+          updated_at: nowIso,
+        })
         .eq('inquiry_id', inquiryId)
-    } catch {
-      // ignore
+
+      if (error) {
+        console.error('Error updating inquiry status:', error)
+      }
+    } catch (err) {
+      console.error('Update inquiry status exception:', err)
     }
-    return updated
+    return this.getInquiries()
   },
 
-  // Chats
   async getChats(inquiryId) {
-    const localChats = getLocalData('chats', INITIAL_CHATS)
     try {
       const { data, error } = await supabase
         .from('inquiry_chats')
         .select('*')
-        .eq('inquiry_id', inquiryId)
-        .order('sent_at', { ascending: true })
-      if (!error && data && data.length > 0) {
-        return data
+        .eq('inquiry_id', Number(inquiryId))
+        .order('chat_id', { ascending: true })
+
+      if (error) {
+        console.error('Error fetching inquiry_chats from Supabase:', error)
+        return []
       }
-    } catch {
-      // ignore
+      return data || []
+    } catch (err) {
+      console.error('Chats query exception:', err)
+      return []
     }
-    return localChats.filter((c) => c.inquiry_id === Number(inquiryId))
   },
 
   async sendChatMessage({ inquiryId, sender, senderName, message }) {
-    const localChats = getLocalData('chats', INITIAL_CHATS)
-    const newChat = {
-      chat_id: Date.now(),
-      inquiry_id: Number(inquiryId),
-      sender: sender,
-      sender_name: senderName || (sender === 'admin' ? 'Admin' : 'Customer'),
-      message: message,
-      sent_at: new Date().toISOString(),
-    }
-    const updated = [...localChats, newChat]
-    setLocalData('chats', updated)
-
+    const nowIso = new Date().toISOString()
     try {
-      await supabase.from('inquiry_chats').insert([
-        {
-          chat_id: newChat.chat_id,
-          inquiry_id: Number(inquiryId),
-          sender: sender,
-          message: message,
-          sent_at: newChat.sent_at,
-        },
-      ])
-    } catch {
-      // ignore
+      const { data, error } = await supabase
+        .from('inquiry_chats')
+        .insert([
+          {
+            inquiry_id: Number(inquiryId),
+            sender: sender,
+            message: message,
+            sent_at: nowIso,
+          },
+        ])
+        .select()
+
+      if (error) {
+        console.error('Error sending chat message:', error)
+        return null
+      }
+
+      return {
+        ...(data?.[0] || {}),
+        sender_name: senderName,
+      }
+    } catch (err) {
+      console.error('Send chat message exception:', err)
+      return null
     }
-    return newChat
   },
 
-  // Reviews
+  // ==========================================
+  // 4. RESORT RESERVATIONS
+  // ==========================================
+  async getReservations() {
+    try {
+      const { data, error } = await supabase
+        .from('resort_reservations')
+        .select(`
+          *,
+          customer:customer_accounts(first_name, last_name, phone_number)
+        `)
+        .order('reservation_id', { ascending: false })
+
+      if (error) {
+        console.error('Error fetching resort_reservations:', error)
+        return []
+      }
+
+      return (data || []).map((r) => ({
+        ...r,
+        customer_name: r.customer
+          ? `${r.customer.first_name} ${r.customer.last_name || ''}`.trim()
+          : `Customer #${r.customer_id}`,
+        customer_phone: r.customer?.phone_number ? `0${r.customer.phone_number}` : '',
+      }))
+    } catch (err) {
+      console.error('Reservation query exception:', err)
+      return []
+    }
+  },
+
+  async createReservation(reservationData) {
+    try {
+      const validCustomerId = await this.ensureCustomer({
+        customerId: reservationData.customer_id,
+        customerName: reservationData.event_name,
+      })
+
+      const payload = {
+        customer_id: validCustomerId,
+        guest_count: Number(reservationData.guest_count),
+        duration_id: Number(reservationData.duration_id),
+        start_date: reservationData.start_date,
+        end_date: reservationData.end_date,
+        extension_duration: reservationData.extension_duration ? reservationData.start_date : null,
+        has_paid_sec_dep: !!reservationData.has_paid_sec_dep,
+        has_paid_reservation: !!reservationData.has_paid_reservation,
+        reservation_cost: Number(reservationData.reservation_cost),
+        extra_charges: Number(reservationData.extra_charges || 0),
+        reservation_status: reservationData.reservation_status || 'pending',
+        event_name: reservationData.event_name || 'Resort Stay',
+      }
+
+      const { data, error } = await supabase
+        .from('resort_reservations')
+        .insert([payload])
+        .select()
+
+      if (error) {
+        console.error('Error creating resort_reservation in Supabase:', error)
+        return null
+      }
+      return data?.[0] || payload
+    } catch (err) {
+      console.error('Create reservation exception:', err)
+      return null
+    }
+  },
+
+  async updateReservationStatus(reservationId, newStatus) {
+    try {
+      const { error } = await supabase
+        .from('resort_reservations')
+        .update({ reservation_status: newStatus })
+        .eq('reservation_id', reservationId)
+
+      if (error) {
+        console.error('Error updating reservation status:', error)
+      }
+    } catch (err) {
+      console.error('Update reservation status exception:', err)
+    }
+  },
+
+  async updateReservationPayment(reservationId, updates) {
+    try {
+      const { error } = await supabase
+        .from('resort_reservations')
+        .update(updates)
+        .eq('reservation_id', reservationId)
+
+      if (error) {
+        console.error('Error updating reservation payment:', error)
+      }
+    } catch (err) {
+      console.error('Update reservation payment exception:', err)
+    }
+  },
+
+  // ==========================================
+  // 5. RESORT VISITATIONS (OCULAR VISITS)
+  // ==========================================
+  async getVisitations() {
+    try {
+      const { data, error } = await supabase
+        .from('resort_visitations')
+        .select(`
+          *,
+          customer:customer_accounts(first_name, last_name, phone_number)
+        `)
+        .order('visitation_id', { ascending: false })
+
+      if (error) {
+        console.error('Error fetching resort_visitations:', error)
+        return []
+      }
+
+      return (data || []).map((v) => ({
+        ...v,
+        customer_name: v.customer
+          ? `${v.customer.first_name} ${v.customer.last_name || ''}`.trim()
+          : `Customer #${v.customer_id}`,
+        customer_phone: v.customer?.phone_number ? `0${v.customer.phone_number}` : '',
+        slot_type:
+          v.visitation_start_date && v.visitation_start_date.includes('09:')
+            ? 'Morning (9:00 AM - 11:00 AM)'
+            : 'Afternoon (2:00 PM - 4:00 PM)',
+      }))
+    } catch (err) {
+      console.error('Visitations query exception:', err)
+      return []
+    }
+  },
+
+  async createVisitation(visitationData) {
+    try {
+      const validCustomerId = await this.ensureCustomer({
+        customerId: visitationData.customer_id,
+        customerName: 'Juan Dela Cruz',
+      })
+
+      const payload = {
+        customer_id: validCustomerId,
+        guest_count: Number(visitationData.guest_count),
+        visitation_start_date: visitationData.visitation_start_date,
+        visitation_end_date: visitationData.visitation_end_date,
+        visitation_status: visitationData.visitation_status || 'pending',
+      }
+
+      const { data, error } = await supabase
+        .from('resort_visitations')
+        .insert([payload])
+        .select()
+
+      if (error) {
+        console.error('Error creating visitation in Supabase:', error)
+        return null
+      }
+      return data?.[0] || payload
+    } catch (err) {
+      console.error('Create visitation exception:', err)
+      return null
+    }
+  },
+
+  async updateVisitationStatus(visitationId, newStatus) {
+    try {
+      const { error } = await supabase
+        .from('resort_visitations')
+        .update({ visitation_status: newStatus })
+        .eq('visitation_id', visitationId)
+
+      if (error) {
+        console.error('Error updating visitation status:', error)
+      }
+    } catch (err) {
+      console.error('Update visitation status exception:', err)
+    }
+  },
+
+  // ==========================================
+  // 6. CUSTOMER REVIEWS
+  // ==========================================
   async getReviews() {
     try {
-      const { data, error } = await supabase.from('customer_reviews').select('*')
-      if (!error && data && data.length > 0) {
-        setLocalData('reviews', data)
-        return data
+      const { data, error } = await supabase
+        .from('customer_reviews')
+        .select(`
+          *,
+          customer:customer_accounts(first_name, last_name)
+        `)
+        .order('review_id', { ascending: false })
+
+      if (error) {
+        console.error('Error fetching customer_reviews from Supabase:', error)
+        return []
       }
-    } catch {
-      // ignore
+
+      return (data || []).map((r) => ({
+        ...r,
+        customer_name: r.customer
+          ? `${r.customer.first_name} ${r.customer.last_name || ''}`.trim()
+          : `Customer #${r.customer_id}`,
+      }))
+    } catch (err) {
+      console.error('Reviews query exception:', err)
+      return []
     }
-    return getLocalData('reviews', INITIAL_REVIEWS)
   },
 
-  async addReview({ customerId, customerName, stars, comment }) {
-    const local = getLocalData('reviews', INITIAL_REVIEWS)
-    const newReview = {
-      review_id: Date.now(),
-      customer_id: customerId || 101,
-      customer_name: customerName || 'Juan Dela Cruz',
-      review_stars: stars,
-      review_comment: comment,
-      date_submitted: new Date().toISOString(),
-    }
-    const updated = [newReview, ...local]
-    setLocalData('reviews', updated)
-
+  async addReview({ customerId, customerName = 'Guest', stars = 5, comment = '' }) {
+    const nowIso = new Date().toISOString()
     try {
-      await supabase.from('customer_reviews').insert([
-        {
-          review_id: newReview.review_id,
-          customer_id: customerId || 101,
-          review_stars: stars,
-          review_comment: comment,
-          date_submitted: newReview.date_submitted,
-        },
-      ])
-    } catch {
-      // ignore
+      const validCustomerId = await this.ensureCustomer({
+        customerId,
+        customerName,
+      })
+
+      const { data, error } = await supabase
+        .from('customer_reviews')
+        .insert([
+          {
+            customer_id: validCustomerId,
+            review_stars: Number(stars),
+            review_comment: comment,
+            date_submitted: nowIso,
+          },
+        ])
+        .select()
+
+      if (error) {
+        console.error('Error inserting customer_review in Supabase:', error)
+        return null
+      }
+      return data?.[0] || null
+    } catch (err) {
+      console.error('Add review exception:', err)
+      return null
     }
-    return newReview
   },
 
   // Export to CSV helper

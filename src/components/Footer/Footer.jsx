@@ -1,6 +1,8 @@
+import { useAuth } from '../../context/AuthContext'
 import './styles.css'
 
 function Footer({ onNavigate }) {
+  const { isAuthenticated, isAdmin, openAuthModal } = useAuth()
   const currentYear = new Date().getFullYear()
 
   const quickLinks = [
@@ -11,10 +13,17 @@ function Footer({ onNavigate }) {
     { id: 'events-rates', label: 'Rates & Event Packages' },
     { id: 'directions', label: 'Location & Directions' },
     { id: 'support', label: 'Customer Support' },
-    { id: 'reservation', label: 'Online Booking' },
+    ...(!isAdmin ? [{ id: 'reservation', label: 'Online Booking' }] : []),
   ]
 
   const handleLinkClick = (pageId) => {
+    if (pageId === 'reservation') {
+      if (isAdmin) return
+      if (!isAuthenticated) {
+        openAuthModal('signup')
+        return
+      }
+    }
     if (onNavigate) {
       onNavigate(pageId)
       window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -141,15 +150,17 @@ function Footer({ onNavigate }) {
               </li>
             </ul>
 
-            <div className="footer-booking-cta">
-              <button
-                type="button"
-                className="footer-cta-button"
-                onClick={() => handleLinkClick('reservation')}
-              >
-                Book Your Stay
-              </button>
-            </div>
+            {!isAdmin && (
+              <div className="footer-booking-cta">
+                <button
+                  type="button"
+                  className="footer-cta-button"
+                  onClick={() => handleLinkClick('reservation')}
+                >
+                  Book Your Stay
+                </button>
+              </div>
+            )}
           </div>
         </div>
 

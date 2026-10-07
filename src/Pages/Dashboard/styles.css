@@ -1,0 +1,868 @@
+/* =========================================================
+   POLCHAT GARDEN RESORT - ADMIN DASHBOARD STYLES
+   Color Palette:
+   - Primary Green: #7CCE17
+   - Sand Gold:     #F2D17E
+   - Muted Sage:    #ACAD79
+   - Forest Green:  #43593B
+   - Earth Bark:    #58402E
+   ========================================================= */
+
+/* Main Page Container */
+.dash-page-container {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #F8F9FA;
+  padding: 84px 24px 60px;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+/* Toast Notification */
+.dash-toast-banner {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background-color: #58402E;
+  color: #F2D17E;
+  padding: 12px 20px;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(88, 64, 46, 0.25);
+  z-index: 3000;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-left: 4px solid #7CCE17;
+}
+
+/* =========================================================
+   TOP 6 STATISTIC CARDS (IN ONE ROW)
+   ========================================================= */
+.dash-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+@media (max-width: 1300px) {
+  .dash-stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .dash-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .dash-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Base Stat Card */
+.dash-stat-card {
+  border-radius: 7px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.dash-stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.14);
+}
+
+.dash-stat-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 14px;
+  color: #ffffff;
+}
+
+.dash-stat-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  opacity: 0.95;
+}
+
+.dash-stat-text-wrap {
+  text-align: right;
+  color: #ffffff;
+}
+
+.dash-stat-number {
+  font-size: 1.65rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: #ffffff;
+  margin-bottom: 2px;
+}
+
+.dash-stat-label {
+  font-size: 0.76rem;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+  opacity: 0.95;
+}
+
+.dash-stat-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 7px 14px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #ffffff;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  transition: background-color 0.15s ease;
+}
+
+.dash-stat-card:hover .dash-stat-bottom {
+  background-color: rgba(0, 0, 0, 0.12);
+}
+
+.dash-stat-link-text {
+  color: #ffffff;
+  letter-spacing: 0.2px;
+}
+
+.dash-stat-arrow-icon {
+  color: #ffffff;
+  font-size: 0.85rem;
+}
+
+/* Card Color Themes (All White Text & Icons with Palette Backgrounds) */
+/* 1. Lime Green (#7CCE17) */
+.theme-green {
+  background-color: #6EB914;
+}
+.theme-green .dash-stat-bottom {
+  background-color: #5C9E10;
+}
+
+/* 2. Sand Gold (#C99427) */
+.theme-gold {
+  background-color: #C99427;
+}
+.theme-gold .dash-stat-bottom {
+  background-color: #AF7F1D;
+}
+
+/* 3. Forest Green (#43593B) */
+.theme-forest {
+  background-color: #43593B;
+}
+.theme-forest .dash-stat-bottom {
+  background-color: #35492E;
+}
+
+/* 4. Earth Bark (#58402E) */
+.theme-earth {
+  background-color: #58402E;
+}
+.theme-earth .dash-stat-bottom {
+  background-color: #473323;
+}
+
+/* 5. Deep Forest (#2D4427) */
+.theme-deep {
+  background-color: #2F4729;
+}
+.theme-deep .dash-stat-bottom {
+  background-color: #23371E;
+}
+
+/* 6. Muted Dark Sage (#5F7355) */
+.theme-sage {
+  background-color: #5E7455;
+}
+.theme-sage .dash-stat-bottom {
+  background-color: #4C6044;
+}
+
+/* =========================================================
+   MAIN 2-COLUMN OPERATIONAL LAYOUT
+   ========================================================= */
+.dash-main-layout-grid {
+  display: grid;
+  grid-template-columns: 1.85fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 1100px) {
+  .dash-main-layout-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dash-left-charts-col {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dash-right-active-col {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Side-by-Side Charts Row (Bar Chart & Pie Chart) */
+.dash-charts-row {
+  display: grid;
+  grid-template-columns: 1.15fr 1fr;
+  gap: 20px;
+}
+
+@media (max-width: 850px) {
+  .dash-charts-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================================================
+   PANEL BOX (General Panels)
+   ========================================================= */
+.dash-panel-box {
+  background-color: #ffffff;
+  border: 1px solid #DCD8D0;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+  overflow: visible;
+}
+
+/* Panel Header Bar */
+.dash-panel-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 11px 16px;
+  background-color: #F7F5F0;
+  border-bottom: 1px solid #E5E0D8;
+  border-top-left-radius: 7px;
+  border-top-right-radius: 7px;
+}
+
+.dash-panel-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #58402E;
+  font-weight: 700;
+}
+
+.dash-panel-title-text {
+  font-size: 0.92rem;
+  color: #58402E;
+  font-weight: 700;
+}
+
+.dash-panel-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Export CSV Button */
+.dash-action-btn-export {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background-color: #ffffff;
+  border: 1px solid #D0C9BE;
+  color: #58402E;
+  padding: 4px 9px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dash-action-btn-export:hover {
+  background-color: #58402E;
+  color: #F2D17E;
+  border-color: #58402E;
+}
+
+/* Dropdown Container */
+.dash-dropdown-container {
+  position: relative;
+}
+
+.dash-dropdown-toggle-btn {
+  background-color: #ffffff;
+  border: 1px solid #D0C9BE;
+  color: #58402E;
+  padding: 4px 9px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  border-radius: 5px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.dash-dropdown-toggle-btn:hover {
+  background-color: #EFEBE4;
+}
+
+.dash-dropdown-caret {
+  font-size: 0.75rem;
+}
+
+.dash-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  background-color: #ffffff;
+  border: 1px solid #D8D2C7;
+  border-radius: 6px;
+  box-shadow: 0 6px 18px rgba(88, 64, 46, 0.15);
+  min-width: 190px;
+  z-index: 50;
+  padding: 6px 0;
+}
+
+.dash-filter-menu-title {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #796656;
+  padding: 4px 14px 6px;
+  letter-spacing: 0.4px;
+  border-bottom: 1px solid #EAE5DC;
+  margin-bottom: 4px;
+}
+
+.dash-filter-checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  font-size: 0.82rem;
+  color: #58402E;
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+
+.dash-filter-checkbox-item:hover {
+  background-color: #F5EFE6;
+}
+
+.dash-checkbox-input {
+  accent-color: #43593B;
+  cursor: pointer;
+}
+
+.dash-color-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.dot-forest {
+  background-color: #43593B;
+}
+
+.dot-green {
+  background-color: #7CCE17;
+}
+
+.dot-sage {
+  background-color: #ACAD79;
+}
+
+.dash-filter-label {
+  font-weight: 600;
+}
+
+.dash-dropdown-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 7px 14px;
+  background: none;
+  border: none;
+  font-size: 0.82rem;
+  color: #58402E;
+  cursor: pointer;
+}
+
+.dash-dropdown-item:hover {
+  background-color: #F5EFE6;
+  color: #43593B;
+}
+
+.dash-dropdown-item.active {
+  font-weight: 700;
+  color: #43593B;
+  background-color: #EDF3E8;
+}
+
+/* Custom Date Range Popover */
+.dash-custom-range-box {
+  padding: 8px 12px;
+  border-top: 1px solid #ECE7DE;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background-color: #FAF8F5;
+}
+
+.dash-range-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.76rem;
+  color: #58402E;
+  font-weight: 600;
+  gap: 8px;
+}
+
+.dash-date-input {
+  padding: 3px 6px;
+  font-size: 0.74rem;
+  border: 1px solid #D0C9BE;
+  border-radius: 4px;
+  color: #58402E;
+  font-family: inherit;
+}
+
+.dash-apply-date-btn {
+  margin-top: 4px;
+  padding: 5px 8px;
+  background-color: #43593B;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.dash-apply-date-btn:hover {
+  opacity: 0.9;
+}
+
+/* Panel Content Body */
+.dash-panel-content {
+  padding: 14px 16px;
+  position: relative;
+}
+
+/* =========================================================
+   CHART SVG & TOOLTIPS
+   ========================================================= */
+.dash-chart-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.dash-svg-chart {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.dash-axis-text {
+  font-size: 11px;
+  fill: #58402E;
+  font-weight: 700;
+  font-family: inherit;
+}
+
+.dash-axis-subtext {
+  font-size: 9.5px;
+  fill: #8A7D71;
+  font-weight: 600;
+  font-family: inherit;
+}
+
+.dash-chart-dot {
+  cursor: pointer;
+  transition: r 0.15s ease;
+}
+
+.dash-chart-dot:hover {
+  r: 6px;
+}
+
+.dash-bar-rect {
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.dash-bar-group:hover .dash-bar-rect {
+  opacity: 0.85;
+}
+
+.dash-bar-val-text {
+  font-size: 10px;
+  font-weight: 700;
+  fill: #58402E;
+}
+
+/* Floating Chart Tooltip */
+.dash-chart-tooltip {
+  position: absolute;
+  transform: translate(-50%, -120%);
+  background-color: #58402E;
+  color: #ffffff;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.74rem;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 20;
+}
+
+.dash-tooltip-title {
+  font-weight: 700;
+  color: #F2D17E;
+  margin-bottom: 2px;
+}
+
+.dash-tooltip-val {
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+/* =========================================================
+   PIE / DONUT CHART PANEL
+   ========================================================= */
+.dash-pie-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.dash-pie-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 14px;
+  gap: 10px;
+}
+
+.dash-pie-chart-wrap {
+  position: relative;
+  width: 140px;
+  height: 140px;
+}
+
+.dash-pie-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.dash-pie-slice {
+  cursor: pointer;
+  transition: transform 0.15s ease, opacity 0.15s ease;
+}
+
+.dash-pie-slice:hover {
+  opacity: 0.9;
+}
+
+.dash-pie-center-val {
+  font-size: 16px;
+  font-weight: 800;
+  fill: #58402E;
+}
+
+.dash-pie-center-label {
+  font-size: 8px;
+  font-weight: 700;
+  fill: #796656;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.dash-pie-legend {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dash-pie-legend-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.12s ease;
+}
+
+.dash-pie-legend-row:hover,
+.dash-pie-legend-row.highlight {
+  background-color: #F5EFE6;
+}
+
+.dash-pie-legend-left {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dash-pie-legend-color {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+.dash-pie-legend-names {
+  display: flex;
+  flex-direction: column;
+}
+
+.dash-pie-legend-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #58402E;
+}
+
+.dash-pie-legend-sub {
+  font-size: 0.68rem;
+  color: #796656;
+}
+
+.dash-pie-legend-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.dash-pie-legend-count {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #58402E;
+}
+
+.dash-pie-legend-percent {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #43593B;
+  background-color: #EDF3E8;
+  padding: 1px 5px;
+  border-radius: 3px;
+}
+
+/* =========================================================
+   NOTIFICATIONS PANEL (RIGHT COLUMN)
+   ========================================================= */
+.dash-active-res-panel {
+  display: flex;
+  flex-direction: column;
+}
+
+.dash-active-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.dash-active-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid #ECE7DE;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+  gap: 10px;
+}
+
+.dash-active-row:hover {
+  background-color: #F9F7F3;
+}
+
+.dash-active-row:last-child {
+  border-bottom: none;
+}
+
+.dash-active-row-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+}
+
+/* Notification Badges (Consistent SVG Design) */
+.dash-notif-icon-badge {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.notif-badge-paid {
+  background-color: #43593B;
+  color: #F2D17E;
+}
+
+.notif-badge-deposit {
+  background-color: #6EB914;
+  color: #ffffff;
+}
+
+.notif-badge-confirmed {
+  background-color: #C99427;
+  color: #ffffff;
+}
+
+.notif-badge-ocular {
+  background-color: #5E7455;
+  color: #ffffff;
+}
+
+.notif-badge-inquiry {
+  background-color: #43593B;
+  color: #ffffff;
+}
+
+.notif-badge-review {
+  background-color: #58402E;
+  color: #F2D17E;
+}
+
+.dash-active-row-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.dash-active-row-title {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: #58402E;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dash-active-row-sub {
+  font-size: 0.72rem;
+  color: #796656;
+}
+
+.dash-active-row-right {
+  flex-shrink: 0;
+  text-align: right;
+}
+
+.dash-active-row-time {
+  font-size: 0.76rem;
+  color: #8C7B6E;
+  font-style: italic;
+}
+
+/* Panel Footer Button */
+.dash-panel-footer {
+  padding: 10px 14px;
+  background-color: #F7F5F0;
+  border-top: 1px solid #E5E0D8;
+  border-bottom-left-radius: 7px;
+  border-bottom-right-radius: 7px;
+}
+
+.dash-active-view-all-btn {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 8px 12px;
+  background-color: #ffffff;
+  border: 1px solid #D0C9BE;
+  color: #58402E;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dash-active-view-all-btn:hover {
+  background-color: #58402E;
+  color: #F2D17E;
+  border-color: #58402E;
+}
+
+/* =========================================================
+   ACCESS DENIED SCREEN
+   ========================================================= */
+.dash-access-denied-page {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+}
+
+.dash-access-denied-card {
+  background-color: #ffffff;
+  border: 1px solid #DCD8D0;
+  border-radius: 12px;
+  padding: 36px 30px;
+  text-align: center;
+  max-width: 440px;
+  box-shadow: 0 8px 24px rgba(88, 64, 46, 0.1);
+}
+
+.dash-access-denied-badge {
+  display: inline-block;
+  background-color: #58402E;
+  color: #F2D17E;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  margin-bottom: 12px;
+}
+
+.dash-access-denied-card h2 {
+  margin: 0 0 10px;
+  font-size: 1.4rem;
+  color: #58402E;
+}
+
+.dash-access-denied-card p {
+  margin: 0 0 20px;
+  font-size: 0.9rem;
+  color: #796656;
+}
+
+.dash-access-denied-btn {
+  background-color: #7CCE17;
+  color: #173803;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: opacity 0.15s ease;
+}
+
+.dash-access-denied-btn:hover {
+  opacity: 0.9;
+}

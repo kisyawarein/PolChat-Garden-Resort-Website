@@ -56,20 +56,24 @@ function InquirySection() {
     const customerId = user ? user.id : 101
     const customerName = user ? (user.name || user.username) : 'Juan Dela Cruz'
 
-    const { newInquiry, firstChat } = await DataService.createInquiry({
+    const result = await DataService.createInquiry({
       label: inquiryLabel.trim(),
       message: startingStatement.trim(),
       customerId: customerId,
       customerName: customerName,
     })
 
-    setCustomerInquiries((prev) => [newInquiry, ...prev])
-    setActiveInquiry(newInquiry)
-    setActiveChats([firstChat])
-    setInquiryLabel('')
-    setStartingStatement('')
+    if (result && result.newInquiry) {
+      setCustomerInquiries((prev) => [result.newInquiry, ...prev])
+      setActiveInquiry(result.newInquiry)
+      setActiveChats([result.firstChat])
+      setInquiryLabel('')
+      setStartingStatement('')
+      setSuccessNotice('Inquiry submitted to Supabase! Staff will review and respond shortly.')
+    } else {
+      setSuccessNotice('Error submitting inquiry. Please check your network or database connection.')
+    }
     setIsSubmitting(false)
-    setSuccessNotice('Inquiry submitted! Our staff will review and respond shortly.')
 
     setTimeout(() => {
       setSuccessNotice('')

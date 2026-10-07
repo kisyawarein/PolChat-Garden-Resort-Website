@@ -83,12 +83,24 @@ function Sidebar({
           </div>
         )}
 
-        {/* Specialized Navigation Section (Only for logged in user) */}
+        {/* Specialized Navigation Section */}
         <div className="sidebar-nav-sections">
           {isAdmin ? (
             <div className="sidebar-section-block">
               <span className="sidebar-section-title">ADMIN MANAGEMENT</span>
               <ul className="sidebar-menu-list">
+                {/* 1. Home (Top Item) */}
+                <li>
+                  <button
+                    type="button"
+                    className={`sidebar-nav-item ${currentPage === 'dashboard' ? 'sidebar-nav-item-active' : ''}`}
+                    onClick={() => handleNav('dashboard')}
+                  >
+                    <span className="sidebar-item-icon">🏠</span>
+                    <span className="sidebar-item-label">Home</span>
+                  </button>
+                </li>
+                {/* 2. Booking Catalog */}
                 <li>
                   <button
                     type="button"
@@ -99,6 +111,7 @@ function Sidebar({
                     <span className="sidebar-item-label">Booking Catalog</span>
                   </button>
                 </li>
+                {/* 3. Customer Records */}
                 <li>
                   <button
                     type="button"
@@ -109,6 +122,7 @@ function Sidebar({
                     <span className="sidebar-item-label">Customer Records</span>
                   </button>
                 </li>
+                {/* 4. Customer Inquiries */}
                 <li>
                   <button
                     type="button"
@@ -119,6 +133,7 @@ function Sidebar({
                     <span className="sidebar-item-label">Customer Inquiries</span>
                   </button>
                 </li>
+                {/* 5. Reviews & Feedback */}
                 <li>
                   <button
                     type="button"
@@ -127,6 +142,17 @@ function Sidebar({
                   >
                     <span className="sidebar-item-icon">⭐</span>
                     <span className="sidebar-item-label">Reviews & Feedback</span>
+                  </button>
+                </li>
+                {/* 6. Analytics & Intelligence */}
+                <li>
+                  <button
+                    type="button"
+                    className={`sidebar-nav-item ${currentPage === 'analytics' ? 'sidebar-nav-item-active' : ''}`}
+                    onClick={() => handleNav('analytics')}
+                  >
+                    <span className="sidebar-item-icon">📈</span>
+                    <span className="sidebar-item-label">Executive Analytics</span>
                   </button>
                 </li>
               </ul>

@@ -1,0 +1,695 @@
+/* =========================================================
+   POLCHAT GARDEN RESORT - DEDICATED ANALYTICS PAGE STYLES
+   Color Palette:
+   - Primary Green: #7CCE17
+   - Sand Gold:     #F2D17E
+   - Muted Sage:    #ACAD79
+   - Forest Green:  #43593B
+   - Earth Bark:    #58402E
+   ========================================================= */
+
+.analytics-page-container {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #F8F9FA;
+  padding: 84px 28px 60px;
+  box-sizing: border-box;
+  font-family: inherit;
+}
+
+/* Toast Box */
+.analytics-toast-box {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  background-color: #58402E;
+  color: #F2D17E;
+  padding: 12px 20px;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(88, 64, 46, 0.25);
+  z-index: 3000;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border-left: 4px solid #7CCE17;
+}
+
+/* Top Header Bar */
+.analytics-header-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #E5E0D8;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.analytics-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.analytics-main-title {
+  margin: 0;
+  font-size: 1.85rem;
+  font-weight: 800;
+  color: #58402E;
+  letter-spacing: -0.4px;
+}
+
+.analytics-subtitle {
+  margin: 0;
+  font-size: 0.88rem;
+  color: #796656;
+}
+
+.analytics-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.analytics-btn-export {
+  background-color: #58402E;
+  color: #F2D17E;
+  border: 1px solid #58402E;
+  padding: 7px 14px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.analytics-btn-export:hover {
+  background-color: #43593B;
+  border-color: #43593B;
+}
+
+/* Dropdowns */
+.analytics-dropdown-container {
+  position: relative;
+}
+
+.analytics-dropdown-btn {
+  background-color: #ffffff;
+  border: 1.5px solid #D0C9BE;
+  color: #58402E;
+  padding: 7px 14px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.analytics-dropdown-btn:hover {
+  background-color: #F7F5F0;
+}
+
+.analytics-caret {
+  font-size: 0.75rem;
+}
+
+.analytics-dropdown-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 5px;
+  background-color: #ffffff;
+  border: 1px solid #D8D2C7;
+  border-radius: 7px;
+  box-shadow: 0 8px 24px rgba(88, 64, 46, 0.18);
+  min-width: 190px;
+  z-index: 50;
+  padding: 6px 0;
+}
+
+.analytics-dropdown-header {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #796656;
+  padding: 4px 14px 6px;
+  letter-spacing: 0.4px;
+  border-bottom: 1px solid #EAE5DC;
+  margin-bottom: 4px;
+}
+
+.analytics-dropdown-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 8px 14px;
+  background: none;
+  border: none;
+  font-size: 0.84rem;
+  color: #58402E;
+  cursor: pointer;
+}
+
+.analytics-dropdown-item:hover {
+  background-color: #F5EFE6;
+  color: #43593B;
+}
+
+.analytics-dropdown-item.active {
+  font-weight: 700;
+  color: #43593B;
+  background-color: #EDF3E8;
+}
+
+.analytics-custom-date-box {
+  padding: 8px 12px;
+  border-top: 1px solid #ECE7DE;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background-color: #FAF8F5;
+}
+
+.analytics-date-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.76rem;
+  color: #58402E;
+  font-weight: 600;
+  gap: 8px;
+}
+
+.analytics-date-input {
+  padding: 3px 6px;
+  font-size: 0.74rem;
+  border: 1px solid #D0C9BE;
+  border-radius: 4px;
+  color: #58402E;
+  font-family: inherit;
+}
+
+.analytics-apply-date-btn {
+  margin-top: 4px;
+  padding: 5px 8px;
+  background-color: #43593B;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Category Tabs */
+.analytics-tabs-bar {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 22px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.analytics-tab-btn {
+  padding: 9px 18px;
+  background-color: #ffffff;
+  border: 1.5px solid #D8D2C7;
+  border-radius: 8px;
+  color: #58402E;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.analytics-tab-btn:hover {
+  background-color: #F5EFE6;
+}
+
+.analytics-tab-btn.active {
+  background-color: #58402E;
+  color: #F2D17E;
+  border-color: #58402E;
+}
+
+/* Top KPI Stat Grid */
+.analytics-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 14px;
+  margin-bottom: 26px;
+}
+
+@media (max-width: 1200px) {
+  .analytics-kpi-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 650px) {
+  .analytics-kpi-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.analytics-kpi-card {
+  background-color: #ffffff;
+  border: 1.5px solid #D8D2C7;
+  border-radius: 9px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 2px 6px rgba(88, 64, 46, 0.04);
+}
+
+.analytics-kpi-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 6px;
+}
+
+.analytics-kpi-label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #796656;
+}
+
+.analytics-kpi-badge {
+  font-size: 0.68rem;
+  font-weight: 800;
+  background-color: #EDF3E8;
+  color: #43593B;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.analytics-kpi-val {
+  font-size: 1.55rem;
+  font-weight: 800;
+  color: #58402E;
+  line-height: 1.1;
+  margin-bottom: 3px;
+}
+
+.kpi-revenue .analytics-kpi-val {
+  color: #43593B;
+}
+
+.kpi-rating .analytics-kpi-val {
+  color: #D4A836;
+}
+
+.analytics-kpi-sub {
+  font-size: 0.72rem;
+  color: #8C7D71;
+}
+
+/* Section Cards Stack */
+.analytics-sections-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.analytics-section-card {
+  background-color: #ffffff;
+  border: 1.5px solid #D8D2C7;
+  border-radius: 10px;
+  padding: 22px 24px;
+  box-shadow: 0 2px 8px rgba(88, 64, 46, 0.04);
+}
+
+.analytics-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #ECE7DE;
+}
+
+.analytics-section-title {
+  margin: 0;
+  font-size: 1.18rem;
+  font-weight: 800;
+  color: #58402E;
+}
+
+.analytics-section-pill {
+  font-size: 0.75rem;
+  font-weight: 700;
+  background-color: #FAF5EA;
+  color: #7A5408;
+  border: 1px solid #F2D17E;
+  padding: 3px 10px;
+  border-radius: 9999px;
+}
+
+/* 2-Column Grid inside sections */
+.analytics-grid-two-col {
+  display: grid;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 22px;
+}
+
+@media (max-width: 900px) {
+  .analytics-grid-two-col {
+    grid-template-columns: 1fr;
+  }
+}
+
+.analytics-panel-inner {
+  background-color: #FAF8F5;
+  border: 1px solid #E5E0D8;
+  border-radius: 8px;
+  padding: 16px 18px;
+}
+
+.analytics-inner-heading h4 {
+  margin: 0 0 14px;
+  font-size: 0.94rem;
+  font-weight: 700;
+  color: #58402E;
+}
+
+/* Chart SVGs */
+.analytics-chart-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.analytics-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.analytics-axis-text {
+  font-size: 11px;
+  fill: #80766C;
+  font-weight: 600;
+  font-family: inherit;
+}
+
+.analytics-tooltip {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background-color: #58402E;
+  color: #ffffff;
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 0.76rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* Bar lists */
+.analytics-bars-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.analytics-bar-item {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.analytics-bar-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #58402E;
+}
+
+.analytics-bar-stat {
+  color: #796656;
+  font-size: 0.76rem;
+}
+
+.analytics-bar-track {
+  width: 100%;
+  height: 8px;
+  background-color: #ECE7DE;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.analytics-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* Customer Segments */
+.analytics-segments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.analytics-segment-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  background-color: #ffffff;
+  border: 1px solid #E5E0D8;
+  border-radius: 6px;
+}
+
+.analytics-seg-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.analytics-seg-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.analytics-seg-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.analytics-seg-title {
+  font-size: 0.84rem;
+  color: #58402E;
+}
+
+.analytics-seg-sub {
+  font-size: 0.72rem;
+  color: #796656;
+}
+
+.analytics-seg-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.analytics-seg-count {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #58402E;
+}
+
+.analytics-seg-badge {
+  font-size: 0.74rem;
+  font-weight: 800;
+  background-color: #EDF3E8;
+  color: #43593B;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* Monthly Customer Flex */
+.analytics-bar-chart-container {
+  height: 170px;
+  display: flex;
+  align-items: flex-end;
+}
+
+.analytics-bar-flex {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.analytics-col-bar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+  gap: 4px;
+}
+
+.analytics-col-val {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #58402E;
+}
+
+.analytics-col-track {
+  width: 100%;
+  height: 120px;
+  background-color: #ECE7DE;
+  border-radius: 4px;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+}
+
+.analytics-col-fill {
+  width: 100%;
+  border-radius: 4px 4px 0 0;
+  transition: height 0.3s ease;
+}
+
+.analytics-col-label {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #796656;
+}
+
+/* Review Stars Breakdown */
+.analytics-stars-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.analytics-star-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.analytics-star-label {
+  font-size: 0.82rem;
+  color: #E6BF5C;
+  min-width: 85px;
+  letter-spacing: 1px;
+}
+
+.analytics-star-track {
+  flex: 1;
+  height: 8px;
+  background-color: #ECE7DE;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.analytics-star-fill {
+  height: 100%;
+  border-radius: 4px;
+}
+
+.analytics-star-count {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #58402E;
+  min-width: 65px;
+  text-align: right;
+}
+
+.analytics-sentiment-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 10px;
+}
+
+.analytics-sentiment-score {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #58402E;
+  line-height: 1;
+}
+
+.analytics-sentiment-stars {
+  font-size: 1.2rem;
+  color: #E6BF5C;
+  margin: 6px 0;
+}
+
+.analytics-sentiment-tag {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #43593B;
+  background-color: #EDF3E8;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  margin-bottom: 8px;
+}
+
+.analytics-sentiment-desc {
+  font-size: 0.8rem;
+  color: #796656;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* Access Denied */
+.analytics-access-denied {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.analytics-access-card {
+  background-color: #ffffff;
+  border: 1.5px solid #D8D2C7;
+  border-radius: 12px;
+  padding: 36px 30px;
+  text-align: center;
+  max-width: 440px;
+}
+
+.analytics-access-badge {
+  display: inline-block;
+  background-color: #58402E;
+  color: #F2D17E;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  margin-bottom: 12px;
+}
+
+.analytics-access-card h2 {
+  margin: 0 0 10px;
+  color: #58402E;
+}
+
+.analytics-access-card p {
+  margin: 0 0 20px;
+  color: #796656;
+}
+
+.analytics-access-btn {
+  background-color: #7CCE17;
+  color: #173803;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 6px;
+  font-weight: 700;
+  cursor: pointer;
+}

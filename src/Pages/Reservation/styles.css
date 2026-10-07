@@ -1,13 +1,1793 @@
+/* ===================================================
+   RESERVATION PAGE STYLES
+   Color Palette:
+   - #7CCE17 (Lime)
+   - #F2D17E (Sand / Gold)
+   - #ACAD79 (Sage Green)
+   - #43593B (Forest Green)
+   - #58402E (Deep Bark)
+   =================================================== */
+
 .reservation-page {
   width: 100%;
-  margin: 0;
-  padding: 0;
+  min-height: calc(100vh - 120px);
+  padding: 115px 24px 80px 24px;
+  background: #faf8f5;
+  box-sizing: border-box;
 }
 
-.reservation-title {
-  font-size: 2.25rem;
+.resv-content-wrapper {
+  max-width: 1140px;
+  margin: 0 auto;
+}
+
+/* ---------------------------------------------------
+   AUTH GATE / ADMIN GATE NOTICES
+   --------------------------------------------------- */
+.resv-auth-gate-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 60vh;
+  padding: 100px 20px 40px;
+}
+
+.resv-auth-gate-card {
+  background: #ffffff;
+  border: 1px solid #ACAD79;
+  border-radius: 20px;
+  padding: 48px 36px;
+  max-width: 520px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 10px 30px rgba(88, 64, 46, 0.08);
+}
+
+.resv-gate-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+
+.resv-gate-title {
+  font-size: 1.6rem;
   font-weight: 700;
-  color: #111827;
-  margin: 0;
+  color: #43593B;
+  margin: 0 0 12px 0;
+}
+
+.resv-gate-desc {
+  font-size: 1rem;
+  color: #58402E;
+  line-height: 1.6;
+  margin: 0 0 28px 0;
+}
+
+.resv-gate-actions {
+  display: flex;
+  gap: 14px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.resv-gate-signup-btn {
+  background: #43593B;
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.resv-gate-signup-btn:hover {
+  background: #33442d;
+  transform: translateY(-2px);
+}
+
+.resv-gate-login-btn {
+  background: #F2D17E;
+  color: #58402E;
+  border: 1px solid #ACAD79;
+  padding: 12px 24px;
+  border-radius: 9999px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.resv-gate-login-btn:hover {
+  background: #e8c467;
+  transform: translateY(-2px);
+}
+
+/* ---------------------------------------------------
+   TOAST NOTIFICATION
+   --------------------------------------------------- */
+.resv-toast-notification {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  background: #43593B;
+  color: #ffffff;
+  padding: 14px 22px;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+  animation: resvToastSlideUp 0.3s ease;
+}
+
+@keyframes resvToastSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---------------------------------------------------
+   STEPPER TRACK
+   --------------------------------------------------- */
+.resv-progress-container {
+  max-width: 720px;
+  margin: 0 auto 36px auto;
+}
+
+.resv-stepper-track {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  padding: 14px 24px;
+  border-radius: 9999px;
+  border: 1px solid #ACAD79;
+  box-shadow: 0 4px 12px rgba(88, 64, 46, 0.05);
+}
+
+.resv-stepper-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.resv-step-num {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.resv-step-current .resv-step-num {
+  background: #43593B;
+  color: #ffffff;
+}
+
+.resv-step-current .resv-step-label {
+  color: #43593B;
+  font-weight: 700;
+}
+
+.resv-step-done .resv-step-num {
+  background: #7CCE17;
+  color: #ffffff;
+}
+
+.resv-step-done .resv-step-label {
+  color: #58402E;
+  font-weight: 600;
+}
+
+.resv-step-pending .resv-step-num {
+  background: #eae8e1;
+  color: #888888;
+}
+
+.resv-step-pending .resv-step-label {
+  color: #888888;
+  font-weight: 500;
+}
+
+.resv-step-label {
+  font-size: 0.9rem;
+}
+
+.resv-step-line {
+  flex: 1;
+  height: 2px;
+  background: #e2e0d8;
+  margin: 0 12px;
+}
+
+/* ===================================================
+   IMAGE 1: RESERVATION TYPE MODAL / STEP
+   "What would you like to reserve?"
+   =================================================== */
+.resv-type-overlay {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px 0 40px 0;
+}
+
+.resv-type-card {
+  background: #e6e4dc;
+  border: 2px solid #58402E;
+  border-radius: 36px;
+  padding: 50px 48px;
+  max-width: 740px;
+  width: 100%;
+  position: relative;
+  box-shadow: 0 14px 40px rgba(88, 64, 46, 0.12);
+  text-align: center;
+}
+
+.resv-type-close-btn {
+  position: absolute;
+  top: 24px;
+  right: 28px;
+  background: none;
+  border: none;
+  font-size: 1.8rem;
+  color: #58402E;
+  cursor: pointer;
+  line-height: 1;
+  opacity: 0.7;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.resv-type-close-btn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.resv-type-title {
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #111111;
+  margin: 0 0 36px 0;
+  letter-spacing: -0.02em;
+}
+
+.resv-type-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+}
+
+.resv-type-btn-card {
+  border-radius: 26px;
+  padding: 36px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 220px;
+  cursor: pointer;
+  text-align: center;
+  border: 2px solid #58402E;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+  outline: none;
+}
+
+.resv-type-btn-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 28px rgba(67, 89, 59, 0.2);
+}
+
+/* Card 1: Resort Reservation */
+.resv-type-btn-resort {
+  background: #8e8d85;
+  color: #111111;
+}
+
+.resv-type-btn-resort:hover {
+  background: #43593B;
+  color: #ffffff;
+  border-color: #43593B;
+}
+
+/* Card 2: Ocular Visit */
+.resv-type-btn-ocular {
+  background: #bbb9af;
+  color: #111111;
+}
+
+.resv-type-btn-ocular:hover {
+  background: #F2D17E;
+  color: #58402E;
+  border-color: #58402E;
+}
+
+.resv-type-card-heading {
+  font-size: 1.55rem;
+  font-weight: 800;
+  margin: 0 0 12px 0;
+}
+
+.resv-type-btn-resort:hover .resv-type-card-heading {
+  color: #ffffff;
+}
+
+.resv-type-btn-ocular:hover .resv-type-card-heading {
+  color: #58402E;
+}
+
+.resv-type-card-desc {
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0 0 18px 0;
+  opacity: 0.9;
+}
+
+.resv-type-card-badge {
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 6px 16px;
+  border-radius: 9999px;
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.resv-type-btn-resort:hover .resv-type-card-badge {
+  background: #7CCE17;
+  color: #ffffff;
+}
+
+.resv-type-btn-ocular:hover .resv-type-card-badge {
+  background: #58402E;
+  color: #ffffff;
+}
+
+/* ===================================================
+   IMAGE 2: SCHEDULE TYPE STEP (DAY / OVERNIGHT / 22 HOURS)
+   =================================================== */
+.sched-step-container {
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.sched-top-nav {
+  margin-bottom: 20px;
+}
+
+.sched-back-type-btn {
+  background: #e6e4dc;
+  color: #58402E;
+  border: 1px solid #ACAD79;
+  padding: 8px 18px;
+  border-radius: 9999px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.sched-back-type-btn:hover {
+  background: #d8d5cb;
+}
+
+.sched-main-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 28px;
+  align-items: start;
+}
+
+/* Left Column: Image Box + Schedule List */
+.sched-left-column {
+  background: #e6e4dc;
+  border: 2px solid #58402E;
+  border-radius: 12px;
   padding: 24px;
+  box-shadow: 0 8px 24px rgba(88, 64, 46, 0.08);
+}
+
+/* Top Large Picture Box */
+.sched-preview-box {
+  width: 100%;
+  height: 280px;
+  border: 2px solid #58402E;
+  border-radius: 6px;
+  overflow: hidden;
+  position: relative;
+  background: #cbc8bd;
+  margin-bottom: 20px;
+}
+
+.sched-preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.sched-preview-overlay-text {
+  position: absolute;
+  bottom: 16px;
+  right: 20px;
+  font-size: 2rem;
+  font-weight: 900;
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+  letter-spacing: 0.04em;
+}
+
+/* Schedule List */
+.sched-list-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.sched-row-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 10px;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.sched-row-item-active {
+  background: rgba(124, 206, 23, 0.15);
+}
+
+.sched-row-title-col {
+  width: 160px;
+}
+
+.sched-row-name {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #111111;
+  letter-spacing: -0.01em;
+}
+
+.sched-row-info-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  margin-right: 20px;
+  flex: 1;
+}
+
+.sched-row-price {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #111111;
+}
+
+.sched-row-time {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #444444;
+  margin-top: 2px;
+}
+
+.sched-row-btn-col {
+  display: flex;
+  align-items: center;
+}
+
+.sched-row-btn-col-double {
+  gap: 8px;
+}
+
+.sched-select-btn {
+  background: #e6e4dc;
+  color: #111111;
+  border: 2px solid #58402E;
+  padding: 8px 22px;
+  border-radius: 9999px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+}
+
+.sched-select-btn:hover {
+  background: #7CCE17;
+  color: #ffffff;
+  border-color: #43593B;
+  transform: scale(1.04);
+}
+
+.sched-select-btn-active {
+  background: #43593B !important;
+  color: #ffffff !important;
+  border-color: #43593B !important;
+}
+
+.sched-select-btn-sub {
+  padding: 8px 16px;
+  font-size: 0.8rem;
+}
+
+.sched-divider-line {
+  height: 2px;
+  background: #58402E;
+  width: 100%;
+  margin: 4px 0;
+  opacity: 0.85;
+}
+
+/* Right Column (No tall empty rectangle, clean summary & CONTINUE button) */
+.sched-right-column {
+  display: flex;
+  flex-direction: column;
+}
+
+.sched-summary-panel {
+  background: #e6e4dc;
+  border: 2px solid #58402E;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(88, 64, 46, 0.08);
+}
+
+.sched-summary-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #43593B;
+  margin: 0 0 16px 0;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #58402E;
+}
+
+.sched-summary-detail-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  margin-bottom: 10px;
+}
+
+.sched-summary-label {
+  color: #666666;
+  font-weight: 500;
+}
+
+.sched-summary-value {
+  font-weight: 700;
+  color: #111111;
+  text-align: right;
+}
+
+.sched-summary-price {
+  color: #43593B;
+  font-size: 1.1rem;
+}
+
+.sched-summary-note {
+  font-size: 0.78rem;
+  color: #58402E;
+  background: rgba(255, 255, 255, 0.6);
+  padding: 10px;
+  border-radius: 8px;
+  margin: 16px 0 20px 0;
+  line-height: 1.4;
+}
+
+.sched-continue-btn {
+  width: 100%;
+  background: #8e8d85;
+  color: #111111;
+  border: 2px solid #58402E;
+  padding: 16px;
+  border-radius: 9999px;
+  font-size: 1.2rem;
+  font-weight: 900;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+}
+
+.sched-continue-btn:hover {
+  background: #43593B;
+  color: #ffffff;
+  border-color: #43593B;
+  transform: translateY(-2px);
+}
+
+/* ---------------------------------------------------
+   STEP 2: CALENDAR VIEW
+   --------------------------------------------------- */
+.resv-calendar-step-wrapper {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.resv-header-section {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.resv-step-badge {
+  display: inline-block;
+  background: #F2D17E;
+  color: #58402E;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 4px 14px;
+  border-radius: 9999px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.resv-section-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #43593B;
+  margin: 0 0 6px 0;
+}
+
+.resv-section-subtitle {
+  font-size: 0.95rem;
+  color: #58402E;
+  margin: 0;
+}
+
+.resv-selected-pkg-card {
+  background: #ffffff;
+  border: 1px solid #ACAD79;
+  border-radius: 14px;
+  padding: 16px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.resv-selected-pkg-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.resv-selected-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #ACAD79;
+}
+
+.resv-selected-name {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #43593B;
+  margin: 2px 0 4px 0;
+}
+
+.resv-selected-price {
+  font-size: 0.9rem;
+  color: #58402E;
+  margin: 0;
+}
+
+.resv-change-pkg-btn {
+  background: #eae8e1;
+  color: #58402E;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.resv-change-pkg-btn:hover {
+  background: #dedcd3;
+}
+
+.resv-calendar-container {
+  background: #ffffff;
+  border: 1px solid #ACAD79;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(88, 64, 46, 0.06);
+  margin-bottom: 24px;
+}
+
+.resv-calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.resv-cal-nav-btn {
+  background: #f4f2ec;
+  border: 1px solid #dedcd3;
+  color: #43593B;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.resv-cal-nav-btn:hover {
+  background: #43593B;
+  color: #ffffff;
+}
+
+.resv-cal-month-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #43593B;
+}
+
+.resv-cal-weekdays-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.resv-cal-weekday {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #ACAD79;
+  text-transform: uppercase;
+}
+
+.resv-cal-days-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.resv-cal-day-cell {
+  background: #ffffff;
+  border: 1px solid #e2e0d8;
+  border-radius: 10px;
+  min-height: 80px;
+  padding: 8px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.resv-cal-empty-cell {
+  background: transparent;
+  border-color: transparent;
+  cursor: default;
+}
+
+.resv-cal-day-cell:hover:not(:disabled) {
+  border-color: #7CCE17;
+  background: #f8fbf5;
+}
+
+.resv-cal-day-selected {
+  border: 2px solid #7CCE17 !important;
+  background: #eef9e3 !important;
+}
+
+.resv-cal-day-past {
+  background: #f7f6f4;
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.resv-cal-day-today .resv-cal-day-number {
+  color: #43593B;
+  font-weight: 800;
+}
+
+.resv-cal-day-number {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #58402E;
+}
+
+.resv-cal-day-indicators {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+}
+
+.resv-cal-pill {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 4px;
+  border-radius: 4px;
+  text-align: center;
+  display: block;
+}
+
+.resv-cal-pill-available {
+  background: #eef7e9;
+  color: #43593B;
+}
+
+.resv-cal-pill-booked {
+  background: #fae8e8;
+  color: #b91c1c;
+}
+
+.resv-cal-pill-visit {
+  background: #fdf5df;
+  color: #855c0a;
+}
+
+.resv-cal-legend {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid #f0eee8;
+}
+
+.resv-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  color: #58402E;
+}
+
+.resv-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.resv-legend-dot-available {
+  background: #7CCE17;
+}
+
+.resv-legend-dot-selected {
+  background: #43593B;
+}
+
+.resv-legend-dot-booked {
+  background: #dc2626;
+}
+
+.resv-calendar-actions-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #ACAD79;
+  border-radius: 14px;
+  padding: 16px 24px;
+}
+
+.resv-choice-text {
+  font-size: 0.95rem;
+  color: #58402E;
+  margin: 0;
+}
+
+.resv-choice-text-empty {
+  font-size: 0.9rem;
+  color: #888888;
+  margin: 0;
+}
+
+.resv-actions-group {
+  display: flex;
+  gap: 12px;
+}
+
+.resv-back-btn {
+  background: #f0eee8;
+  color: #58402E;
+  border: 1px solid #dedcd3;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+.resv-continue-btn {
+  background: #43593B;
+  color: #ffffff;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.resv-continue-btn:hover:not(:disabled) {
+  background: #33442d;
+}
+
+.resv-continue-btn:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+/* ---------------------------------------------------
+   STEP 3: BOOKING FORM & PRICE CALCULATOR
+   --------------------------------------------------- */
+.resv-form-step-wrapper {
+  max-width: 1040px;
+  margin: 0 auto;
+}
+
+.resv-form-layout-grid {
+  display: grid;
+  grid-template-columns: 1fr 340px;
+  gap: 28px;
+}
+
+.resv-booking-form {
+  background: #ffffff;
+  border: 1px solid #ACAD79;
+  border-radius: 18px;
+  padding: 30px;
+  box-shadow: 0 8px 24px rgba(88, 64, 46, 0.06);
+}
+
+.resv-form-section-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #43593B;
+  margin-bottom: 16px;
+  margin-top: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #f0eee8;
+}
+
+.resv-form-row-2col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.resv-input-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.resv-input-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #58402E;
+  margin-bottom: 6px;
+}
+
+.resv-req-star {
+  color: #dc2626;
+}
+
+.resv-text-input {
+  border: 1px solid #ACAD79;
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  color: #58402E;
+  background: #ffffff;
+  outline: none;
+}
+
+.resv-text-input:focus {
+  border-color: #43593B;
+  box-shadow: 0 0 0 3px rgba(67, 89, 59, 0.12);
+}
+
+.resv-counter-control {
+  display: flex;
+  align-items: center;
+  border: 1px solid #ACAD79;
+  border-radius: 8px;
+  overflow: hidden;
+  height: 42px;
+}
+
+.resv-counter-btn {
+  background: #f4f2ec;
+  border: none;
+  width: 44px;
+  height: 100%;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #43593B;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.resv-counter-btn:disabled {
+  color: #cccccc;
+  cursor: not-allowed;
+}
+
+.resv-counter-input {
+  flex: 1;
+  border: none;
+  text-align: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: #43593B;
+  outline: none;
+}
+
+.resv-field-note {
+  font-size: 0.75rem;
+  color: #888888;
+  margin-top: 4px;
+}
+
+.resv-form-actions-bar {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid #f0eee8;
+}
+
+/* Sidebar Price Calculator */
+.resv-summary-sidebar {
+  display: flex;
+  flex-direction: column;
+}
+
+.resv-summary-card {
+  background: #ffffff;
+  border: 1px solid #ACAD79;
+  border-radius: 18px;
+  padding: 24px;
+  box-shadow: 0 8px 24px rgba(88, 64, 46, 0.06);
+  position: sticky;
+  top: 24px;
+}
+
+.resv-summary-header {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #43593B;
+  margin: 0 0 16px 0;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #F2D17E;
+}
+
+.resv-summary-block {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+.resv-summary-label {
+  color: #888888;
+}
+
+.resv-summary-value {
+  font-weight: 600;
+  color: #58402E;
+  text-align: right;
+}
+
+.resv-summary-divider {
+  height: 1px;
+  background: #f0eee8;
+  margin: 14px 0;
+}
+
+.resv-calc-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.88rem;
+  color: #58402E;
+  margin-bottom: 8px;
+}
+
+.resv-calc-item-label {
+  color: #58402E;
+}
+
+.resv-calc-item-value {
+  font-weight: 600;
+  color: #43593B;
+}
+
+.resv-summary-total-block {
+  background: #faf8f3;
+  border: 1px solid #F2D17E;
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin: 16px 0;
+}
+
+.resv-total-label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #58402E;
+}
+
+.resv-total-amount {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #43593B;
+}
+
+.resv-summary-guarantee {
+  display: flex;
+  gap: 8px;
+  font-size: 0.78rem;
+  color: #58402E;
+  line-height: 1.4;
+  background: #f3f7f0;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+/* ---------------------------------------------------
+   STEP 4: GCASH PAYMENT CONFIRMATION
+   --------------------------------------------------- */
+.resv-payment-step-wrapper {
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.resv-payment-layout-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+}
+
+.resv-gcash-card {
+  background: #005ce6;
+  color: #ffffff;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 92, 230, 0.2);
+}
+
+.resv-gcash-header {
+  background: #004bc2;
+  padding: 18px 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.resv-gcash-logo-pill {
+  font-size: 1.4rem;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  color: #ffffff;
+}
+
+.resv-gcash-secure-tag {
+  font-size: 0.75rem;
+  font-weight: 700;
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 10px;
+  border-radius: 9999px;
+}
+
+.resv-gcash-body {
+  padding: 24px;
+}
+
+.resv-gcash-account-box {
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.resv-gcash-account-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.resv-gcash-account-row:last-child {
+  margin-bottom: 0;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.resv-gcash-label {
+  opacity: 0.85;
+}
+
+.resv-gcash-value {
+  font-weight: 700;
+}
+
+.resv-gcash-highlight {
+  font-size: 1.15rem;
+  color: #F2D17E;
+}
+
+.resv-gcash-amount {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #ffffff;
+}
+
+.resv-instructions-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 10px 0;
+}
+
+.resv-instructions-list {
+  padding-left: 20px;
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  opacity: 0.95;
+}
+
+/* Payment Form Card */
+.resv-payment-form-card {
+  background: #ffffff;
+  border: 1px solid #ACAD79;
+  border-radius: 18px;
+  padding: 28px;
+  box-shadow: 0 8px 24px rgba(88, 64, 46, 0.06);
+}
+
+.resv-payment-form-title {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #43593B;
+  margin: 0 0 20px 0;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #f0eee8;
+}
+
+.resv-payment-alert-error {
+  background: #fef2f2;
+  border: 1px solid #f87171;
+  color: #991b1b;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+
+.resv-ref-input {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  color: #43593B;
+}
+
+.resv-confirmation-checkbox-group {
+  margin: 20px 0;
+}
+
+.resv-checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.resv-checkbox-input {
+  margin-top: 3px;
+  width: 18px;
+  height: 18px;
+  accent-color: #43593B;
+}
+
+.resv-checkbox-text {
+  font-size: 0.88rem;
+  color: #58402E;
+  line-height: 1.4;
+}
+
+.resv-order-quick-summary {
+  background: #faf8f5;
+  border: 1px solid #eae8e1;
+  border-radius: 10px;
+  padding: 12px 16px;
+  margin-bottom: 24px;
+}
+
+.resv-quick-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: #58402E;
+  margin-bottom: 4px;
+}
+
+.resv-payment-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.resv-confirm-btn {
+  background: #7CCE17;
+  color: #ffffff;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.resv-confirm-btn:hover:not(:disabled) {
+  background: #6bb313;
+  transform: translateY(-1px);
+}
+
+.resv-confirm-btn:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+}
+
+/* ---------------------------------------------------
+   STEP 5: SUCCESS & PRINTABLE RECEIPT
+   --------------------------------------------------- */
+.resv-receipt-step-wrapper {
+  max-width: 820px;
+  margin: 0 auto;
+}
+
+.resv-success-banner {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+.resv-success-icon-badge {
+  width: 56px;
+  height: 56px;
+  background: #7CCE17;
+  color: #ffffff;
+  border-radius: 50%;
+  font-size: 2rem;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px auto;
+  box-shadow: 0 8px 20px rgba(124, 206, 23, 0.3);
+}
+
+.resv-success-title {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #43593B;
+  margin: 0 0 8px 0;
+}
+
+.resv-success-subtext {
+  font-size: 0.95rem;
+  color: #58402E;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* Official Printable Receipt Document */
+.resv-receipt-document {
+  background: #ffffff;
+  border: 2px solid #ACAD79;
+  border-radius: 16px;
+  padding: 36px;
+  box-shadow: 0 10px 30px rgba(88, 64, 46, 0.08);
+  margin-bottom: 28px;
+}
+
+.resv-receipt-doc-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.resv-receipt-resort-title {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #43593B;
+  margin: 0 0 4px 0;
+}
+
+.resv-receipt-resort-sub {
+  font-size: 0.85rem;
+  color: #58402E;
+  margin: 0 0 2px 0;
+}
+
+.resv-receipt-id-box {
+  text-align: right;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.resv-receipt-id-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #ACAD79;
+  letter-spacing: 0.05em;
+}
+
+.resv-receipt-id-number {
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #58402E;
+  margin: 2px 0 4px 0;
+}
+
+.resv-receipt-status-badge {
+  background: #F2D17E;
+  color: #58402E;
+  font-size: 0.7rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 4px;
+}
+
+.resv-receipt-hr {
+  height: 1px;
+  background: #e5e3db;
+  margin: 20px 0;
+}
+
+.resv-receipt-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 28px;
+}
+
+.resv-receipt-field-title {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #ACAD79;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.resv-receipt-field-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  margin-bottom: 6px;
+}
+
+.resv-receipt-label {
+  color: #888888;
+}
+
+.resv-receipt-val {
+  font-weight: 600;
+  color: #58402E;
+}
+
+.resv-receipt-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 16px 0;
+}
+
+.resv-receipt-table th {
+  background: #f7f5ef;
+  color: #43593B;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 10px 12px;
+  text-align: left;
+  border-bottom: 2px solid #ACAD79;
+}
+
+.resv-th-amount,
+.resv-td-num {
+  text-align: right !important;
+}
+
+.resv-receipt-table td {
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  color: #58402E;
+  border-bottom: 1px solid #f0eee8;
+}
+
+.resv-tfoot-total-row td {
+  background: #faf8f3;
+  padding: 14px 12px;
+  border-top: 2px solid #ACAD79;
+}
+
+.resv-tfoot-label {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #43593B;
+}
+
+.resv-tfoot-amount {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #43593B;
+}
+
+.resv-receipt-payment-note {
+  background: #faf8f5;
+  border: 1px dashed #ACAD79;
+  border-radius: 10px;
+  padding: 14px;
+  margin-top: 18px;
+}
+
+.resv-receipt-note-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  color: #58402E;
+  margin-bottom: 8px;
+}
+
+.resv-receipt-terms {
+  font-size: 0.75rem;
+  color: #777777;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.resv-receipt-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+
+.resv-print-btn {
+  background: #43593B;
+  color: #ffffff;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.resv-print-btn:hover {
+  background: #33442d;
+}
+
+.resv-new-resv-btn {
+  background: #F2D17E;
+  color: #58402E;
+  border: 1px solid #ACAD79;
+  padding: 12px 28px;
+  border-radius: 9999px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.resv-new-resv-btn:hover {
+  background: #e2bd59;
+}
+
+/* ---------------------------------------------------
+   OCULAR MODAL STYLES
+   --------------------------------------------------- */
+.resv-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.resv-modal-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+}
+
+.resv-ocular-modal-card {
+  position: relative;
+  background: #ffffff;
+  border: 1px solid #ACAD79;
+  border-radius: 18px;
+  padding: 32px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
+  z-index: 10;
+  animation: resvModalFadeIn 0.25s ease;
+}
+
+@keyframes resvModalFadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.resv-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.resv-modal-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #43593B;
+  margin: 0;
+}
+
+.resv-modal-close-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #888888;
+  cursor: pointer;
+}
+
+.resv-modal-desc {
+  font-size: 0.88rem;
+  color: #58402E;
+  margin: 0 0 20px 0;
+  line-height: 1.4;
+}
+
+.resv-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.resv-slot-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.resv-slot-card {
+  border: 1px solid #ACAD79;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.resv-slot-card-active {
+  border-color: #43593B;
+  background: #f4f8f1;
+}
+
+.resv-slot-radio {
+  margin-top: 3px;
+  accent-color: #43593B;
+}
+
+.resv-slot-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.resv-slot-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #43593B;
+}
+
+.resv-slot-time {
+  font-size: 0.75rem;
+  color: #58402E;
+}
+
+.resv-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+/* ---------------------------------------------------
+   PRINT MEDIA STYLES
+   --------------------------------------------------- */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #resv-printable-slip,
+  #resv-printable-slip * {
+    visibility: visible;
+  }
+  #resv-printable-slip {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+  }
+}
+
+/* ---------------------------------------------------
+   RESPONSIVE DESIGN
+   --------------------------------------------------- */
+@media (max-width: 960px) {
+  .sched-main-layout {
+    grid-template-columns: 1fr;
+  }
+  .resv-form-layout-grid {
+    grid-template-columns: 1fr;
+  }
+  .resv-payment-layout-grid {
+    grid-template-columns: 1fr;
+  }
+  .resv-type-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .sched-row-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  .sched-row-info-col {
+    align-items: flex-start;
+    margin-right: 0;
+  }
+  .resv-form-row-2col {
+    grid-template-columns: 1fr;
+  }
+  .resv-stepper-track {
+    padding: 10px 14px;
+  }
+  .resv-step-label {
+    display: none;
+  }
+  .resv-calendar-actions-bar {
+    flex-direction: column;
+    gap: 14px;
+  }
+  .resv-receipt-info-grid {
+    grid-template-columns: 1fr;
+  }
 }
