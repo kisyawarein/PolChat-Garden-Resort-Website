@@ -136,7 +136,7 @@
    STEPPER TRACK
    --------------------------------------------------- */
 .resv-progress-container {
-  max-width: 720px;
+  max-width: 760px;
   margin: 0 auto 36px auto;
 }
 
@@ -144,11 +144,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #ffffff;
-  padding: 14px 24px;
+  background-color: #ffffff;
+  padding: 12px 28px;
   border-radius: 9999px;
-  border: 1px solid #ACAD79;
-  box-shadow: 0 4px 12px rgba(88, 64, 46, 0.05);
+  border: 1.5px solid #D2DEC9;
+  box-shadow: 0 4px 14px rgba(67, 89, 59, 0.05);
 }
 
 .resv-stepper-step {
@@ -164,49 +164,52 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  font-size: 0.9rem;
+  font-weight: 800;
+  font-size: 0.88rem;
+  transition: all 0.2s ease;
 }
 
 .resv-step-current .resv-step-num {
-  background: #43593B;
+  background-color: #43593B;
   color: #ffffff;
 }
 
 .resv-step-current .resv-step-label {
   color: #43593B;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .resv-step-done .resv-step-num {
-  background: #7CCE17;
+  background-color: #7CCE17;
   color: #ffffff;
 }
 
 .resv-step-done .resv-step-label {
   color: #58402E;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .resv-step-pending .resv-step-num {
-  background: #eae8e1;
-  color: #888888;
+  background-color: #FAFBF8;
+  border: 1.5px solid #D2DEC9;
+  color: #796656;
 }
 
 .resv-step-pending .resv-step-label {
-  color: #888888;
-  font-weight: 500;
+  color: #796656;
+  font-weight: 600;
 }
 
 .resv-step-label {
-  font-size: 0.9rem;
+  font-size: 0.92rem;
+  letter-spacing: 0.02em;
 }
 
 .resv-step-line {
   flex: 1;
   height: 2px;
-  background: #e2e0d8;
-  margin: 0 12px;
+  background-color: #D2DEC9;
+  margin: 0 14px;
 }
 
 /* ===================================================
@@ -419,7 +422,7 @@
    IMAGE 2: SCHEDULE TYPE STEP (DAY / OVERNIGHT / 22 HOURS)
    =================================================== */
 .sched-step-container {
-  max-width: 1040px;
+  max-width: 1080px;
   margin: 0 auto;
 }
 
@@ -428,46 +431,57 @@
 }
 
 .sched-back-type-btn {
-  background: #e6e4dc;
-  color: #58402E;
-  border: 1px solid #ACAD79;
-  padding: 8px 18px;
+  background-color: #FAFBF8;
+  color: #43593B;
+  border: 1.5px solid #ACAD79;
+  padding: 9px 20px;
   border-radius: 9999px;
   font-size: 0.88rem;
-  font-weight: 600;
+  font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .sched-back-type-btn:hover {
-  background: #d8d5cb;
+  background-color: #EDE8DE;
+  border-color: #43593B;
+  transform: translateX(-2px);
 }
 
 .sched-main-layout {
   display: grid;
-  grid-template-columns: 1fr 320px;
+  grid-template-columns: 1fr 340px;
   gap: 28px;
   align-items: start;
 }
 
+@media (max-width: 960px) {
+  .sched-main-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* Left Column: Image Box + Schedule List */
 .sched-left-column {
-  background: #e6e4dc;
-  border: 2px solid #58402E;
-  border-radius: 12px;
+  background-color: #ffffff;
+  border: 1.5px solid #D2DEC9;
+  border-radius: 16px;
   padding: 24px;
-  box-shadow: 0 8px 24px rgba(88, 64, 46, 0.08);
+  box-shadow: 0 4px 16px rgba(67, 89, 59, 0.05);
 }
 
 /* Top Large Picture Box */
 .sched-preview-box {
   width: 100%;
-  height: 280px;
-  border: 2px solid #58402E;
-  border-radius: 6px;
+  height: 300px;
+  border: 1.5px solid #D2DEC9;
+  border-radius: 12px;
   overflow: hidden;
   position: relative;
-  background: #cbc8bd;
+  background-color: #EDE8DE;
   margin-bottom: 20px;
 }
 
@@ -482,30 +496,43 @@
   position: absolute;
   bottom: 16px;
   right: 20px;
-  font-size: 2rem;
+  font-size: 1.5rem;
   font-weight: 900;
   color: #ffffff;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
-  letter-spacing: 0.04em;
+  background-color: rgba(67, 89, 59, 0.88);
+  padding: 6px 20px;
+  border-radius: 8px;
+  letter-spacing: 0.05em;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
 /* Schedule List */
 .sched-list-container {
   display: flex;
   flex-direction: column;
+  gap: 12px;
 }
 
 .sched-row-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 10px;
-  border-radius: 8px;
-  transition: background 0.2s ease;
+  padding: 16px 20px;
+  background-color: #FAFBF8;
+  border: 1.5px solid #EDE8DE;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.sched-row-item:hover {
+  border-color: #ACAD79;
+  background-color: #ffffff;
 }
 
 .sched-row-item-active {
-  background: rgba(124, 206, 23, 0.15);
+  background-color: #F2F7F0 !important;
+  border-color: #43593B !important;
+  box-shadow: 0 4px 14px rgba(67, 89, 59, 0.08);
 }
 
 .sched-row-title-col {
@@ -513,9 +540,9 @@
 }
 
 .sched-row-name {
-  font-size: 1.4rem;
+  font-size: 1.25rem;
   font-weight: 800;
-  color: #111111;
+  color: #58402E;
   letter-spacing: -0.01em;
 }
 
@@ -528,15 +555,15 @@
 }
 
 .sched-row-price {
-  font-size: 0.95rem;
+  font-size: 1.05rem;
   font-weight: 800;
-  color: #111111;
+  color: #43593B;
 }
 
 .sched-row-time {
   font-size: 0.78rem;
   font-weight: 600;
-  color: #444444;
+  color: #796656;
   margin-top: 2px;
 }
 
@@ -550,26 +577,25 @@
 }
 
 .sched-select-btn {
-  background: #e6e4dc;
-  color: #111111;
-  border: 2px solid #58402E;
+  background-color: #FAFBF8;
+  color: #43593B;
+  border: 1.5px solid #43593B;
   padding: 8px 22px;
   border-radius: 9999px;
-  font-size: 0.85rem;
+  font-size: 0.84rem;
   font-weight: 800;
   cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease, transform 0.15s ease;
+  transition: all 0.18s ease;
 }
 
 .sched-select-btn:hover {
-  background: #7CCE17;
+  background-color: #43593B;
   color: #ffffff;
-  border-color: #43593B;
-  transform: scale(1.04);
+  transform: translateY(-1px);
 }
 
 .sched-select-btn-active {
-  background: #43593B !important;
+  background-color: #43593B !important;
   color: #ffffff !important;
   border-color: #43593B !important;
 }
@@ -580,88 +606,88 @@
 }
 
 .sched-divider-line {
-  height: 2px;
-  background: #58402E;
-  width: 100%;
-  margin: 4px 0;
-  opacity: 0.85;
+  display: none;
 }
 
-/* Right Column (No tall empty rectangle, clean summary & CONTINUE button) */
+/* Right Column Summary */
 .sched-right-column {
   display: flex;
   flex-direction: column;
 }
 
 .sched-summary-panel {
-  background: #e6e4dc;
-  border: 2px solid #58402E;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 8px 24px rgba(88, 64, 46, 0.08);
+  background-color: #ffffff;
+  border: 1.5px solid #D2DEC9;
+  border-radius: 16px;
+  padding: 26px 22px;
+  box-shadow: 0 4px 16px rgba(67, 89, 59, 0.05);
+  display: flex;
+  flex-direction: column;
 }
 
 .sched-summary-title {
-  font-size: 1.25rem;
+  font-size: 1.3rem;
   font-weight: 800;
   color: #43593B;
   margin: 0 0 16px 0;
-  padding-bottom: 10px;
-  border-bottom: 2px solid #58402E;
+  padding-bottom: 12px;
+  border-bottom: 1.5px solid #EDE8DE;
 }
 
 .sched-summary-detail-row {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   font-size: 0.9rem;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 
 .sched-summary-label {
-  color: #666666;
-  font-weight: 500;
+  color: #796656;
+  font-weight: 600;
 }
 
 .sched-summary-value {
-  font-weight: 700;
-  color: #111111;
+  font-weight: 800;
+  color: #58402E;
   text-align: right;
 }
 
 .sched-summary-price {
-  color: #43593B;
-  font-size: 1.1rem;
+  color: #43593B !important;
+  font-size: 1.15rem;
 }
 
 .sched-summary-note {
-  font-size: 0.78rem;
+  font-size: 0.8rem;
   color: #58402E;
-  background: rgba(255, 255, 255, 0.6);
-  padding: 10px;
+  background-color: #FAFBF8;
+  border: 1px solid #EDE8DE;
+  padding: 12px 14px;
   border-radius: 8px;
   margin: 16px 0 20px 0;
-  line-height: 1.4;
+  line-height: 1.5;
 }
 
 .sched-continue-btn {
   width: 100%;
-  background: #8e8d85;
-  color: #111111;
-  border: 2px solid #58402E;
-  padding: 16px;
+  background-color: #43593B;
+  color: #ffffff;
+  border: none;
+  padding: 14px 20px;
   border-radius: 9999px;
-  font-size: 1.2rem;
-  font-weight: 900;
+  font-size: 1.05rem;
+  font-weight: 800;
   cursor: pointer;
   letter-spacing: 0.03em;
-  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
+  box-shadow: 0 4px 14px rgba(67, 89, 59, 0.25);
+  transition: all 0.2s ease;
 }
 
 .sched-continue-btn:hover {
-  background: #43593B;
-  color: #ffffff;
-  border-color: #43593B;
+  background-color: #58402E;
   transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(88, 64, 46, 0.28);
 }
 
 /* ---------------------------------------------------

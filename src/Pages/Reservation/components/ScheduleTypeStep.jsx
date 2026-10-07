@@ -148,7 +148,7 @@ function ScheduleTypeStep({
               </div>
 
               <div className="sched-row-info-col">
-                <span className="sched-row-price">PHP 9,000.00</span>
+                <span className="sched-row-price">PHP {Number(dayPkg.duration_price || 9000).toLocaleString()}.00</span>
                 <span className="sched-row-time">TIME: 9:00 AM - 5:00 PM</span>
               </div>
 
@@ -178,7 +178,7 @@ function ScheduleTypeStep({
               </div>
 
               <div className="sched-row-info-col">
-                <span className="sched-row-price">PHP 10,000.00</span>
+                <span className="sched-row-price">PHP {Number(overnightPkg.duration_price || 10000).toLocaleString()}.00</span>
                 <span className="sched-row-time">TIME: 8:00 PM - 6:00 AM</span>
               </div>
 
@@ -210,7 +210,7 @@ function ScheduleTypeStep({
               </div>
 
               <div className="sched-row-info-col">
-                <span className="sched-row-price">PHP 17,000.00</span>
+                <span className="sched-row-price">PHP {Number(day22Pkg.duration_price || 17000).toLocaleString()}.00</span>
                 <span className="sched-row-time">
                   {currentSelectedId === 4
                     ? 'TIME: 8:00 PM - 6:00 PM (Night Start)'
@@ -244,7 +244,7 @@ function ScheduleTypeStep({
           </div>
         </div>
 
-        {/* Right Side Container (No tall pointless box, clean continue button & summary) */}
+        {/* Right Side Container */}
         <div className="sched-right-column">
           <div className="sched-summary-panel">
             <h3 className="sched-summary-title">Selected Schedule</h3>
