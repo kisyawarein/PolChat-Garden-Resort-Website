@@ -155,6 +155,17 @@ function Sidebar({
                     <span className="sidebar-item-label">Executive Analytics</span>
                   </button>
                 </li>
+                {/* 7. Prices & Policies */}
+                <li>
+                  <button
+                    type="button"
+                    className={`sidebar-nav-item ${currentPage === 'prices-policies' ? 'sidebar-nav-item-active' : ''}`}
+                    onClick={() => handleNav('prices-policies')}
+                  >
+                    <span className="sidebar-item-icon">🏷️</span>
+                    <span className="sidebar-item-label">Prices & Policies</span>
+                  </button>
+                </li>
               </ul>
             </div>
           ) : (
@@ -164,11 +175,11 @@ function Sidebar({
                 <li>
                   <button
                     type="button"
-                    className={`sidebar-nav-item ${currentPage === 'reservation' ? 'sidebar-nav-item-active' : ''}`}
-                    onClick={() => handleNav('reservation')}
+                    className={`sidebar-nav-item ${currentPage === 'my-reservations' ? 'sidebar-nav-item-active' : ''}`}
+                    onClick={() => handleNav('my-reservations')}
                   >
-                    <span className="sidebar-item-icon">🎫</span>
-                    <span className="sidebar-item-label">Book a Reservation</span>
+                    <span className="sidebar-item-icon">📋</span>
+                    <span className="sidebar-item-label">My Reservations</span>
                   </button>
                 </li>
                 <li>

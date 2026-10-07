@@ -22,6 +22,7 @@ function Navbar({ currentPage, onNavigate, onToggleSidebar }) {
     { id: 'customer-inquiries', label: '💬 Inquiries' },
     { id: 'customer-reviews', label: '⭐ Reviews' },
     { id: 'analytics', label: '📈 Analytics' },
+    { id: 'prices-policies', label: '🏷️ Prices & Policies' },
   ]
 
   const navItems = isAdmin ? adminNavItems : guestNavItems
@@ -50,13 +51,13 @@ function Navbar({ currentPage, onNavigate, onToggleSidebar }) {
 
   return (
     <header className="navbar-wrapper">
-      {/* Burger Icon Button (Only when logged in) */}
-      {isAuthenticated && (
+      {/* Burger Icon Button (Only for Customer accounts, removed for Admin) */}
+      {isAuthenticated && !isAdmin && (
         <button
           type="button"
           className="navbar-burger-btn"
           onClick={onToggleSidebar}
-          title="Open Portal Menu"
+          title="Open Customer Portal Menu"
           aria-label="Toggle Portal Navigation Menu"
         >
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -115,7 +116,11 @@ function Navbar({ currentPage, onNavigate, onToggleSidebar }) {
       <div className="navbar-right-actions">
         {isAuthenticated ? (
           <div className="navbar-user-container">
-            <div className="navbar-user-chip" onClick={onToggleSidebar} style={{ cursor: 'pointer' }}>
+            <div
+              className="navbar-user-chip"
+              onClick={!isAdmin ? onToggleSidebar : undefined}
+              style={{ cursor: !isAdmin ? 'pointer' : 'default' }}
+            >
               <span className="navbar-user-name">{user?.name || user?.username}</span>
               <span className={isAdmin ? 'navbar-user-role-badge navbar-role-admin' : 'navbar-user-role-badge navbar-role-customer'}>
                 {isAdmin ? 'Admin' : 'Guest'}

@@ -91,31 +91,6 @@ function BookingCatalog() {
         </div>
       )}
 
-      {/* Main Top Header Bar */}
-      <div className="booking-catalog-header-bar">
-        <div className="catalog-title-group">
-          <h1 className="catalog-main-title">Reservations & Bookings Catalog</h1>
-        </div>
-
-        {/* List / Calendar Mode Switcher */}
-        <div className="catalog-mode-switcher">
-          <button
-            type="button"
-            className={`catalog-mode-btn ${viewMode === 'list' ? 'catalog-mode-btn-active' : ''}`}
-            onClick={() => setViewMode('list')}
-          >
-            📋 Consolidated List
-          </button>
-          <button
-            type="button"
-            className={`catalog-mode-btn ${viewMode === 'calendar' ? 'catalog-mode-btn-active' : ''}`}
-            onClick={() => setViewMode('calendar')}
-          >
-            📅 Calendar Schedule
-          </button>
-        </div>
-      </div>
-
       {/* Top Row: Shared Summary Cards across full width */}
       <div className="catalog-top-summary-wrap">
         <SummaryCards reservations={reservations} visitations={visitations} />
@@ -139,6 +114,8 @@ function BookingCatalog() {
           <div className="catalog-schedule-panel">
             {viewMode === 'list' ? (
               <ListView
+                viewMode={viewMode}
+                setViewMode={setViewMode}
                 reservations={reservations}
                 visitations={visitations}
                 onUpdateReservationStatus={handleUpdateReservationStatus}
@@ -148,6 +125,8 @@ function BookingCatalog() {
               />
             ) : (
               <CalendarView
+                viewMode={viewMode}
+                setViewMode={setViewMode}
                 reservations={reservations}
                 visitations={visitations}
                 onUpdateReservationStatus={handleUpdateReservationStatus}

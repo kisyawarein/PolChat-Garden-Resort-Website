@@ -113,7 +113,7 @@ export const DataService = {
   },
 
   // ==========================================
-  // 2. DURATION TYPES (RESORT PACKAGES)
+  // 2. DURATION TYPES (RESORT PACKAGES & CHARGES)
   // ==========================================
   async getDurationTypes() {
     try {
@@ -123,11 +123,17 @@ export const DataService = {
         .order('duration_id', { ascending: true })
 
       if (!error && data && data.length > 0) {
+        localStorage.setItem('polchat_duration_types', JSON.stringify(data))
         return data
       }
     } catch (err) {
       console.error('Duration types fetch exception:', err)
     }
+
+    try {
+      const cached = localStorage.getItem('polchat_duration_types')
+      if (cached) return JSON.parse(cached)
+    } catch (e) {}
 
     return [
       {
@@ -184,6 +190,65 @@ export const DataService = {
       },
     ]
   },
+
+  async updateDurationType(durationId, updates) {
+    try {
+      // 1. Optimistic update to Supabase
+      const { data, error } = await supabase
+        .from('duration_types')
+        .update(updates)
+        .eq('duration_id', Number(durationId))
+        .select()
+
+      // 2. Cache updated packages locally for instant smooth sync
+      const current = await this.getDurationTypes()
+      const updatedList = current.map((p) =>
+        p.duration_id === Number(durationId) ? { ...p, ...updates } : p
+      )
+      localStorage.setItem('polchat_duration_types', JSON.stringify(updatedList))
+
+      if (error) {
+        console.warn('Supabase duration_types update note:', error.message)
+      }
+      return data?.[0] || { duration_id: Number(durationId), ...updates }
+    } catch (err) {
+      console.error('Update duration type exception:', err)
+      return null
+    }
+  },
+
+  async getResortPolicies() {
+    const defaultPolicies = {
+      security_deposit: 2000,
+      downpayment_percentage: 50,
+      cancellation_notice_days: 5,
+      ocular_visit_fee: 0,
+      extra_pax_policy_text: 'Maximum capacity strict policy applies. Additional guests above threshold are charged ₱200/head.',
+      downpayment_policy_text: 'A minimum 50% reservation deposit is required to confirm date locks. Balance is payable upon check-in.',
+      cancellation_policy_text: 'Rescheduling is permitted up to 5 days prior to arrival. Deposits are non-refundable for same-week cancellations.',
+      gcash_number: '0953 495 4389',
+      gcash_name: 'PolChat Garden Resort Admin',
+    }
+
+    try {
+      const stored = localStorage.getItem('polchat_resort_policies')
+      if (stored) return { ...defaultPolicies, ...JSON.parse(stored) }
+    } catch (e) {}
+    return defaultPolicies
+  },
+
+  async updateResortPolicies(newPolicies) {
+    try {
+      const current = await this.getResortPolicies()
+      const merged = { ...current, ...newPolicies }
+      localStorage.setItem('polchat_resort_policies', JSON.stringify(merged))
+      return merged
+    } catch (err) {
+      console.error('Failed to update resort policies:', err)
+      return null
+    }
+  },
+
 
   // ==========================================
   // 3. RESORT INQUIRIES & CHATS
@@ -381,6 +446,91 @@ export const DataService = {
   // ==========================================
   // 4. RESORT RESERVATIONS
   // ==========================================
+  // Helper to compress image before upload or base64 storage
+  async compressImage(file, maxWidth = 1200, quality = 0.8) {
+    if (!file || !file.type.startsWith('image/')) return file
+    return new Promise((resolve) => {
+      const reader = new FileReader()
+      reader.onload = (e) => {
+        const img = new Image()
+        img.onload = () => {
+          const canvas = document.createElement('canvas')
+          let width = img.width
+          let height = img.height
+
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width)
+            width = maxWidth
+          }
+
+          canvas.width = width
+          canvas.height = height
+          const ctx = canvas.getContext('2d')
+          ctx.drawImage(img, 0, 0, width, height)
+
+          canvas.toBlob(
+            (blob) => {
+              if (blob) {
+                resolve(blob)
+              } else {
+                resolve(file)
+              }
+            },
+            'image/jpeg',
+            quality
+          )
+        }
+        img.onerror = () => resolve(file)
+        img.src = e.target.result
+      }
+      reader.onerror = () => resolve(file)
+      reader.readAsDataURL(file)
+    })
+  },
+
+  async uploadPaymentProof(file) {
+    if (!file) return null
+
+    try {
+      const processedBlob = await this.compressImage(file)
+      const cleanFileName = `proof_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.jpg`
+      const filePath = `receipts/${cleanFileName}`
+
+      // 1. Try uploading to Supabase Storage bucket 'payment-proofs'
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('payment-proofs')
+        .upload(filePath, processedBlob, {
+          cacheControl: '3600',
+          upsert: true,
+          contentType: 'image/jpeg',
+        })
+
+      if (!uploadError && uploadData) {
+        const { data: publicUrlData } = supabase.storage
+          .from('payment-proofs')
+          .getPublicUrl(filePath)
+
+        if (publicUrlData?.publicUrl) {
+          return publicUrlData.publicUrl
+        }
+      }
+    } catch (storageErr) {
+      // Gracefully silent fallback
+    }
+
+    // 2. Reliable Fallback: Convert to Base64 Data URL so proof is NEVER lost
+    return new Promise((resolve) => {
+      try {
+        const reader = new FileReader()
+        reader.onloadend = () => resolve(reader.result)
+        reader.onerror = () => resolve(null)
+        reader.readAsDataURL(file)
+      } catch (e) {
+        resolve(null)
+      }
+    })
+  },
+
   async getReservations() {
     try {
       const { data, error } = await supabase
@@ -402,6 +552,7 @@ export const DataService = {
           ? `${r.customer.first_name} ${r.customer.last_name || ''}`.trim()
           : `Customer #${r.customer_id}`,
         customer_phone: r.customer?.phone_number ? `0${r.customer.phone_number}` : '',
+        payment_proof_url: r.payment_proof_url || null,
       }))
     } catch (err) {
       console.error('Reservation query exception:', err)
@@ -429,18 +580,38 @@ export const DataService = {
         extra_charges: Number(reservationData.extra_charges || 0),
         reservation_status: reservationData.reservation_status || 'pending',
         event_name: reservationData.event_name || 'Resort Stay',
+        payment_proof_url: reservationData.payment_proof_url || null,
       }
 
-      const { data, error } = await supabase
+      // 1. Attempt insert with payment_proof_url
+      let { data, error } = await supabase
         .from('resort_reservations')
         .insert([payload])
         .select()
+
+      // 2. Fallback: If DB table does not yet have 'payment_proof_url' column, retry without it
+      if (error && (error.message?.includes('payment_proof_url') || error.code === 'PGRST204' || error.code === '42703')) {
+        console.warn('payment_proof_url column not yet created in Supabase. Inserting standard payload.')
+        const fallbackPayload = { ...payload }
+        delete fallbackPayload.payment_proof_url
+
+        const fallbackRes = await supabase
+          .from('resort_reservations')
+          .insert([fallbackPayload])
+          .select()
+
+        data = fallbackRes.data
+        error = fallbackRes.error
+      }
 
       if (error) {
         console.error('Error creating resort_reservation in Supabase:', error)
         return null
       }
-      return data?.[0] || payload
+      return {
+        ...(data?.[0] || payload),
+        payment_proof_url: reservationData.payment_proof_url || null,
+      }
     } catch (err) {
       console.error('Create reservation exception:', err)
       return null

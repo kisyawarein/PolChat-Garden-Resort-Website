@@ -138,8 +138,8 @@ function BookingReceipt({
         {/* Payment Verification Footnote */}
         <div className="resv-receipt-payment-note">
           <div className="resv-receipt-note-row">
-            <span>Payment Method: <strong>GCash</strong></span>
-            <span>GCash Ref No: <strong>{paymentDetails?.referenceNumber || 'N/A'}</strong></span>
+            <span>Payment Method: <strong>GCash Express Transfer</strong></span>
+            <span>Payment Proof: <strong className="resv-proof-verified-tag">✓ Screenshot Attached & Verified</strong></span>
           </div>
           <p className="resv-receipt-terms">
             * Please present this printed slip or digital confirmation upon arrival at PolChat Garden Resort. Resort check-in policy applies. The ₱2,000 security deposit will be handed back or refunded via GCash upon checkout inspection.

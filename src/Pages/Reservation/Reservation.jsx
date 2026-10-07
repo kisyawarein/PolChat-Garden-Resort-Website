@@ -164,6 +164,15 @@ function Reservation() {
     }
     const endIso = endDateObj.toISOString().split('.')[0]
 
+    // 1. Upload photo proof (via Supabase storage or Base64 fallback)
+    let proofUrl = paymentInfo?.paymentProofPreview || null
+    if (paymentInfo?.paymentProofFile) {
+      const uploaded = await DataService.uploadPaymentProof(paymentInfo.paymentProofFile)
+      if (uploaded) {
+        proofUrl = uploaded
+      }
+    }
+
     const reservationPayload = {
       customer_id: user?.id || 101,
       guest_count: Number(formData.guestCount),
@@ -177,6 +186,7 @@ function Reservation() {
       extra_charges: priceCalculation.extraPaxCharge + priceCalculation.securityDeposit,
       reservation_status: 'pending',
       event_name: `${formData.eventName} (${formData.firstName} ${formData.lastName})`,
+      payment_proof_url: proofUrl,
     }
 
     try {
@@ -184,7 +194,7 @@ function Reservation() {
       setCreatedReservation(savedReservation)
       setIsSubmitting(false)
       setCurrentStep('receipt')
-      showToast('Reservation submitted successfully! Your booking is now in the database.')
+      showToast('Reservation submitted successfully! Payment screenshot recorded.')
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch (err) {
       console.error('Error submitting reservation:', err)

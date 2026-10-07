@@ -860,3 +860,52 @@
   font-size: 3rem;
   margin-bottom: 12px;
 }
+
+/* Logged-out Guest Lock Styles */
+.support-locked-inquiry-wrap {
+  width: 100%;
+}
+
+.support-locked-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background-color: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fde68a;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+.support-field-hint {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+.support-locked-footer-login {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px dashed #cbd5e1;
+  font-size: 0.86rem;
+  color: #475569;
+  text-align: center;
+}
+
+.support-inline-login-btn {
+  background: none;
+  border: none;
+  color: var(--color-forest, #43593B);
+  font-weight: 800;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0 4px;
+  font-size: 0.86rem;
+}
+
+.support-inline-login-btn:hover {
+  color: var(--color-bark, #58402E);
+}

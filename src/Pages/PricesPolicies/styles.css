@@ -1,0 +1,503 @@
+/* =========================================================
+   Prices and Policies Admin Page Stylesheet
+   Color Tokens:
+   #7CCE17 (Lime/Accent Green)
+   #F2D17E (Sand/Gold)
+   #ACAD79 (Sage)
+   #43593B (Forest Green)
+   #58402E (Deep Bark Brown)
+   ========================================================= */
+
+.pp-page-wrapper {
+  padding: 36px 40px 60px;
+  max-width: 1440px;
+  margin: 0 auto;
+  min-height: calc(100vh - 80px);
+  background-color: #FAFBF8;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+/* Header & Tabs */
+.pp-top-header {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background-color: #ffffff;
+  padding: 24px 30px;
+  border-radius: 14px;
+  border: 1.5px solid #D2DEC9;
+  box-shadow: 0 4px 14px rgba(67, 89, 59, 0.05);
+}
+
+.pp-title-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pp-badge-tag {
+  align-self: flex-start;
+  background-color: #43593B;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  text-transform: uppercase;
+}
+
+.pp-main-heading {
+  margin: 0;
+  font-size: 1.85rem;
+  font-weight: 900;
+  color: #43593B;
+  letter-spacing: -0.02em;
+}
+
+.pp-main-subtext {
+  margin: 0;
+  font-size: 0.92rem;
+  color: #58402E;
+  line-height: 1.5;
+  max-width: 900px;
+}
+
+/* Tabs Bar */
+.pp-tabs-bar {
+  display: flex;
+  gap: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed #D2DEC9;
+}
+
+.pp-tab-btn {
+  background-color: #FAFBF8;
+  border: 1.5px solid #ACAD79;
+  color: #43593B;
+  font-weight: 800;
+  font-size: 0.88rem;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.pp-tab-btn:hover {
+  background-color: #EDE8DE;
+}
+
+.pp-tab-btn-active {
+  background-color: #43593B;
+  color: #ffffff;
+  border-color: #43593B;
+}
+
+/* Loading State */
+.pp-loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 12px;
+  color: #58402E;
+  font-weight: 700;
+}
+
+.pp-spinner {
+  width: 36px;
+  height: 36px;
+  border: 3.5px solid #D2DEC9;
+  border-top-color: #43593B;
+  border-radius: 50%;
+  animation: ppSpin 0.8s linear infinite;
+}
+
+@keyframes ppSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* Content Body & Cards */
+.pp-content-body {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.pp-section-card {
+  background-color: #ffffff;
+  border: 1.5px solid #D2DEC9;
+  border-radius: 14px;
+  padding: 24px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  box-shadow: 0 4px 14px rgba(67, 89, 59, 0.04);
+}
+
+.pp-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1.5px solid #EDE8DE;
+}
+
+.pp-header-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pp-section-title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #43593B;
+}
+
+.pp-section-desc {
+  margin: 0;
+  font-size: 0.86rem;
+  color: #796656;
+}
+
+.pp-edit-btn {
+  background-color: #FAFBF8;
+  color: #43593B;
+  border: 1.5px solid #43593B;
+  font-weight: 800;
+  font-size: 0.84rem;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.pp-edit-btn:hover {
+  background-color: #43593B;
+  color: #ffffff;
+}
+
+.pp-success-banner {
+  background-color: #EBF7DF;
+  color: #2F5E12;
+  border: 1.5px solid #7CCE17;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* Packages Grid */
+.pp-packages-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 960px) {
+  .pp-packages-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pp-package-card {
+  background-color: #FAFBF8;
+  border: 1.5px solid #D2DEC9;
+  border-radius: 12px;
+  padding: 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  transition: all 0.2s ease;
+}
+
+.pp-package-card:hover {
+  border-color: #ACAD79;
+}
+
+.pp-package-editing {
+  border-color: #43593B;
+  background-color: #ffffff;
+  box-shadow: 0 6px 18px rgba(67, 89, 59, 0.08);
+}
+
+.pp-package-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.pp-package-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pp-pkg-badge {
+  align-self: flex-start;
+  color: #ffffff;
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.05em;
+}
+
+.pp-pkg-name {
+  margin: 0;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: #58402E;
+}
+
+/* Price Hero in Card */
+.pp-price-hero {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  padding-bottom: 8px;
+  border-bottom: 1px dashed #D2DEC9;
+}
+
+.pp-currency {
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: #43593B;
+}
+
+.pp-amount {
+  font-size: 2rem;
+  font-weight: 900;
+  color: #43593B;
+}
+
+.pp-period {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #796656;
+}
+
+/* Spec Grid */
+.pp-spec-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px 14px;
+}
+
+.pp-spec-item {
+  display: flex;
+  flex-direction: column;
+  background-color: #ffffff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #EDE8DE;
+}
+
+.pp-spec-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #796656;
+  text-transform: uppercase;
+}
+
+.pp-spec-val {
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #58402E;
+  margin-top: 2px;
+}
+
+/* Form Styles */
+.pp-edit-form,
+.pp-global-form,
+.pp-policy-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.pp-form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px 18px;
+}
+
+@media (max-width: 768px) {
+  .pp-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pp-time-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.pp-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pp-label {
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #43593B;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.pp-input,
+.pp-textarea {
+  border: 1.5px solid #ACAD79;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font-size: 0.88rem;
+  font-family: inherit;
+  outline: none;
+  background-color: #ffffff;
+  color: #58402E;
+  transition: border-color 0.2s ease;
+}
+
+.pp-input:focus,
+.pp-textarea:focus {
+  border-color: #43593B;
+}
+
+.pp-field-hint {
+  font-size: 0.72rem;
+  color: #796656;
+}
+
+.pp-action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.pp-save-btn {
+  background-color: #43593B;
+  color: #ffffff;
+  border: none;
+  font-weight: 800;
+  font-size: 0.86rem;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.pp-save-btn:hover {
+  background-color: #58402E;
+}
+
+.pp-save-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.pp-cancel-btn {
+  background-color: #FAFBF8;
+  color: #58402E;
+  border: 1px solid #D2DEC9;
+  font-weight: 700;
+  font-size: 0.86rem;
+  padding: 10px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.pp-cancel-btn:hover {
+  background-color: #EDE8DE;
+}
+
+/* Global Cards Grid */
+.pp-global-display-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1024px) {
+  .pp-global-display-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .pp-global-display-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.pp-global-card {
+  background-color: #FAFBF8;
+  border: 1.5px solid #D2DEC9;
+  border-radius: 10px;
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pp-global-card-label {
+  font-size: 0.7rem;
+  font-weight: 800;
+  color: #796656;
+  letter-spacing: 0.05em;
+}
+
+.pp-global-card-val {
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: #43593B;
+}
+
+.pp-global-card-sub {
+  font-size: 0.76rem;
+  color: #58402E;
+}
+
+/* Policy Display Stack */
+.pp-policy-display-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pp-policy-block {
+  background-color: #FAFBF8;
+  border: 1.5px solid #D2DEC9;
+  border-radius: 10px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pp-policy-subtitle {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #58402E;
+}
+
+.pp-policy-text {
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: #43593B;
+}

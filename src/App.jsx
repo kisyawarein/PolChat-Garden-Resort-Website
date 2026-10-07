@@ -13,11 +13,13 @@ import EventsRates from './Pages/EventsRates/EventsRates'
 import Directions from './Pages/Directions/Directions'
 import Support from './Pages/Support/Support'
 import Reservation from './Pages/Reservation/Reservation'
+import MyReservations from './Pages/MyReservations/MyReservations'
 import BookingCatalog from './Pages/BookingCatalog/BookingCatalog'
 import CustomerRecords from './Pages/CustomerRecords/CustomerRecords'
 import CustomerInquiries from './Pages/CustomerInquiries/CustomerInquiries'
 import CustomerReviews from './Pages/CustomerReviews/CustomerReviews'
 import Analytics from './Pages/Analytics/Analytics'
+import PricesPolicies from './Pages/PricesPolicies/PricesPolicies'
 import './App.css'
 
 function AppContent() {
@@ -39,12 +41,33 @@ function AppContent() {
   // Redirect admin to dashboard if they are currently on a guest page
   useEffect(() => {
     if (isAdmin) {
-      const publicPages = ['home', 'about', 'facilities', 'gallery', 'events-rates', 'directions', 'support', 'reservation']
+      const publicPages = ['home', 'about', 'facilities', 'gallery', 'events-rates', 'directions', 'support', 'reservation', 'my-reservations']
       if (publicPages.includes(currentPage)) {
         setCurrentPage('dashboard')
       }
     }
   }, [isAdmin, currentPage])
+
+  // When logged out, exit from admin or customer-protected pages and default to visitor home
+  useEffect(() => {
+    if (!isAuthenticated) {
+      const protectedPages = [
+        'dashboard',
+        'booking-catalog',
+        'customer-records',
+        'customer-inquiries',
+        'customer-reviews',
+        'analytics',
+        'prices-policies',
+        'admin',
+        'my-reservations',
+        'reservation',
+      ]
+      if (protectedPages.includes(currentPage)) {
+        setCurrentPage('home')
+      }
+    }
+  }, [isAuthenticated, currentPage])
 
   const renderPage = () => {
     switch (currentPage) {
@@ -66,6 +89,8 @@ function AppContent() {
         return <Support />
       case 'reservation':
         return <Reservation />
+      case 'my-reservations':
+        return <MyReservations onNavigate={setCurrentPage} />
       case 'booking-catalog':
       case 'admin':
         return <BookingCatalog />
@@ -77,6 +102,8 @@ function AppContent() {
         return <CustomerReviews />
       case 'analytics':
         return <Analytics />
+      case 'prices-policies':
+        return <PricesPolicies />
       default:
         return isAdmin ? <Dashboard onNavigate={setCurrentPage} /> : <Home />
     }

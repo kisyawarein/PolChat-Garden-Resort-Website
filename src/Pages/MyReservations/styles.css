@@ -1,0 +1,567 @@
+/* =========================================================
+   POLCHAT GARDEN RESORT - MY RESERVATIONS STYLES
+   Color Palette:
+   - Primary Green: #7CCE17
+   - Sand Gold:     #F2D17E
+   - Muted Sage:    #ACAD79
+   - Forest Green:  #43593B
+   - Earth Bark:    #58402E
+   ========================================================= */
+
+/* Main Page Container */
+.my-reservations-page {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #F8F9FA;
+  padding: 84px 24px 24px;
+  box-sizing: border-box;
+  font-family: inherit;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Guest Locked Page */
+.myres-guest-locked-page {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 20px;
+}
+
+.myres-locked-card {
+  max-width: 460px;
+  background-color: #ffffff;
+  border: 1.5px solid #D8D0C3;
+  border-radius: 18px;
+  padding: 40px 32px;
+  text-align: center;
+  box-shadow: 0 12px 36px rgba(88, 64, 46, 0.08);
+}
+
+.myres-locked-icon-badge {
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background-color: #FAF8F5;
+  border: 1.5px solid #D8D0C3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 18px;
+}
+
+.myres-locked-title {
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: #58402E;
+  margin: 0 0 10px;
+}
+
+.myres-locked-desc {
+  font-size: 0.9rem;
+  color: #796656;
+  line-height: 1.5;
+  margin: 0 0 24px;
+}
+
+.myres-locked-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.myres-locked-login-btn {
+  background-color: #58402E;
+  color: #F2D17E;
+  border: none;
+  font-size: 0.92rem;
+  font-weight: 700;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.myres-locked-login-btn:hover {
+  background-color: #43593B;
+  color: #ffffff;
+}
+
+.myres-locked-signup-btn {
+  background-color: #FAF8F5;
+  color: #58402E;
+  border: 1.5px solid #D8D0C3;
+  font-size: 0.92rem;
+  font-weight: 700;
+  padding: 12px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.myres-locked-signup-btn:hover {
+  background-color: #EDE8DE;
+}
+
+/* =========================================================
+   TOP ROW: SHARED SUMMARY CARDS
+   ========================================================= */
+.myres-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 1100px) {
+  .myres-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 580px) {
+  .myres-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* =========================================================
+   2-COLUMN DASHBOARD LAYOUT
+   ========================================================= */
+.myres-dashboard-layout {
+  display: grid;
+  grid-template-columns: minmax(360px, 38%) minmax(0, 1fr);
+  gap: 20px;
+  align-items: stretch;
+  flex: 1;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 1080px) {
+  .myres-dashboard-layout {
+    grid-template-columns: 1fr;
+  }
+}
+
+.myres-active-column,
+.myres-past-column {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.myres-status-tag {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 3px 10px;
+  border-radius: 9999px;
+  letter-spacing: 0.3px;
+}
+
+.myres-status-tag.status-confirmed {
+  background-color: #EBF8DC;
+  color: #386B06;
+  border: 1px solid #7CCE17;
+}
+
+.myres-status-tag.status-pending {
+  background-color: #FCF3DB;
+  color: #7A5408;
+  border: 1px solid #F2D17E;
+}
+
+/* Left Column: Active Reservation Panel Card */
+.myres-active-panel-card {
+  background-color: #ffffff;
+  border: 1.5px solid #D8D0C3;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(88, 64, 46, 0.04);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: calc(100vh - 240px);
+  min-height: 560px;
+  overflow-y: auto;
+}
+
+.myres-no-active-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 48px 24px;
+  flex: 1;
+}
+
+.myres-empty-icon-wrap {
+  margin-bottom: 14px;
+}
+
+.myres-empty-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #58402E;
+  margin: 0 0 8px;
+}
+
+.myres-empty-desc {
+  font-size: 0.88rem;
+  color: #796656;
+  max-width: 320px;
+  margin: 0 0 20px;
+  line-height: 1.5;
+}
+
+.myres-book-now-btn {
+  background-color: #43593B;
+  color: #ffffff;
+  border: none;
+  font-size: 0.88rem;
+  font-weight: 700;
+  padding: 10px 22px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.myres-book-now-btn:hover {
+  background-color: #35492E;
+}
+
+/* Active Reservation Details */
+.myres-active-details {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.myres-active-img-wrap {
+  position: relative;
+  height: 160px;
+  width: 100%;
+  overflow: hidden;
+  background-color: #43593B;
+}
+
+.myres-active-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0.9;
+}
+
+.myres-active-img-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 12px 16px;
+  background: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.75) 100%);
+  display: flex;
+  flex-direction: column;
+  color: #ffffff;
+}
+
+.myres-active-res-id {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #F2D17E;
+  letter-spacing: 0.5px;
+}
+
+.myres-active-tier-name {
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.myres-active-body {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  flex: 1;
+}
+
+.myres-info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.myres-info-item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  background-color: #FAF8F5;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #EDE8DE;
+}
+
+.myres-info-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #796656;
+  text-transform: uppercase;
+}
+
+.myres-info-val {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #58402E;
+}
+
+.myres-val-amount {
+  color: #43593B !important;
+  font-size: 0.96rem !important;
+}
+
+.myres-deposit-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #FAF8F5;
+  border: 1px solid #D8D0C3;
+  border-left: 3.5px solid #7CCE17;
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+
+.myres-deposit-left {
+  display: flex;
+  flex-direction: column;
+}
+
+.myres-deposit-title {
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #58402E;
+}
+
+.myres-deposit-sub {
+  font-size: 0.72rem;
+  color: #796656;
+}
+
+.myres-deposit-badge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #386B06;
+  background-color: #EBF8DC;
+  padding: 3px 8px;
+  border-radius: 4px;
+  border: 1px solid #7CCE17;
+}
+
+.myres-active-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.myres-btn-proof,
+.myres-btn-receipt,
+.myres-btn-book-another {
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 8px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+.myres-btn-proof {
+  background-color: #F4F8F0;
+  color: #43593B;
+  border: 1.5px solid #ACAD79;
+}
+
+.myres-btn-proof:hover {
+  background-color: #EBF8DC;
+  border-color: #7CCE17;
+}
+
+.myres-btn-receipt {
+  background-color: #58402E;
+  color: #F2D17E;
+  border: 1.5px solid #453122;
+}
+
+.myres-btn-receipt:hover {
+  background-color: #43593B;
+  color: #ffffff;
+}
+
+.myres-btn-book-another {
+  background-color: #FAF8F5;
+  color: #58402E;
+  border: 1.5px solid #D8D0C3;
+}
+
+.myres-btn-book-another:hover {
+  background-color: #EDE8DE;
+}
+
+/* =========================================================
+   RIGHT COLUMN: PAST RESERVATIONS TABLE
+   ========================================================= */
+.myres-past-title-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.myres-history-badge {
+  background-color: #FAF8F5;
+  border: 1px solid #D8D0C3;
+  color: #58402E;
+  font-size: 0.75rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.myres-search-wrap {
+  width: 170px;
+}
+
+.myres-search-input {
+  font-size: 0.82rem;
+}
+
+.myres-table-panel-card {
+  background-color: #ffffff;
+  border: 1.5px solid #D8D0C3;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(88, 64, 46, 0.04);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: calc(100vh - 240px);
+  min-height: 560px;
+  overflow: hidden;
+}
+
+.myres-table-scroll-wrap {
+  width: 100%;
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: auto;
+}
+
+.myres-data-table {
+  width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
+}
+
+.myres-data-table thead tr {
+  background-color: #43593B;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.myres-data-table th {
+  padding: 0;
+  color: #ffffff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-align: left;
+  border-bottom: 1px solid #35492E;
+  white-space: nowrap;
+  user-select: none;
+}
+
+.myres-table-row {
+  border-bottom: 1px solid #EDE8DE;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.myres-table-row:hover {
+  background-color: #FAF8F5;
+}
+
+.myres-data-table td {
+  padding: 12px 12px;
+  font-size: 0.84rem;
+  color: #58402E;
+  vertical-align: middle;
+}
+
+.myres-id-cell {
+  font-weight: 700;
+  color: #58402E;
+  font-size: 0.86rem;
+}
+
+.myres-tier-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.myres-tier-name {
+  font-weight: 700;
+  color: #58402E;
+  line-height: 1.2;
+}
+
+.myres-event-sub {
+  font-size: 0.72rem;
+  color: #796656;
+}
+
+.myres-datetime-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.myres-date-line {
+  font-weight: 700;
+  color: #58402E;
+}
+
+.myres-time-line {
+  font-size: 0.74rem;
+  color: #796656;
+}
+
+.myres-plain-text {
+  font-weight: 600;
+  color: #58402E;
+}
+
+.myres-cost-text {
+  color: #43593B;
+  font-weight: 700;
+}
+
+.myres-status-cell {
+  vertical-align: middle;
+}
+
+.myres-plain-status-text {
+  font-weight: 600;
+  color: #58402E;
+}
+
+.myres-empty-cell {
+  text-align: center;
+  padding: 48px 16px;
+  color: #796656;
+  font-weight: 600;
+}

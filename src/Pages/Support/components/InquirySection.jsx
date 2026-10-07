@@ -3,11 +3,13 @@ import { useAuth } from '../../../context/AuthContext'
 import { DataService } from '../../../services/dataService'
 
 function InquirySection() {
-  const { user } = useAuth()
+  const { user, isAuthenticated, openAuthModal } = useAuth()
 
   // State
   const [inquiryLabel, setInquiryLabel] = useState('')
   const [startingStatement, setStartingStatement] = useState('')
+  const [guestName, setGuestName] = useState('')
+  const [guestEmail, setGuestEmail] = useState('')
   const [customerInquiries, setCustomerInquiries] = useState([])
   const [activeInquiry, setActiveInquiry] = useState(null)
   const [activeChats, setActiveChats] = useState([])
@@ -18,49 +20,59 @@ function InquirySection() {
   // Load inquiries
   const loadInquiries = async () => {
     const allInquiries = await DataService.getInquiries()
-    // Filter by current customer if logged in, or show recent inquiries
+    // Filter by current customer if logged in
     if (user && user.role === 'customer') {
-      const userInqs = allInquiries.filter((i) => i.customer_id === user.id || i.customer_name === user.name)
+      const userInqs = allInquiries.filter(
+        (i) => i.customer_id === user.id || i.customer_name === user.name
+      )
       setCustomerInquiries(userInqs.length > 0 ? userInqs : allInquiries)
       if (!activeInquiry && (userInqs.length > 0 || allInquiries.length > 0)) {
         setActiveInquiry(userInqs[0] || allInquiries[0])
       }
+    } else if (guestEmail) {
+      const emailInqs = allInquiries.filter(
+        (i) => (i.customer_name && i.customer_name.toLowerCase().includes(guestEmail.toLowerCase()))
+      )
+      setCustomerInquiries(emailInqs)
     } else {
-      setCustomerInquiries(allInquiries)
-      if (!activeInquiry && allInquiries.length > 0) {
-        setActiveInquiry(allInquiries[0])
-      }
+      setCustomerInquiries([])
     }
   }
 
   useEffect(() => {
     loadInquiries()
-  }, [user])
+  }, [user, guestEmail])
 
   // Load active chats when activeInquiry changes
   useEffect(() => {
     if (activeInquiry) {
       DataService.getChats(activeInquiry.inquiry_id).then((chats) => {
-        setActiveChats(chats)
+        setActiveChats(chats || [])
       })
     }
   }, [activeInquiry])
 
-  // Submit New Inquiry
+  // Submit Inquiry (Logged in or Guest with email)
   const handleCreateInquirySubmit = async (e) => {
     e.preventDefault()
     if (!inquiryLabel.trim() || !startingStatement.trim()) return
 
+    if (!isAuthenticated && !guestEmail.trim()) {
+      return
+    }
+
     setIsSubmitting(true)
 
     const customerId = user ? user.id : 101
-    const customerName = user ? (user.name || user.username) : 'Juan Dela Cruz'
+    const customerDisplayName = user
+      ? (user.name || user.username)
+      : `${guestName.trim() || 'Guest'} (${guestEmail.trim()})`
 
     const result = await DataService.createInquiry({
       label: inquiryLabel.trim(),
       message: startingStatement.trim(),
       customerId: customerId,
-      customerName: customerName,
+      customerName: customerDisplayName,
     })
 
     if (result && result.newInquiry) {
@@ -69,15 +81,15 @@ function InquirySection() {
       setActiveChats([result.firstChat])
       setInquiryLabel('')
       setStartingStatement('')
-      setSuccessNotice('Inquiry submitted to Supabase! Staff will review and respond shortly.')
+      setSuccessNotice('Your inquiry has been submitted! PolChat staff will review and respond.')
     } else {
-      setSuccessNotice('Error submitting inquiry. Please check your network or database connection.')
+      setSuccessNotice('Error submitting inquiry. Please check your connection.')
     }
     setIsSubmitting(false)
 
     setTimeout(() => {
       setSuccessNotice('')
-    }, 4000)
+    }, 5000)
   }
 
   // Customer Send Follow-up Message
@@ -88,7 +100,7 @@ function InquirySection() {
     const newChat = await DataService.sendChatMessage({
       inquiryId: activeInquiry.inquiry_id,
       sender: 'customer',
-      senderName: user ? (user.name || user.username) : 'Guest User',
+      senderName: user ? (user.name || user.username) : guestName || 'Guest User',
       message: replyText.trim(),
     })
 
@@ -108,56 +120,145 @@ function InquirySection() {
           </p>
         </div>
 
-        {/* 2-Column Layout: Submit New Inquiry Form on Left / Active Inquiry Chat on Right */}
+        {/* 2-Column Layout */}
         <div className="support-inquiry-grid">
-          {/* Column 1: Submit Form */}
+          {/* Column 1: Submit Form or Locked Email Card */}
           <div className="support-inquiry-form-card">
-            <h3 className="support-form-card-title">Submit a New Inquiry</h3>
-            <p className="support-form-card-desc">
-              Please provide an inquiry subject label and your starting statement.
-            </p>
+            {!isAuthenticated ? (
+              <div className="support-locked-inquiry-wrap">
+                <div className="support-locked-header-row">
+                  <span className="support-locked-badge">🔒 GUEST INQUIRY FORM</span>
+                </div>
+                <h3 className="support-form-card-title">Send Us a Question</h3>
+                <p className="support-form-card-desc">
+                  Please enter your email address so our management staff can reply to your inquiry.
+                </p>
 
-            {successNotice && (
-              <div className="support-inquiry-success-box">
-                ✓ {successNotice}
+                {successNotice && (
+                  <div className="support-inquiry-success-box">
+                    ✓ {successNotice}
+                  </div>
+                )}
+
+                <form onSubmit={handleCreateInquirySubmit} className="support-new-inquiry-form">
+                  <div className="support-form-field">
+                    <label className="support-field-label">Your Email Address *</label>
+                    <input
+                      type="email"
+                      className="support-field-input"
+                      placeholder="e.g. yourname@email.com"
+                      value={guestEmail}
+                      onChange={(e) => setGuestEmail(e.target.value)}
+                      required
+                    />
+                    <span className="support-field-hint">We'll use this email to send you responses.</span>
+                  </div>
+
+                  <div className="support-form-field">
+                    <label className="support-field-label">Your Full Name</label>
+                    <input
+                      type="text"
+                      className="support-field-input"
+                      placeholder="e.g. Juan Dela Cruz"
+                      value={guestName}
+                      onChange={(e) => setGuestName(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="support-form-field">
+                    <label className="support-field-label">Inquiry Subject / Topic *</label>
+                    <input
+                      type="text"
+                      className="support-field-input"
+                      placeholder="e.g. Day Tour Rates, Pavilion Inclusions"
+                      value={inquiryLabel}
+                      onChange={(e) => setInquiryLabel(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="support-form-field">
+                    <label className="support-field-label">Your Message *</label>
+                    <textarea
+                      className="support-field-textarea"
+                      rows="3"
+                      placeholder="Write your question or request here..."
+                      value={startingStatement}
+                      onChange={(e) => setStartingStatement(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="support-submit-inquiry-btn"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? 'Sending...' : 'Submit Inquiry with Email'}
+                  </button>
+                </form>
+
+                <div className="support-locked-footer-login">
+                  <span>Already have an account?</span>
+                  <button
+                    type="button"
+                    className="support-inline-login-btn"
+                    onClick={() => openAuthModal('signin')}
+                  >
+                    Sign In to Account
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <h3 className="support-form-card-title">Submit a New Inquiry</h3>
+                <p className="support-form-card-desc">
+                  Posting as <strong>{user?.name || user?.username}</strong> ({user?.email || 'Customer Account'})
+                </p>
+
+                {successNotice && (
+                  <div className="support-inquiry-success-box">
+                    ✓ {successNotice}
+                  </div>
+                )}
+
+                <form onSubmit={handleCreateInquirySubmit} className="support-new-inquiry-form">
+                  <div className="support-form-field">
+                    <label className="support-field-label">Inquiry Subject / Label *</label>
+                    <input
+                      type="text"
+                      className="support-field-input"
+                      placeholder="e.g. Pavilion Booking, Payment Confirmation"
+                      value={inquiryLabel}
+                      onChange={(e) => setInquiryLabel(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <div className="support-form-field">
+                    <label className="support-field-label">Starting Statement / Question *</label>
+                    <textarea
+                      className="support-field-textarea"
+                      rows="4"
+                      placeholder="State your question or request in detail..."
+                      value={startingStatement}
+                      onChange={(e) => setStartingStatement(e.target.value)}
+                      required
+                    />
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="support-submit-inquiry-btn"
+                    disabled={isSubmitting}
+                  >
+                    {isSubmitting ? 'Submitting...' : 'Send Inquiry to Resort Admin'}
+                  </button>
+                </form>
               </div>
             )}
 
-            <form onSubmit={handleCreateInquirySubmit} className="support-new-inquiry-form">
-              <div className="support-form-field">
-                <label className="support-field-label">Inquiry Subject / Label *</label>
-                <input
-                  type="text"
-                  className="support-field-input"
-                  placeholder="e.g. Pavilion Booking, GCash Payment Verification"
-                  value={inquiryLabel}
-                  onChange={(e) => setInquiryLabel(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className="support-form-field">
-                <label className="support-field-label">Starting Statement / Question *</label>
-                <textarea
-                  className="support-field-textarea"
-                  rows="4"
-                  placeholder="State your question or request in detail..."
-                  value={startingStatement}
-                  onChange={(e) => setStartingStatement(e.target.value)}
-                  required
-                />
-              </div>
-
-              <button
-                type="submit"
-                className="support-submit-inquiry-btn"
-                disabled={isSubmitting}
-              >
-                {isSubmitting ? 'Submitting...' : 'Send Inquiry to Resort Admin'}
-              </button>
-            </form>
-
-            {/* Past Inquiries Quick Selector */}
+            {/* Past Inquiries Quick Selector (if available) */}
             {customerInquiries.length > 0 && (
               <div className="support-past-inquiries-block">
                 <h4 className="support-past-title">Your Inquiry Threads</h4>
@@ -261,7 +362,11 @@ function InquirySection() {
               <div className="support-chat-empty-box">
                 <span className="support-empty-chat-icon">💬</span>
                 <h3>Customer Helpdesk Live Chat</h3>
-                <p>Submit a new inquiry using the form on the left or select an existing thread to chat with our management staff.</p>
+                <p>
+                  {isAuthenticated
+                    ? 'Submit a new inquiry using the form on the left or select an existing thread to chat with our management staff.'
+                    : 'Submit an inquiry with your email address on the left to start a support request.'}
+                </p>
               </div>
             )}
           </div>

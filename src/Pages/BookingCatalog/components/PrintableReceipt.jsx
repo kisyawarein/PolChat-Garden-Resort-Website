@@ -86,8 +86,21 @@ function PrintableReceipt({ item, onClose }) {
                 </span>
               </div>
               <div className="receipt-meta-item">
-                <span className="receipt-meta-label">Payment Ref:</span>
-                <span className="receipt-meta-val">{item.payment_reference || 'GCASH-VERIFIED'}</span>
+                <span className="receipt-meta-label">Payment Proof:</span>
+                <span className="receipt-meta-val">
+                  {item.payment_proof_url ? (
+                    <a
+                      href={item.payment_proof_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{ color: '#43593B', textDecoration: 'underline', fontWeight: '700' }}
+                    >
+                      View Screenshot ↗
+                    </a>
+                  ) : (
+                    item.payment_reference || 'GCash Verified'
+                  )}
+                </span>
               </div>
             </div>
           </div>

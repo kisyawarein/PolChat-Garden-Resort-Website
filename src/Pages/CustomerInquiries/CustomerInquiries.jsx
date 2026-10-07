@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useAuth } from '../../context/AuthContext'
 import { DataService } from '../../services/dataService'
+import InquirySummaryCards from './components/InquirySummaryCards'
 import InquiryChatPanel from './components/InquiryChatPanel'
 import AdminResponderModal from './components/AdminResponderModal'
 import './styles.css'
@@ -10,12 +11,13 @@ function CustomerInquiries() {
   const [inquiries, setInquiries] = useState([])
   const [selectedInquiry, setSelectedInquiry] = useState(null)
   const [statusFilter, setStatusFilter] = useState('all') // 'all' | 'open' | 'in-progress' | 'resolved'
+  const [searchTerm, setSearchTerm] = useState('')
   const [responderModalInq, setResponderModalInq] = useState(null)
   const [toastMsg, setToastMsg] = useState('')
 
   const loadData = async () => {
     const data = await DataService.getInquiries()
-    setInquiries(data)
+    setInquiries(data || [])
   }
 
   useEffect(() => {
@@ -56,8 +58,14 @@ function CustomerInquiries() {
   }
 
   const filteredInquiries = inquiries.filter((inq) => {
-    if (statusFilter === 'all') return true
-    return inq.inquiry_status === statusFilter
+    const matchesStatus = statusFilter === 'all' || inq.inquiry_status === statusFilter
+    const q = searchTerm.toLowerCase().trim()
+    const labelMatch = (inq.inquiry_label || '').toLowerCase().includes(q)
+    const nameMatch = (inq.customer_name || '').toLowerCase().includes(q)
+    const idMatch = String(inq.inquiry_id).includes(q)
+    const matchesSearch = !q || (labelMatch || nameMatch || idMatch)
+
+    return matchesStatus && matchesSearch
   })
 
   if (!isAdmin) {
@@ -83,95 +91,129 @@ function CustomerInquiries() {
     <div className="customer-inquiries-page">
       {/* Toast */}
       {toastMsg && (
-        <div className="inq-toast-box">
+        <div className="catalog-toast-box">
           <span>{toastMsg}</span>
         </div>
       )}
 
-      {/* Header Bar */}
-      <div className="inq-header-bar">
-        <div>
-          <span className="inq-tag">CUSTOMER SUPPORT</span>
-          <h1 className="inq-main-title">Customer Inquiries & Helpdesk</h1>
-        </div>
-
-        {/* Filter Pills */}
-        <div className="inq-filter-pills">
-          <button
-            type="button"
-            className={`inq-filter-chip ${statusFilter === 'all' ? 'inq-filter-chip-active' : ''}`}
-            onClick={() => setStatusFilter('all')}
-          >
-            All ({inquiries.length})
-          </button>
-          <button
-            type="button"
-            className={`inq-filter-chip ${statusFilter === 'open' ? 'inq-filter-chip-active' : ''}`}
-            onClick={() => setStatusFilter('open')}
-          >
-            Open ({inquiries.filter((i) => i.inquiry_status === 'open').length})
-          </button>
-          <button
-            type="button"
-            className={`inq-filter-chip ${statusFilter === 'in-progress' ? 'inq-filter-chip-active' : ''}`}
-            onClick={() => setStatusFilter('in-progress')}
-          >
-            In Progress ({inquiries.filter((i) => i.inquiry_status === 'in-progress').length})
-          </button>
-          <button
-            type="button"
-            className={`inq-filter-chip ${statusFilter === 'resolved' ? 'inq-filter-chip-active' : ''}`}
-            onClick={() => setStatusFilter('resolved')}
-          >
-            Resolved ({inquiries.filter((i) => i.inquiry_status === 'resolved').length})
-          </button>
-        </div>
+      {/* Top Overview Summary Cards */}
+      <div className="catalog-top-summary-wrap">
+        <InquirySummaryCards inquiries={inquiries} />
       </div>
 
-      {/* Split Console: Tickets List on Left, Chat on Right */}
-      <div className="inq-split-console">
-        {/* Left Tickets Column */}
-        <div className="inq-tickets-column">
-          {filteredInquiries.length === 0 ? (
-            <div className="inq-no-tickets">
-              No inquiries found for this filter.
+      {/* Split Console Layout (Left: Tickets Queue, Right: Chat Panel) */}
+      <div className="inq-dashboard-layout">
+        {/* Left Column: Tickets Queue */}
+        <div className="inq-left-column">
+          {/* Header Container Card (66px) */}
+          <div className="catalog-panel-header-card inq-queue-header-card">
+            <div className="inq-queue-title-wrap">
+              <h2 className="catalog-panel-title">Inquiry Tickets</h2>
+              <span className="inq-queue-badge">{filteredInquiries.length}</span>
             </div>
-          ) : (
-            filteredInquiries.map((inq) => {
-              const isSelected = selectedInquiry?.inquiry_id === inq.inquiry_id
-              return (
-                <div
-                  key={inq.inquiry_id}
-                  className={`inq-ticket-card ${isSelected ? 'inq-ticket-card-active' : ''}`}
-                  onClick={() => handleInquirySelect(inq)}
+
+            <div className="catalog-header-controls">
+              {/* Search */}
+              <div className="schedule-search-wrap inq-search-wrap">
+                <svg
+                  className="schedule-search-svg"
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 >
-                  <div className="inq-ticket-head">
-                    <span className="inq-ticket-id">#{inq.inquiry_id}</span>
-                    <span className={`inq-status-badge inq-status-${inq.inquiry_status}`}>
-                      {inq.inquiry_status.toUpperCase()}
-                    </span>
-                  </div>
+                  <circle cx="11" cy="11" r="8" />
+                  <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                </svg>
+                <input
+                  type="text"
+                  className="schedule-search-input inq-search-input"
+                  placeholder="Search tickets..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+                {searchTerm && (
+                  <button
+                    type="button"
+                    className="schedule-search-clear-btn"
+                    onClick={() => setSearchTerm('')}
+                    title="Clear search"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="18" y1="6" x2="6" y2="18" />
+                      <line x1="6" y1="6" x2="18" y2="18" />
+                    </svg>
+                  </button>
+                )}
+              </div>
 
-                  <h4 className="inq-ticket-subject">{inq.inquiry_label}</h4>
+              {/* Status Filter Dropdown */}
+              <select
+                className="inq-filter-dropdown"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="all">All Statuses</option>
+                <option value="open">Open</option>
+                <option value="in-progress">In Progress</option>
+                <option value="resolved">Resolved</option>
+              </select>
+            </div>
+          </div>
 
-                  <div className="inq-ticket-meta-line">
-                    <span>👤 {inq.customer_name || `Customer #${inq.customer_id}`}</span>
-                    <span className="inq-responder-tag">
-                      {inq.admin_responder ? `Staff: ${inq.admin_responder}` : '⚠️ Needs Responder'}
-                    </span>
-                  </div>
-
-                  <span className="inq-ticket-timestamp">
-                    {inq.created_at ? new Date(inq.created_at).toLocaleString() : 'Recent'}
-                  </span>
+          {/* Tickets Scroll List Container */}
+          <div className="inq-tickets-list-card">
+            <div className="inq-tickets-scroll-area">
+              {filteredInquiries.length === 0 ? (
+                <div className="inq-no-tickets-box">
+                  <p>No inquiries found matching your filter.</p>
                 </div>
-              )
-            })
-          )}
+              ) : (
+                filteredInquiries.map((inq) => {
+                  const isSelected = selectedInquiry?.inquiry_id === inq.inquiry_id
+                  return (
+                    <div
+                      key={inq.inquiry_id}
+                      className={`inq-ticket-item ${isSelected ? 'inq-ticket-item-active' : ''}`}
+                      onClick={() => handleInquirySelect(inq)}
+                    >
+                      <div className="inq-ticket-top">
+                        <span className="inq-ticket-id">#{inq.inquiry_id}</span>
+                        <span className={`inq-status-badge inq-status-${inq.inquiry_status}`}>
+                          {inq.inquiry_status.toUpperCase()}
+                        </span>
+                      </div>
+
+                      <h4 className="inq-ticket-title">{inq.inquiry_label}</h4>
+
+                      <div className="inq-ticket-meta">
+                        <span className="inq-cust-name-meta">
+                          {inq.customer_name || `Customer #${inq.customer_id}`}
+                        </span>
+                        <span className={`inq-staff-badge ${inq.admin_responder ? 'staff-assigned' : 'staff-unassigned'}`}>
+                          {inq.admin_responder ? inq.admin_responder : 'Unassigned'}
+                        </span>
+                      </div>
+
+                      <div className="inq-ticket-foot">
+                        <span className="inq-time-text">
+                          {inq.created_at ? new Date(inq.created_at).toLocaleDateString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : 'Recent'}
+                        </span>
+                      </div>
+                    </div>
+                  )
+                })
+              )}
+            </div>
+          </div>
         </div>
 
-        {/* Right Chat Panel Column */}
-        <div className="inq-chat-column">
+        {/* Right Column: Chat Panel */}
+        <div className="inq-right-column">
           <InquiryChatPanel
             inquiry={selectedInquiry}
             adminUser={user}
