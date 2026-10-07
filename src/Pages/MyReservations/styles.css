@@ -565,3 +565,252 @@
   color: #796656;
   font-weight: 600;
 }
+
+/* 50% Downpayment vs Remaining Balance Card */
+.myres-balance-card {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  background-color: #FAFBF8;
+  border: 1.5px solid #D2DEC9;
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+
+.myres-balance-col {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.myres-bal-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #796656;
+  text-transform: uppercase;
+}
+
+.myres-bal-val {
+  font-size: 0.88rem;
+  font-weight: 800;
+}
+
+.myres-bal-paid {
+  color: #2F5E12;
+}
+
+.myres-bal-due {
+  color: #C2410C;
+}
+
+.myres-btn-checkout-cta {
+  background-color: #43593B;
+  color: #ffffff;
+  border: none;
+  font-weight: 800;
+  font-size: 0.88rem;
+  padding: 10px 18px;
+  border-radius: 8px;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(67, 89, 59, 0.25);
+  transition: all 0.2s ease;
+  width: 100%;
+  text-align: center;
+}
+
+.myres-btn-checkout-cta:hover {
+  background-color: #58402E;
+  transform: translateY(-2px);
+}
+
+.status-checked-out {
+  background-color: #EBF7DF;
+  color: #2F5E12;
+  border: 1px solid #7CCE17;
+}
+
+/* Checkout Modal Styles */
+.myres-checkout-dialog {
+  max-width: 540px;
+}
+
+.myres-checkout-header-titles {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.myres-checkout-badge {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #43593B;
+  background-color: #EBF7DF;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  align-self: flex-start;
+}
+
+.myres-checkout-body {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.myres-checkout-summary-card {
+  background-color: #FAFBF8;
+  border: 1.5px solid #EDE8DE;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 0.88rem;
+}
+
+.myres-checkout-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #58402E;
+}
+
+.myres-paid-text {
+  color: #2F5E12;
+  font-weight: 700;
+}
+
+.myres-checkout-balance-row {
+  border-top: 1px dashed #D2DEC9;
+  padding-top: 8px;
+  margin-top: 4px;
+}
+
+.myres-checkout-due-amount {
+  color: #C2410C;
+  font-size: 1.2rem;
+  font-weight: 900;
+}
+
+.myres-checkout-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.myres-co-tab-btn {
+  background-color: #FAFBF8;
+  border: 1.5px solid #D2DEC9;
+  border-radius: 8px;
+  padding: 10px;
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: #58402E;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.myres-co-tab-btn:hover {
+  border-color: #ACAD79;
+}
+
+.myres-co-tab-active {
+  background-color: #43593B !important;
+  color: #ffffff !important;
+  border-color: #43593B !important;
+}
+
+.myres-co-gcash-box {
+  background-color: #FAFBF8;
+  border: 1px solid #EDE8DE;
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.myres-co-account-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.84rem;
+  color: #58402E;
+}
+
+.myres-co-info-label {
+  color: #796656;
+  margin-right: 6px;
+}
+
+.myres-co-highlight {
+  color: #007DFE;
+  font-size: 0.95rem;
+}
+
+.myres-co-dropzone {
+  padding: 16px;
+}
+
+.myres-co-preview-card {
+  padding: 8px 12px;
+}
+
+.myres-co-preview-thumb {
+  width: 50px;
+  height: 50px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.myres-co-cash-box {
+  background-color: #FFFBEB;
+  border: 1.5px solid #FDE68A;
+  border-radius: 10px;
+  padding: 16px;
+}
+
+.myres-co-cash-notice {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.myres-co-cash-icon {
+  font-size: 1.6rem;
+}
+
+.myres-co-cash-title {
+  margin: 0 0 4px 0;
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #92400E;
+}
+
+.myres-co-cash-text {
+  margin: 0;
+  font-size: 0.84rem;
+  color: #78350F;
+  line-height: 1.4;
+}
+
+.myres-confirm-checkout-btn {
+  background-color: #43593B;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-weight: 800;
+  font-size: 0.88rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.myres-confirm-checkout-btn:hover {
+  background-color: #58402E;
+}
+
+.myres-confirm-checkout-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+

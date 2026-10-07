@@ -4,6 +4,7 @@ import { DataService } from '../../services/dataService'
 import MyReservationSummaryCards from './components/MyReservationSummaryCards'
 import CurrentActiveCard from './components/CurrentActiveCard'
 import PastReservationsList from './components/PastReservationsList'
+import CheckoutModal from './components/CheckoutModal'
 import PrintableReceipt from '../BookingCatalog/components/PrintableReceipt'
 import './styles.css'
 
@@ -12,6 +13,7 @@ function MyReservations({ onNavigate }) {
   const [userReservations, setUserReservations] = useState([])
   const [selectedReceipt, setSelectedReceipt] = useState(null)
   const [selectedPhotoUrl, setSelectedPhotoUrl] = useState(null)
+  const [checkoutModalRes, setCheckoutModalRes] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
 
   const loadData = async () => {
@@ -37,6 +39,16 @@ function MyReservations({ onNavigate }) {
   useEffect(() => {
     loadData()
   }, [user])
+
+  const handleCheckoutSuccess = (updatedRes) => {
+    setUserReservations((prev) =>
+      prev.map((r) =>
+        r.reservation_id === updatedRes.reservation_id
+          ? { ...r, ...updatedRes, is_checked_out: true, remaining_balance: 0 }
+          : r
+      )
+    )
+  }
 
   // Identify Current Active Reservation (latest pending or confirmed stay)
   const activeReservation =
@@ -98,6 +110,7 @@ function MyReservations({ onNavigate }) {
           onBookNew={() => onNavigate && onNavigate('reservation')}
           onOpenReceipt={setSelectedReceipt}
           onOpenPhoto={setSelectedPhotoUrl}
+          onOpenCheckout={setCheckoutModalRes}
         />
 
         {/* Right Column: Past Reservations & History */}
@@ -106,6 +119,15 @@ function MyReservations({ onNavigate }) {
           onOpenReceipt={setSelectedReceipt}
         />
       </div>
+
+      {/* Checkout Balance Settlement Modal */}
+      {checkoutModalRes && (
+        <CheckoutModal
+          reservation={checkoutModalRes}
+          onClose={() => setCheckoutModalRes(null)}
+          onCheckoutSuccess={handleCheckoutSuccess}
+        />
+      )}
 
       {/* Printable Receipt Modal */}
       {selectedReceipt && (

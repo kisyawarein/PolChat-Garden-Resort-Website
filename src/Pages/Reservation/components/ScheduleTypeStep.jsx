@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import dayTourImg from '../../../assets/pkg_daytour.jpg'
 import overnightImg from '../../../assets/pkg_overnight.jpg'
 import twentytwoImg from '../../../assets/pkg_twentytwo.jpg'
@@ -71,35 +70,43 @@ function ScheduleTypeStep({
       case 2:
         return {
           image: overnightImg,
-          label: 'OVERNIGHT',
-          timeRange: '8:00 PM – 6:00 AM (10 Hours)',
+          label: 'Overnight',
+          duration: '10 Hours',
+          timeRange: '8:00 PM – 6:00 AM',
           paxLimit: 'Up to 25 Guests',
-          price: 'PHP 10,000.00',
+          price: `PHP ${Math.round(Number(overnightPkg.duration_price || 10000)).toLocaleString()}`,
+          extraPaxRate: overnightPkg.duration_extra_pax_charge || 200,
         }
       case 3:
         return {
           image: twentytwoImg,
-          label: '22 HOURS (DAY START)',
-          timeRange: '8:00 AM – 6:00 AM Next Day (22 Hours)',
+          label: '22 Hours (Day Start)',
+          duration: '22 Hours',
+          timeRange: '8:00 AM – 6:00 AM',
           paxLimit: 'Up to 35 Guests',
-          price: 'PHP 17,000.00',
+          price: `PHP ${Math.round(Number(day22Pkg.duration_price || 17000)).toLocaleString()}`,
+          extraPaxRate: day22Pkg.duration_extra_pax_charge || 200,
         }
       case 4:
         return {
           image: twentytwoImg,
-          label: '22 HOURS (NIGHT START)',
-          timeRange: '8:00 PM – 6:00 PM Next Day (22 Hours)',
+          label: '22 Hours (Night Start)',
+          duration: '22 Hours',
+          timeRange: '8:00 PM – 6:00 PM',
           paxLimit: 'Up to 35 Guests',
-          price: 'PHP 17,000.00',
+          price: `PHP ${Math.round(Number(night22Pkg.duration_price || 17000)).toLocaleString()}`,
+          extraPaxRate: night22Pkg.duration_extra_pax_charge || 200,
         }
       case 1:
       default:
         return {
           image: dayTourImg,
-          label: 'DAY',
-          timeRange: '9:00 AM – 5:00 PM (8 Hours)',
+          label: 'Day Tour',
+          duration: '8 Hours',
+          timeRange: '9:00 AM – 5:00 PM',
           paxLimit: 'Up to 35 Guests',
-          price: 'PHP 9,000.00',
+          price: `PHP ${Math.round(Number(dayPkg.duration_price || 9000)).toLocaleString()}`,
+          extraPaxRate: dayPkg.duration_extra_pax_charge || 200,
         }
     }
   }
@@ -108,48 +115,34 @@ function ScheduleTypeStep({
 
   return (
     <div className="sched-step-container">
-      {/* Back button */}
-      <div className="sched-top-nav">
-        <button
-          type="button"
-          className="sched-back-type-btn"
-          onClick={onBack}
-        >
-          ← Change Reservation Type
-        </button>
-      </div>
-
-      {/* Main Grid: Left side (Image Preview + Schedule List), Right side (Continue Action) */}
+      {/* Main Grid: Left side (Image Preview + Schedule List), Right side (Summary Card) */}
       <div className="sched-main-layout">
         {/* Left Side Container */}
         <div className="sched-left-column">
-          {/* Top: Large Preview Image Card */}
+          {/* Top: Large Preview Image Card (No label overlay on image) */}
           <div className="sched-preview-box">
             <img
               src={preview.image}
               alt={preview.label}
               className="sched-preview-image"
             />
-            <div className="sched-preview-overlay-text">
-              {preview.label}
-            </div>
           </div>
 
           {/* Bottom: Schedule Options List */}
           <div className="sched-list-container">
-            {/* 1. DAY */}
+            {/* 1. Day Tour */}
             <div
               className={`sched-row-item ${
                 currentSelectedId === 1 ? 'sched-row-item-active' : ''
               }`}
             >
               <div className="sched-row-title-col">
-                <span className="sched-row-name">DAY</span>
+                <span className="sched-row-name">Day Tour</span>
               </div>
 
               <div className="sched-row-info-col">
-                <span className="sched-row-price">PHP {Number(dayPkg.duration_price || 9000).toLocaleString()}.00</span>
-                <span className="sched-row-time">TIME: 9:00 AM - 5:00 PM</span>
+                <span className="sched-row-price">PHP {Math.round(Number(dayPkg.duration_price || 9000)).toLocaleString()}</span>
+                <span className="sched-row-time">TIME: 9:00 AM - 5:00 PM (8 Hours)</span>
               </div>
 
               <div className="sched-row-btn-col">
@@ -160,26 +153,26 @@ function ScheduleTypeStep({
                   }`}
                   onClick={() => onSelectPackage(dayPkg)}
                 >
-                  {currentSelectedId === 1 ? 'SELECTED' : 'SELECT'}
+                  {currentSelectedId === 1 ? 'Selected' : 'Select'}
                 </button>
               </div>
             </div>
 
             <div className="sched-divider-line" />
 
-            {/* 2. OVERNIGHT */}
+            {/* 2. Overnight */}
             <div
               className={`sched-row-item ${
                 currentSelectedId === 2 ? 'sched-row-item-active' : ''
               }`}
             >
               <div className="sched-row-title-col">
-                <span className="sched-row-name">OVERNIGHT</span>
+                <span className="sched-row-name">Overnight</span>
               </div>
 
               <div className="sched-row-info-col">
-                <span className="sched-row-price">PHP {Number(overnightPkg.duration_price || 10000).toLocaleString()}.00</span>
-                <span className="sched-row-time">TIME: 8:00 PM - 6:00 AM</span>
+                <span className="sched-row-price">PHP {Math.round(Number(overnightPkg.duration_price || 10000)).toLocaleString()}</span>
+                <span className="sched-row-time">TIME: 8:00 PM - 6:00 AM (10 Hours)</span>
               </div>
 
               <div className="sched-row-btn-col">
@@ -190,14 +183,14 @@ function ScheduleTypeStep({
                   }`}
                   onClick={() => onSelectPackage(overnightPkg)}
                 >
-                  {currentSelectedId === 2 ? 'SELECTED' : 'SELECT'}
+                  {currentSelectedId === 2 ? 'Selected' : 'Select'}
                 </button>
               </div>
             </div>
 
             <div className="sched-divider-line" />
 
-            {/* 3. 22 HOURS with TWO buttons: Day, Night */}
+            {/* 3. 22 Hours with TWO buttons: Day, Night */}
             <div
               className={`sched-row-item ${
                 currentSelectedId === 3 || currentSelectedId === 4
@@ -206,15 +199,15 @@ function ScheduleTypeStep({
               }`}
             >
               <div className="sched-row-title-col">
-                <span className="sched-row-name">22 HOURS</span>
+                <span className="sched-row-name">22 Hours</span>
               </div>
 
               <div className="sched-row-info-col">
-                <span className="sched-row-price">PHP {Number(day22Pkg.duration_price || 17000).toLocaleString()}.00</span>
+                <span className="sched-row-price">PHP {Math.round(Number(day22Pkg.duration_price || 17000)).toLocaleString()}</span>
                 <span className="sched-row-time">
                   {currentSelectedId === 4
-                    ? 'TIME: 8:00 PM - 6:00 PM (Night Start)'
-                    : 'TIME: 8:00 AM - 6:00 AM (Day Start)'}
+                    ? 'TIME: 8:00 PM - 6:00 PM (22 Hours)'
+                    : 'TIME: 8:00 AM - 6:00 AM (22 Hours)'}
                 </span>
               </div>
 
@@ -227,7 +220,7 @@ function ScheduleTypeStep({
                   onClick={() => onSelectPackage(day22Pkg)}
                   title="22 Hours Day Start (8:00 AM - 6:00 AM)"
                 >
-                  {currentSelectedId === 3 ? '✓ DAY' : 'Day'}
+                  Day Start
                 </button>
                 <button
                   type="button"
@@ -237,14 +230,14 @@ function ScheduleTypeStep({
                   onClick={() => onSelectPackage(night22Pkg)}
                   title="22 Hours Night Start (8:00 PM - 6:00 PM)"
                 >
-                  {currentSelectedId === 4 ? '✓ NIGHT' : 'Night'}
+                  Night Start
                 </button>
               </div>
             </div>
           </div>
         </div>
 
-        {/* Right Side Container */}
+        {/* Right Side Container: Summary details */}
         <div className="sched-right-column">
           <div className="sched-summary-panel">
             <h3 className="sched-summary-title">Selected Schedule</h3>
@@ -256,12 +249,12 @@ function ScheduleTypeStep({
 
             <div className="sched-summary-detail-row">
               <span className="sched-summary-label">Duration:</span>
-              <span className="sched-summary-value">{preview.timeRange}</span>
+              <span className="sched-summary-value">{preview.duration}</span>
             </div>
 
             <div className="sched-summary-detail-row">
-              <span className="sched-summary-label">Base Rate:</span>
-              <span className="sched-summary-value sched-summary-price">{preview.price}</span>
+              <span className="sched-summary-label">Time:</span>
+              <span className="sched-summary-value">{preview.timeRange}</span>
             </div>
 
             <div className="sched-summary-detail-row">
@@ -269,17 +262,31 @@ function ScheduleTypeStep({
               <span className="sched-summary-value">{preview.paxLimit}</span>
             </div>
 
-            <div className="sched-summary-note">
-              ₱200/head exceeding capacity • ₱2,000 refundable security deposit
+            <div className="sched-summary-detail-row">
+              <span className="sched-summary-label">Base Rate:</span>
+              <span className="sched-summary-value sched-summary-price">{preview.price}</span>
             </div>
 
-            <button
-              type="button"
-              className="sched-continue-btn"
-              onClick={onContinue}
-            >
-              CONTINUE →
-            </button>
+            <div className="sched-summary-note">
+              ₱{preview.extraPaxRate} Charge per head exceeding the max guest count
+            </div>
+
+            <div className="sched-summary-actions-row">
+              <button
+                type="button"
+                className="sched-back-type-btn"
+                onClick={onBack}
+              >
+                Change Reservation Type
+              </button>
+              <button
+                type="button"
+                className="sched-continue-btn"
+                onClick={onContinue}
+              >
+                Continue
+              </button>
+            </div>
           </div>
         </div>
       </div>

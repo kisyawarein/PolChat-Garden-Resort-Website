@@ -49,15 +49,47 @@ function DateCalendar({
     }
   }
 
-  // Check booked items on a specific day
-  const getBookingsForDate = (dateStr) => {
-    const res = reservations.filter(
-      (r) => r.start_date && r.start_date.startsWith(dateStr) && r.reservation_status !== 'cancelled'
-    )
-    const vis = visitations.filter(
-      (v) => v.visitation_start_date && v.visitation_start_date.startsWith(dateStr) && v.visitation_status !== 'cancelled'
-    )
-    return { reservations: res, visitations: vis }
+  // Check whether the proposed package on dateStr has any time conflict
+  const checkTimeConflict = (dateStr) => {
+    const pkg = selectedPackage || { duration_id: 1, duration_start: '09:00:00', duration_end: '17:00:00' }
+    const startStr = pkg.duration_start || '09:00:00'
+    const endStr = pkg.duration_end || '17:00:00'
+
+    const proposedStart = new Date(`${dateStr}T${startStr}`)
+    const proposedEnd = new Date(`${dateStr}T${endStr}`)
+    if (pkg.duration_id === 2 || pkg.duration_id === 3 || pkg.duration_id === 4) {
+      proposedEnd.setDate(proposedEnd.getDate() + 1)
+    }
+
+    // Check reservations (non-cancelled)
+    for (const r of reservations) {
+      if (r.reservation_status === 'cancelled') continue
+      if (!r.start_date || !r.end_date) continue
+
+      const rStart = new Date(r.start_date)
+      const rEnd = new Date(r.end_date)
+
+      // Time overlap rule: StartA < EndB && StartB < EndA
+      if (proposedStart < rEnd && rStart < proposedEnd) {
+        return true
+      }
+    }
+
+    // Check visitations (ocular visits) - non-cancelled
+    for (const v of visitations) {
+      if (v.visitation_status === 'cancelled') continue
+      if (!v.visitation_start_date) continue
+
+      const vDateOnly = v.visitation_start_date.split('T')[0]
+      const vStart = new Date(`${vDateOnly}T09:00:00`)
+      const vEnd = new Date(`${vDateOnly}T11:00:00`)
+
+      if (proposedStart < vEnd && vStart < proposedEnd) {
+        return true
+      }
+    }
+
+    return false
   }
 
   // Render Calendar Grid Cells
@@ -75,42 +107,34 @@ function DateCalendar({
       const isPast = dateStr < todayYMD
       const isToday = dateStr === todayYMD
       const isSelected = selectedDate === dateStr
-      const dayBookings = getBookingsForDate(dateStr)
-      const hasBooking = dayBookings.reservations.length > 0
-      const hasVisitation = dayBookings.visitations.length > 0
+      const isBooked = checkTimeConflict(dateStr)
 
       let cellClass = 'resv-cal-day-cell'
       if (isPast) cellClass += ' resv-cal-day-past'
       if (isToday) cellClass += ' resv-cal-day-today'
       if (isSelected) cellClass += ' resv-cal-day-selected'
-      if (hasBooking) cellClass += ' resv-cal-day-booked'
+      if (isBooked) cellClass += ' resv-cal-day-booked'
 
       cells.push(
         <button
           key={dateStr}
           type="button"
-          disabled={isPast}
+          disabled={isPast || isBooked}
           className={cellClass}
           onClick={() => onSelectDate(dateStr)}
         >
           <span className="resv-cal-day-number">{day}</span>
 
           <div className="resv-cal-day-indicators">
-            {hasBooking && (
-              <span className="resv-cal-pill resv-cal-pill-booked" title="Resort Booked">
+            {isBooked ? (
+              <span className="resv-cal-pill resv-cal-pill-booked">
                 Booked
               </span>
-            )}
-            {hasVisitation && (
-              <span className="resv-cal-pill resv-cal-pill-visit" title="Ocular Visit">
-                Ocular
-              </span>
-            )}
-            {!hasBooking && !isPast && (
+            ) : !isPast ? (
               <span className="resv-cal-pill resv-cal-pill-available">
                 Available
               </span>
-            )}
+            ) : null}
           </div>
         </button>
       )
@@ -122,29 +146,10 @@ function DateCalendar({
   return (
     <div className="resv-calendar-step-wrapper">
       <div className="resv-header-section">
-        <span className="resv-step-badge">Step 2 of 4</span>
         <h2 className="resv-section-title">Select Your Reservation Date</h2>
         <p className="resv-section-subtitle">
-          Choose an open date on our calendar. Real-time availability reflects confirmed bookings.
+          Choose an open date on our calendar. Availability reflects non-conflicting time slots for {selectedPackage?.duration_name || 'your package'}.
         </p>
-      </div>
-
-      {/* Selected Package Banner */}
-      <div className="resv-selected-pkg-card">
-        <div className="resv-selected-pkg-left">
-          <span className="resv-selected-tag">Selected Package</span>
-          <h3 className="resv-selected-name">{selectedPackage?.duration_name}</h3>
-          <p className="resv-selected-price">
-            Base Rate: ₱{Number(selectedPackage?.duration_price || 0).toLocaleString()} • {selectedPackage?.duration_hours} Hours
-          </p>
-        </div>
-        <button
-          type="button"
-          className="resv-change-pkg-btn"
-          onClick={onBack}
-        >
-          Change Package
-        </button>
       </div>
 
       {/* Interactive Calendar Component */}
@@ -157,7 +162,7 @@ function DateCalendar({
             onClick={handlePrevMonth}
             aria-label="Previous Month"
           >
-            ‹ Prev
+            Prev
           </button>
           <div className="resv-cal-month-title">
             {monthNames[currentMonth]} {currentYear}
@@ -168,7 +173,7 @@ function DateCalendar({
             onClick={handleNextMonth}
             aria-label="Next Month"
           >
-            Next ›
+            Next
           </button>
         </div>
 
@@ -196,7 +201,7 @@ function DateCalendar({
           </div>
           <div className="resv-legend-item">
             <span className="resv-legend-dot resv-legend-dot-booked"></span>
-            <span className="resv-legend-text">Booked / Reserved</span>
+            <span className="resv-legend-text">Booked / Time Conflict</span>
           </div>
         </div>
       </div>
@@ -219,7 +224,7 @@ function DateCalendar({
             className="resv-back-btn"
             onClick={onBack}
           >
-            ← Back
+            Back
           </button>
           <button
             type="button"
@@ -227,7 +232,7 @@ function DateCalendar({
             className="resv-continue-btn"
             onClick={onNext}
           >
-            Continue to Guest Form →
+            Continue to Guest Form
           </button>
         </div>
       </div>

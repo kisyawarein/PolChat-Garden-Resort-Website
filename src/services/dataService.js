@@ -553,6 +553,12 @@ export const DataService = {
           : `Customer #${r.customer_id}`,
         customer_phone: r.customer?.phone_number ? `0${r.customer.phone_number}` : '',
         payment_proof_url: r.payment_proof_url || null,
+        payment_type: r.payment_type || (r.payment_proof_url ? 'gcash' : 'cash'),
+        downpayment_amount: r.downpayment_amount ?? Math.round(((r.reservation_cost || 0) + (r.extra_charges || 0)) * 0.5),
+        remaining_balance: r.remaining_balance ?? Math.round(((r.reservation_cost || 0) + (r.extra_charges || 0)) * 0.5),
+        checkout_payment_type: r.checkout_payment_type || null,
+        checkout_proof_url: r.checkout_proof_url || null,
+        is_checked_out: !!r.is_checked_out,
       }))
     } catch (err) {
       console.error('Reservation query exception:', err)
@@ -566,6 +572,10 @@ export const DataService = {
         customerId: reservationData.customer_id,
         customerName: reservationData.event_name,
       })
+
+      const totalCost = Number(reservationData.reservation_cost || 0) + Number(reservationData.extra_charges || 0)
+      const downpayment = reservationData.downpayment_amount ?? Math.round(totalCost * 0.5)
+      const remaining = reservationData.remaining_balance ?? (totalCost - downpayment)
 
       const payload = {
         customer_id: validCustomerId,
@@ -581,19 +591,27 @@ export const DataService = {
         reservation_status: reservationData.reservation_status || 'pending',
         event_name: reservationData.event_name || 'Resort Stay',
         payment_proof_url: reservationData.payment_proof_url || null,
+        payment_type: reservationData.payment_type || 'gcash',
+        downpayment_amount: downpayment,
+        remaining_balance: remaining,
+        is_checked_out: false,
       }
 
-      // 1. Attempt insert with payment_proof_url
+      // 1. Attempt insert with full payload
       let { data, error } = await supabase
         .from('resort_reservations')
         .insert([payload])
         .select()
 
-      // 2. Fallback: If DB table does not yet have 'payment_proof_url' column, retry without it
-      if (error && (error.message?.includes('payment_proof_url') || error.code === 'PGRST204' || error.code === '42703')) {
-        console.warn('payment_proof_url column not yet created in Supabase. Inserting standard payload.')
+      // 2. Fallback: If DB table schema cache is missing new columns, strip optional columns and retry
+      if (error && (error.code === 'PGRST204' || error.code === '42703' || error.message?.includes('column'))) {
+        console.warn('Some reservation columns not yet created in Supabase. Inserting standard compatible payload.')
         const fallbackPayload = { ...payload }
         delete fallbackPayload.payment_proof_url
+        delete fallbackPayload.payment_type
+        delete fallbackPayload.downpayment_amount
+        delete fallbackPayload.remaining_balance
+        delete fallbackPayload.is_checked_out
 
         const fallbackRes = await supabase
           .from('resort_reservations')
@@ -611,6 +629,9 @@ export const DataService = {
       return {
         ...(data?.[0] || payload),
         payment_proof_url: reservationData.payment_proof_url || null,
+        payment_type: reservationData.payment_type || 'gcash',
+        downpayment_amount: downpayment,
+        remaining_balance: remaining,
       }
     } catch (err) {
       console.error('Create reservation exception:', err)
@@ -647,6 +668,35 @@ export const DataService = {
       console.error('Update reservation payment exception:', err)
     }
   },
+
+  async checkoutReservation(reservationId, { checkout_payment_type, checkout_proof_url }) {
+    try {
+      const updates = {
+        has_paid_reservation: true,
+        has_paid_sec_dep: true,
+        remaining_balance: 0,
+        is_checked_out: true,
+        checkout_payment_type: checkout_payment_type || 'cash',
+        checkout_proof_url: checkout_proof_url || null,
+        reservation_status: 'confirmed',
+      }
+
+      const { data, error } = await supabase
+        .from('resort_reservations')
+        .update(updates)
+        .eq('reservation_id', reservationId)
+        .select()
+
+      if (error) {
+        console.warn('Supabase checkout update note:', error.message)
+      }
+      return data?.[0] || updates
+    } catch (err) {
+      console.error('Checkout reservation exception:', err)
+      return null
+    }
+  },
+
 
   // ==========================================
   // 5. RESORT VISITATIONS (OCULAR VISITS)

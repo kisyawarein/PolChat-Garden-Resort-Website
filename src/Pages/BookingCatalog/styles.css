@@ -402,6 +402,27 @@
   border: 1px solid #F2D17E;
 }
 
+.pending-payment-pill {
+  font-size: 0.68rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.cash-pill {
+  background-color: #FAF5EE;
+  color: #58402E;
+  border: 1px solid #D8D0C3;
+}
+
+.gcash-pill {
+  background-color: #EBF8DC;
+  color: #386B06;
+  border: 1px solid #7CCE17;
+}
+
 .pending-amount-tag {
   font-size: 0.84rem;
   font-weight: 800;

@@ -670,16 +670,15 @@
 }
 
 .sched-continue-btn {
-  width: 100%;
   background-color: #43593B;
   color: #ffffff;
   border: none;
-  padding: 14px 20px;
+  padding: 12px 32px;
   border-radius: 9999px;
-  font-size: 1.05rem;
+  font-size: 0.95rem;
   font-weight: 800;
   cursor: pointer;
-  letter-spacing: 0.03em;
+  letter-spacing: 0.02em;
   box-shadow: 0 4px 14px rgba(67, 89, 59, 0.25);
   transition: all 0.2s ease;
 }
@@ -688,6 +687,108 @@
   background-color: #58402E;
   transform: translateY(-2px);
   box-shadow: 0 6px 18px rgba(88, 64, 46, 0.28);
+}
+
+.sched-summary-actions-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1.5px solid #EDE8DE;
+}
+
+.sched-summary-actions-row .sched-back-type-btn {
+  flex: 1;
+  justify-content: center;
+  text-align: center;
+  white-space: nowrap;
+  padding: 10px 12px;
+  font-size: 0.8rem;
+  box-sizing: border-box;
+}
+
+.sched-summary-actions-row .sched-continue-btn {
+  flex: 1;
+  text-align: center;
+  white-space: nowrap;
+  padding: 10px 18px;
+  font-size: 0.88rem;
+  box-sizing: border-box;
+}
+
+/* Mode Switcher Bar in Payment */
+.resv-mode-switcher-container {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.resv-mode-switcher-bar {
+  display: inline-flex;
+  background-color: #EDE8DE;
+  padding: 4px;
+  border-radius: 12px;
+  border: 1.5px solid #ACAD79;
+  gap: 4px;
+}
+
+.resv-mode-switch-btn {
+  background: transparent;
+  border: none;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #58402E;
+  padding: 9px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.resv-mode-switch-btn-active {
+  background-color: #58402E;
+  color: #F2D17E;
+  box-shadow: 0 2px 8px rgba(88, 64, 46, 0.25);
+}
+
+.resv-mode-switch-btn:hover:not(.resv-mode-switch-btn-active) {
+  background-color: #e0d8c8;
+}
+
+/* Plain Payment details row */
+.resv-payment-plain-box {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px;
+  background-color: #FAF8F5;
+  border-radius: 12px;
+  border: 1.5px solid #EDE8DE;
+  margin-bottom: 20px;
+}
+
+.resv-payment-plain-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #58402E;
+}
+
+.resv-plain-label {
+  font-weight: 600;
+  color: #796656;
+  text-align: left;
+}
+
+.resv-plain-val {
+  font-weight: 800;
+  color: #43593B;
+  text-align: right;
 }
 
 /* ---------------------------------------------------
@@ -979,35 +1080,45 @@
 }
 
 .resv-back-btn {
-  background: #f0eee8;
+  background: #FAFBF8;
   color: #58402E;
-  border: 1px solid #dedcd3;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-weight: 600;
+  border: 1.5px solid #D2DEC9;
+  padding: 10px 22px;
+  border-radius: 9999px;
+  font-weight: 700;
   font-size: 0.9rem;
   cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.resv-back-btn:hover {
+  background: #EDE8DE;
+  border-color: #ACAD79;
 }
 
 .resv-continue-btn {
   background: #43593B;
   color: #ffffff;
   border: none;
-  padding: 10px 24px;
-  border-radius: 8px;
+  padding: 10px 26px;
+  border-radius: 9999px;
   font-weight: 700;
   font-size: 0.9rem;
   cursor: pointer;
-  transition: background 0.2s ease;
+  box-shadow: 0 4px 14px rgba(67, 89, 59, 0.2);
+  transition: all 0.2s ease;
 }
 
 .resv-continue-btn:hover:not(:disabled) {
-  background: #33442d;
+  background: #58402E;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(88, 64, 46, 0.25);
 }
 
 .resv-continue-btn:disabled {
   background: #cccccc;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
 /* ---------------------------------------------------
@@ -1036,10 +1147,36 @@
   font-size: 1.1rem;
   font-weight: 700;
   color: #43593B;
-  margin-bottom: 16px;
-  margin-top: 8px;
+  margin-bottom: 18px;
+  margin-top: 28px;
   padding-bottom: 6px;
   border-bottom: 1px solid #f0eee8;
+}
+
+.resv-form-section-title:first-of-type {
+  margin-top: 4px;
+}
+
+.resv-event-label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.resv-event-checkbox-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #43593B;
+  cursor: pointer;
+}
+
+.resv-event-checkbox-input {
+  accent-color: #43593B;
+  cursor: pointer;
 }
 
 .resv-form-row-2col {
@@ -1078,6 +1215,14 @@
 .resv-text-input:focus {
   border-color: #43593B;
   box-shadow: 0 0 0 3px rgba(67, 89, 59, 0.12);
+}
+
+.resv-text-input:disabled,
+.resv-input-disabled {
+  background-color: #FAF8F5 !important;
+  color: #A39688 !important;
+  cursor: not-allowed !important;
+  border-color: #E2DDD5 !important;
 }
 
 .resv-counter-control {
@@ -1229,6 +1374,68 @@
   background: #f3f7f0;
   padding: 10px;
   border-radius: 8px;
+}
+
+.resv-summary-notes-block {
+  margin: 14px 0 16px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.resv-summary-notes-textarea {
+  width: 100%;
+  border: 1px solid #ACAD79;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.85rem;
+  color: #58402E;
+  background: #FAF8F5;
+  resize: vertical;
+  box-sizing: border-box;
+  outline: none;
+  font-family: inherit;
+}
+
+.resv-summary-notes-textarea:focus {
+  border-color: #43593B;
+  background: #ffffff;
+  box-shadow: 0 0 0 2px rgba(67, 89, 59, 0.12);
+}
+
+.resv-summary-actions-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1.5px solid #EDE8DE;
+}
+
+.resv-summary-actions-row .resv-back-btn {
+  flex: 1;
+  text-align: center;
+  justify-content: center;
+  white-space: nowrap;
+  padding: 10px 12px;
+  font-size: 0.82rem;
+  box-sizing: border-box;
+}
+
+.resv-summary-actions-row .resv-continue-btn {
+  flex: 1.1;
+  text-align: center;
+  justify-content: center;
+  white-space: nowrap;
+  padding: 10px 14px;
+  font-size: 0.86rem;
+  box-sizing: border-box;
+}
+
+.resv-capacity-stack {
+  display: flex;
+  flex-direction: column;
 }
 
 /* ---------------------------------------------------
@@ -1811,6 +2018,24 @@
   line-height: 1.4;
 }
 
+.badge-cash-pending {
+  background-color: #FFFBEB !important;
+  color: #92400E !important;
+  border: 1px solid #FDE68A !important;
+}
+
+.resv-proof-cash-tag {
+  color: #92400E;
+  font-weight: 700;
+}
+
+.resv-tfoot-sub-row td {
+  background: #ffffff !important;
+  padding: 8px 12px !important;
+  font-size: 0.88rem !important;
+  border-top: 1px solid #f0eee8 !important;
+}
+
 .resv-receipt-actions {
   display: flex;
   justify-content: center;
@@ -1826,6 +2051,8 @@
   font-weight: 700;
   font-size: 0.95rem;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
   transition: background 0.2s ease;
 }
 
@@ -1981,26 +2208,534 @@
   margin-top: 10px;
 }
 
-/* ---------------------------------------------------
-   PRINT MEDIA STYLES
-   --------------------------------------------------- */
-@media print {
-  body * {
-    visibility: hidden;
-  }
-  #resv-printable-slip,
-  #resv-printable-slip * {
-    visibility: visible;
-  }
-  #resv-printable-slip {
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-  }
+/* ===================================================
+   STEP 4: PAYMENT STEP STYLES (GCASH & CASH TABS)
+   =================================================== */
+.resv-payment-step-wrapper {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.resv-payment-method-tabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.resv-pay-tab-btn {
+  background-color: #FAFBF8;
+  border: 2px solid #D2DEC9;
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+}
+
+.resv-pay-tab-btn:hover {
+  border-color: #ACAD79;
+  background-color: #ffffff;
+}
+
+.resv-pay-tab-active {
+  background-color: #F2F7F0 !important;
+  border-color: #43593B !important;
+  box-shadow: 0 4px 14px rgba(67, 89, 59, 0.08);
+}
+
+.resv-pay-tab-icon {
+  font-size: 1.8rem;
+}
+
+.resv-pay-tab-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.resv-pay-tab-text strong {
+  font-size: 1rem;
+  color: #43593B;
+}
+
+.resv-pay-tab-text span {
+  font-size: 0.78rem;
+  color: #796656;
+}
+
+.resv-payment-layout-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 26px;
+  align-items: start;
+}
+
+/* GCash Card */
+.resv-gcash-card {
+  background-color: #ffffff;
+  border: 1.5px solid #D2DEC9;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(67, 89, 59, 0.05);
+}
+
+.resv-gcash-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+  padding-bottom: 12px;
+  border-bottom: 1.5px solid #EDE8DE;
+}
+
+.resv-gcash-logo-pill {
+  background-color: #007DFE;
+  color: #ffffff;
+  font-weight: 900;
+  font-size: 0.95rem;
+  padding: 5px 14px;
+  border-radius: 9999px;
+  letter-spacing: 0.5px;
+}
+
+.resv-gcash-secure-tag {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #43593B;
+  background-color: #EBF7DF;
+  padding: 4px 10px;
+  border-radius: 9999px;
+}
+
+.resv-gcash-account-box {
+  background-color: #FAFBF8;
+  border: 1.5px solid #EDE8DE;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.resv-gcash-account-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.88rem;
+}
+
+.resv-gcash-label {
+  color: #796656;
+  font-weight: 600;
+}
+
+.resv-gcash-value {
+  font-weight: 800;
+  color: #58402E;
+}
+
+.resv-gcash-highlight {
+  color: #007DFE;
+  font-size: 1.1rem;
+}
+
+.resv-gcash-amount {
+  color: #43593B;
+  font-size: 1.25rem;
+  font-weight: 900;
+}
+
+.resv-downpayment-highlight-row {
+  background-color: #EBF7DF;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid #7CCE17;
+  margin: 4px 0;
+}
+
+.resv-instructions-title {
+  margin: 0 0 10px 0;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #43593B;
+}
+
+.resv-instructions-list {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 0.84rem;
+  color: #58402E;
+  line-height: 1.4;
+}
+
+/* Cash Card with Warning */
+.resv-cash-card {
+  background-color: #ffffff;
+  border: 1.5px solid #F2D17E;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(88, 64, 46, 0.08);
+}
+
+.resv-cash-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.resv-cash-icon-tag {
+  background-color: #FEE2E2;
+  color: #991B1B;
+  border: 1px solid #F87171;
+  font-weight: 800;
+  font-size: 0.78rem;
+  padding: 4px 12px;
+  border-radius: 9999px;
+  letter-spacing: 0.05em;
+}
+
+.resv-cash-badge {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #855c0a;
+}
+
+.resv-cash-warning-banner {
+  background-color: #FFF7ED;
+  border: 2px solid #F97316;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 18px;
+}
+
+.resv-warning-heading {
+  margin: 0 0 6px 0;
+  color: #C2410C;
+  font-size: 1.1rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+
+.resv-warning-desc {
+  margin: 0 0 10px 0;
+  font-size: 0.88rem;
+  color: #7C2D12;
+  line-height: 1.5;
+}
+
+.resv-warning-critical-box {
+  background-color: #FEF2F2;
+  border: 1px dashed #EF4444;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.82rem;
+  color: #991B1B;
+  line-height: 1.4;
+}
+
+.resv-cash-breakdown-box {
+  background-color: #FAFBF8;
+  border: 1.5px solid #EDE8DE;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.resv-cash-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.88rem;
+  color: #58402E;
+}
+
+.resv-cash-due {
+  color: #C2410C;
+  font-size: 1.15rem;
+  font-weight: 900;
+}
+
+.resv-cash-desk-info {
+  background-color: #FAFBF8;
+  border-radius: 8px;
+  padding: 12px 14px;
+  font-size: 0.8rem;
+  color: #58402E;
+}
+
+.resv-cash-desk-info h4 {
+  margin: 0 0 4px 0;
+  color: #43593B;
+  font-size: 0.85rem;
+}
+
+.resv-cash-desk-info p {
+  margin: 2px 0;
+}
+
+/* Payment Form Card (Right Column) */
+.resv-payment-form-card {
+  background-color: #ffffff;
+  border: 1.5px solid #D2DEC9;
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 4px 16px rgba(67, 89, 59, 0.05);
+}
+
+.resv-payment-form-title {
+  margin: 0 0 16px 0;
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #43593B;
+  border-bottom: 1.5px solid #EDE8DE;
+  padding-bottom: 10px;
+}
+
+.resv-payment-alert-error {
+  background-color: #FEF2F2;
+  border: 1.5px solid #F87171;
+  color: #991B1B;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 14px;
+}
+
+.resv-photo-upload-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.resv-upload-dropzone {
+  border: 2px dashed #ACAD79;
+  border-radius: 12px;
+  padding: 24px 16px;
+  background-color: #FAFBF8;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.resv-upload-dropzone:hover {
+  background-color: #F2F7F0;
+  border-color: #43593B;
+}
+
+.resv-upload-primary-text {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #43593B;
+  display: block;
+}
+
+.resv-upload-sub-text {
+  font-size: 0.74rem;
+  color: #796656;
+  display: block;
+}
+
+.resv-hidden-file-input {
+  display: none;
+}
+
+.resv-photo-preview-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background-color: #FAFBF8;
+  border: 1.5px solid #D2DEC9;
+  border-radius: 10px;
+  padding: 12px;
+}
+
+.resv-photo-preview-img-wrap {
+  width: 70px;
+  height: 70px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #ACAD79;
+  flex-shrink: 0;
+}
+
+.resv-photo-preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.resv-photo-preview-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.resv-photo-file-name {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #58402E;
+  word-break: break-all;
+}
+
+.resv-photo-preview-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.resv-photo-change-btn,
+.resv-photo-remove-btn {
+  background: none;
+  border: none;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  padding: 0;
+}
+
+.resv-photo-change-btn {
+  color: #43593B;
+  text-decoration: underline;
+}
+
+.resv-photo-remove-btn {
+  color: #991B1B;
+  text-decoration: underline;
+}
+
+.resv-confirmation-checkbox-group {
+  margin: 14px 0;
+  background-color: #FAFBF8;
+  border: 1px solid #EDE8DE;
+  border-radius: 8px;
+  padding: 12px 14px;
+}
+
+.resv-checkbox-label {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.resv-checkbox-input {
+  margin-top: 3px;
+  accent-color: #43593B;
+}
+
+.resv-checkbox-text {
+  font-size: 0.84rem;
+  color: #58402E;
+  line-height: 1.4;
+}
+
+.resv-cash-ack-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.resv-cash-rule-callout {
+  display: flex;
+  gap: 10px;
+  background-color: #FFFBEB;
+  border: 1px solid #FDE68A;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.84rem;
+  color: #92400E;
+}
+
+.resv-cash-rule-callout p {
+  margin: 0;
+}
+
+.resv-order-quick-summary {
+  background-color: #FAFBF8;
+  border: 1px solid #EDE8DE;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+  font-size: 0.84rem;
+}
+
+.resv-quick-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #58402E;
+}
+
+.resv-quick-amount {
+  color: #43593B;
+  font-size: 1rem;
+}
+
+.resv-payment-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.resv-back-btn {
+  background-color: #FAFBF8;
+  color: #58402E;
+  border: 1.5px solid #D2DEC9;
+  border-radius: 9999px;
+  padding: 12px 18px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.resv-back-btn:hover {
+  background-color: #EDE8DE;
+}
+
+.resv-confirm-btn {
+  flex: 1;
+  background-color: #43593B;
+  color: #ffffff;
+  border: none;
+  border-radius: 9999px;
+  padding: 12px 20px;
+  font-size: 0.95rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(67, 89, 59, 0.25);
+  transition: all 0.2s ease;
+}
+
+.resv-confirm-btn:hover {
+  background-color: #58402E;
+  transform: translateY(-2px);
+}
+
+.resv-confirm-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* ---------------------------------------------------
@@ -2016,35 +2751,41 @@
   .resv-payment-layout-grid {
     grid-template-columns: 1fr;
   }
-  .resv-type-grid {
+  .resv-payment-method-tabs {
     grid-template-columns: 1fr;
   }
 }
 
-@media (max-width: 640px) {
-  .sched-row-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
+/* ---------------------------------------------------
+   PRINT MEDIA STYLES (Official Slip Download / Print)
+   --------------------------------------------------- */
+@media print {
+  body * {
+    visibility: hidden;
   }
-  .sched-row-info-col {
-    align-items: flex-start;
-    margin-right: 0;
+  #resv-printable-slip,
+  #resv-printable-slip * {
+    visibility: visible;
   }
-  .resv-form-row-2col {
-    grid-template-columns: 1fr;
+  #resv-printable-slip {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 20px;
+    border: 1.5px solid #000000 !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
   }
-  .resv-stepper-track {
-    padding: 10px 14px;
-  }
-  .resv-step-label {
-    display: none;
-  }
-  .resv-calendar-actions-bar {
-    flex-direction: column;
-    gap: 14px;
-  }
-  .resv-receipt-info-grid {
-    grid-template-columns: 1fr;
+  .resv-receipt-actions,
+  .resv-success-banner,
+  .resv-progress-container,
+  header,
+  nav,
+  footer,
+  aside {
+    display: none !important;
   }
 }
+

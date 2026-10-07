@@ -32,7 +32,7 @@ function Reservation() {
     phoneNumber: '',
     guestCount: 20,
     extensionHours: 0,
-    eventName: 'Family Outing',
+    eventName: '',
     specialNotes: '',
   })
 
@@ -78,6 +78,7 @@ function Reservation() {
       max_pax: 35,
       duration_extra_pax_charge: 200,
       duration_extension_charge: 700,
+      duration_event_rate: 2000,
     }
 
     const basePrice = Number(pkg.duration_price || 9000)
@@ -91,8 +92,11 @@ function Reservation() {
     const extRate = Number(pkg.duration_extension_charge || 700)
     const extensionCharge = extHours * extRate
 
+    const hasEvent = Boolean(formData.eventName && formData.eventName.trim().length > 0)
+    const eventCharge = hasEvent ? Number(pkg.duration_event_rate || 0) : 0
+
     const securityDeposit = 2000
-    const totalAmount = basePrice + extraPaxCharge + extensionCharge + securityDeposit
+    const totalAmount = basePrice + extraPaxCharge + extensionCharge + eventCharge + securityDeposit
 
     return {
       basePrice,
@@ -100,10 +104,11 @@ function Reservation() {
       extraPaxCount,
       extraPaxCharge,
       extensionCharge,
+      eventCharge,
       securityDeposit,
       totalAmount,
     }
-  }, [selectedPackage, packages, formData.guestCount, formData.extensionHours])
+  }, [selectedPackage, packages, formData.guestCount, formData.extensionHours, formData.eventName])
 
   const showToast = (msg) => {
     setToastMessage(msg)
@@ -164,7 +169,7 @@ function Reservation() {
     }
     const endIso = endDateObj.toISOString().split('.')[0]
 
-    // 1. Upload photo proof (via Supabase storage or Base64 fallback)
+    // 1. Upload photo proof (if GCash was chosen and file exists)
     let proofUrl = paymentInfo?.paymentProofPreview || null
     if (paymentInfo?.paymentProofFile) {
       const uploaded = await DataService.uploadPaymentProof(paymentInfo.paymentProofFile)
@@ -173,6 +178,12 @@ function Reservation() {
       }
     }
 
+    const totalCalculatedCost = priceCalculation.basePrice + priceCalculation.extensionCharge
+    const extraCharges = priceCalculation.extraPaxCharge + priceCalculation.securityDeposit
+    const grandTotal = totalCalculatedCost + extraCharges
+    const downpaymentAmount = paymentInfo?.downpaymentAmount ?? Math.round(grandTotal * 0.5)
+    const remainingBalance = grandTotal - downpaymentAmount
+
     const reservationPayload = {
       customer_id: user?.id || 101,
       guest_count: Number(formData.guestCount),
@@ -180,13 +191,16 @@ function Reservation() {
       start_date: startIso,
       end_date: endIso,
       extension_duration: formData.extensionHours > 0 ? `${formData.extensionHours} hours` : null,
-      has_paid_sec_dep: true,
-      has_paid_reservation: true,
-      reservation_cost: priceCalculation.basePrice + priceCalculation.extensionCharge,
-      extra_charges: priceCalculation.extraPaxCharge + priceCalculation.securityDeposit,
+      has_paid_sec_dep: false,
+      has_paid_reservation: paymentInfo?.paymentMethod === 'gcash',
+      reservation_cost: totalCalculatedCost,
+      extra_charges: extraCharges,
       reservation_status: 'pending',
       event_name: `${formData.eventName} (${formData.firstName} ${formData.lastName})`,
       payment_proof_url: proofUrl,
+      payment_type: paymentInfo?.paymentMethod || 'gcash',
+      downpayment_amount: downpaymentAmount,
+      remaining_balance: remainingBalance,
     }
 
     try {
@@ -194,7 +208,11 @@ function Reservation() {
       setCreatedReservation(savedReservation)
       setIsSubmitting(false)
       setCurrentStep('receipt')
-      showToast('Reservation submitted successfully! Payment screenshot recorded.')
+      if (paymentInfo?.paymentMethod === 'cash') {
+        showToast('Cash reservation recorded! Please pay 50% deposit at the front desk today.')
+      } else {
+        showToast('Reservation submitted successfully! GCash payment recorded.')
+      }
       window.scrollTo({ top: 0, behavior: 'smooth' })
     } catch (err) {
       console.error('Error submitting reservation:', err)

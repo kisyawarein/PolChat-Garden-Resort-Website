@@ -26,24 +26,34 @@ function PriorityPendingList({
   const pendingVisitations = visitations.filter((v) => v.visitation_status === 'pending')
 
   const pendingQueue = [
-    ...pendingReservations.map((r) => ({
-      uniqueKey: `pending-res-${r.reservation_id}`,
-      id: r.reservation_id,
-      itemType: 'resort',
-      title: r.customer_name || `Customer #${r.customer_id}`,
-      phone: r.customer_phone || '0917-xxx-xxxx',
-      package: getPackageName(r.duration_id),
-      event: r.event_name || 'Resort Stay',
-      date: r.start_date ? r.start_date.split('T')[0] : 'N/A',
-      startTime: r.start_date && r.start_date.includes('T') ? r.start_date.split('T')[1].substring(0, 5) : '',
-      endTime: r.end_date && r.end_date.includes('T') ? r.end_date.split('T')[1].substring(0, 5) : '',
-      pax: `${r.guest_count} Guests`,
-      amount: `PHP ${((r.reservation_cost || 0) + (r.extra_charges || 0)).toLocaleString()}`,
-      cost: (r.reservation_cost || 0) + (r.extra_charges || 0),
-      hasSecDep: r.has_paid_sec_dep,
-      photoUrl: r.payment_proof_url || null,
-      raw: r,
-    })),
+    ...pendingReservations.map((r) => {
+      const totalCost = (r.reservation_cost || 0) + (r.extra_charges || 0)
+      const payType = r.payment_type || (r.payment_proof_url ? 'gcash' : 'cash')
+      const downpayment = r.downpayment_amount || Math.ceil(totalCost * 0.5)
+      const balance = r.remaining_balance !== undefined && r.remaining_balance !== null ? r.remaining_balance : Math.floor(totalCost * 0.5)
+
+      return {
+        uniqueKey: `pending-res-${r.reservation_id}`,
+        id: r.reservation_id,
+        itemType: 'resort',
+        title: r.customer_name || `Customer #${r.customer_id}`,
+        phone: r.customer_phone || '0917-xxx-xxxx',
+        package: getPackageName(r.duration_id),
+        event: r.event_name || 'Resort Stay',
+        date: r.start_date ? r.start_date.split('T')[0] : 'N/A',
+        startTime: r.start_date && r.start_date.includes('T') ? r.start_date.split('T')[1].substring(0, 5) : '',
+        endTime: r.end_date && r.end_date.includes('T') ? r.end_date.split('T')[1].substring(0, 5) : '',
+        pax: `${r.guest_count} Guests`,
+        amount: `PHP ${totalCost.toLocaleString()}`,
+        cost: totalCost,
+        paymentType: payType,
+        downpaymentAmount: downpayment,
+        remainingBalance: balance,
+        hasSecDep: r.has_paid_sec_dep,
+        photoUrl: r.payment_proof_url || null,
+        raw: r,
+      }
+    }),
     ...pendingVisitations.map((v) => ({
       uniqueKey: `pending-vis-${v.visitation_id}`,
       id: v.visitation_id,
@@ -58,6 +68,9 @@ function PriorityPendingList({
       pax: `${v.guest_count || 2} Visitors`,
       amount: 'Free Visit',
       cost: 0,
+      paymentType: 'none',
+      downpaymentAmount: 0,
+      remainingBalance: 0,
       hasSecDep: false,
       photoUrl: null,
       raw: v,
@@ -106,9 +119,16 @@ function PriorityPendingList({
               <div key={item.uniqueKey} className="pending-item-card">
                 {/* Top Row: Type & Amount */}
                 <div className="pending-item-top">
-                  <span className={`pending-type-tag tag-${item.itemType}`}>
-                    {item.itemType === 'resort' ? 'Resort Stay' : 'Ocular Visit'}
-                  </span>
+                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                    <span className={`pending-type-tag tag-${item.itemType}`}>
+                      {item.itemType === 'resort' ? 'Resort Stay' : 'Ocular Visit'}
+                    </span>
+                    {item.itemType === 'resort' && (
+                      <span className={`pending-payment-pill ${item.paymentType === 'cash' ? 'cash-pill' : 'gcash-pill'}`}>
+                        {item.paymentType === 'cash' ? '💵 Cash' : '📱 GCash'}
+                      </span>
+                    )}
+                  </div>
                   <span className="pending-amount-tag">{item.amount}</span>
                 </div>
 
@@ -132,6 +152,14 @@ function PriorityPendingList({
                     <span className="pending-meta-label">Pax:</span>
                     <span className="pending-meta-val">{item.pax}</span>
                   </div>
+                  {item.itemType === 'resort' && (
+                    <div className="pending-meta-row">
+                      <span className="pending-meta-label">50% Deposit:</span>
+                      <span className="pending-meta-val" style={{ color: '#43593B' }}>
+                        ₱{item.downpaymentAmount?.toLocaleString()} ({item.paymentType === 'cash' ? 'Pay at Desk' : 'Verified via GCash'})
+                      </span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Action Buttons Rows */}
@@ -160,7 +188,7 @@ function PriorityPendingList({
                     </button>
                   </div>
 
-                  {/* Secondary Details & Photo Verification */}
+                  {/* Secondary Details & Photo Verification (Only for GCash with photo) */}
                   <div className="pending-actions-sub-row">
                     <button
                       type="button"
@@ -175,7 +203,7 @@ function PriorityPendingList({
                       <span>Details</span>
                     </button>
 
-                    {item.itemType === 'resort' && (
+                    {item.itemType === 'resort' && item.paymentType === 'gcash' && item.photoUrl && (
                       <button
                         type="button"
                         className="pending-btn-photo"
@@ -246,15 +274,32 @@ function PriorityPendingList({
                 <div className="modal-charges-card">
                   <h4 className="modal-charges-title">Financial Breakdown</h4>
                   <div className="modal-financial-row">
-                    <span>Total Amount:</span>
+                    <span>Payment Mode:</span>
+                    <strong style={{ color: selectedDetailsItem.paymentType === 'cash' ? '#58402E' : '#386B06' }}>
+                      {selectedDetailsItem.paymentType === 'cash' ? '💵 Cash on Desk (Due Today)' : '📱 GCash Online'}
+                    </strong>
+                  </div>
+                  <div className="modal-financial-row">
+                    <span>Total Booking Cost:</span>
                     <strong>{selectedDetailsItem.amount}</strong>
                   </div>
                   <div className="modal-financial-row">
-                    <span>Security Deposit (₱2,000):</span>
-                    <strong style={{ color: selectedDetailsItem.hasSecDep ? '#386B06' : '#991b1b' }}>
-                      {selectedDetailsItem.hasSecDep ? 'Paid via GCash' : 'Pending Verification'}
+                    <span>50% Downpayment:</span>
+                    <strong style={{ color: '#43593B' }}>
+                      ₱{selectedDetailsItem.downpaymentAmount?.toLocaleString()}
                     </strong>
                   </div>
+                  <div className="modal-financial-row">
+                    <span>Remaining Balance at Checkout:</span>
+                    <strong style={{ color: '#58402E' }}>
+                      ₱{selectedDetailsItem.remainingBalance?.toLocaleString()}
+                    </strong>
+                  </div>
+                  {selectedDetailsItem.paymentType === 'cash' && (
+                    <div style={{ marginTop: '8px', padding: '8px 10px', backgroundColor: '#FFFBEB', border: '1px solid #F2D17E', borderRadius: '6px', fontSize: '0.78rem', color: '#78350F' }}>
+                      ℹ️ <strong>Cash Reservation:</strong> Guest is instructed to pay 50% downpayment in cash today. No payment receipt photo is required.
+                    </div>
+                  )}
                 </div>
               )}
             </div>

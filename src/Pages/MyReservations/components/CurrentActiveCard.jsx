@@ -8,6 +8,7 @@ function CurrentActiveCard({
   onBookNew,
   onOpenReceipt,
   onOpenPhoto,
+  onOpenCheckout,
 }) {
   const getPackageImage = (durationId) => {
     switch (durationId) {
@@ -29,15 +30,28 @@ function CurrentActiveCard({
     }
   }
 
+  const totalCost = activeReservation
+    ? (activeReservation.reservation_cost || 0) + (activeReservation.extra_charges || 0)
+    : 0
+  const downpayment = activeReservation?.downpayment_amount || Math.round(totalCost * 0.5)
+  const balance = activeReservation?.remaining_balance ?? (totalCost - downpayment)
+  const isCheckedOut = !!activeReservation?.is_checked_out
+
   return (
     <div className="myres-active-column">
       {/* Header Container Card (66px) */}
       <div className="catalog-panel-header-card">
         <h2 className="catalog-panel-title">Current Active Reservation</h2>
         {activeReservation && (
-          <span className={`myres-status-tag status-${activeReservation.reservation_status}`}>
-            {activeReservation.reservation_status === 'confirmed' ? 'CONFIRMED' : 'PENDING REVIEW'}
-          </span>
+          <div className="myres-status-group">
+            {isCheckedOut ? (
+              <span className="myres-status-tag status-checked-out">✓ CHECKED OUT</span>
+            ) : (
+              <span className={`myres-status-tag status-${activeReservation.reservation_status}`}>
+                {activeReservation.reservation_status === 'confirmed' ? 'CONFIRMED' : 'PENDING REVIEW'}
+              </span>
+            )}
+          </div>
         )}
       </div>
 
@@ -96,14 +110,32 @@ function CurrentActiveCard({
                 </div>
 
                 <div className="myres-info-item">
-                  <span className="myres-info-label">Event Occasion</span>
-                  <span className="myres-info-val">{activeReservation.event_name || 'Family Outing'}</span>
+                  <span className="myres-info-label">Payment Mode</span>
+                  <span className="myres-info-val" style={{ textTransform: 'uppercase' }}>
+                    {activeReservation.payment_type === 'cash' ? '💵 Cash on Desk' : '📱 GCash Transfer'}
+                  </span>
                 </div>
 
                 <div className="myres-info-item">
-                  <span className="myres-info-label">Total Amount Paid</span>
+                  <span className="myres-info-label">Total Booking Cost</span>
                   <span className="myres-info-val myres-val-amount">
-                    ₱{((activeReservation.reservation_cost || 0) + (activeReservation.extra_charges || 0)).toLocaleString()}
+                    ₱{totalCost.toLocaleString()}
+                  </span>
+                </div>
+              </div>
+
+              {/* 50% Downpayment vs Remaining Balance Progress */}
+              <div className="myres-balance-card">
+                <div className="myres-balance-col">
+                  <span className="myres-bal-label">50% Downpayment:</span>
+                  <span className="myres-bal-val myres-bal-paid">
+                    {activeReservation.has_paid_reservation ? `✓ ₱${downpayment.toLocaleString()} (Paid)` : `₱${downpayment.toLocaleString()} (Due)`}
+                  </span>
+                </div>
+                <div className="myres-balance-col">
+                  <span className="myres-bal-label">Remaining Balance:</span>
+                  <span className="myres-bal-val myres-bal-due">
+                    {isCheckedOut ? '✓ ₱0 (Fully Settled)' : `₱${balance.toLocaleString()} (Due on Checkout)`}
                   </span>
                 </div>
               </div>
@@ -115,12 +147,23 @@ function CurrentActiveCard({
                   <span className="myres-deposit-sub">100% refundable upon checkout inspection</span>
                 </div>
                 <span className="myres-deposit-badge">
-                  {activeReservation.has_paid_sec_dep ? '✓ PAID VIA GCASH' : 'DUE ON CHECK-IN'}
+                  {activeReservation.has_paid_sec_dep || isCheckedOut ? '✓ SETTLED' : 'DUE ON CHECK-IN'}
                 </span>
               </div>
 
               {/* Action Buttons */}
               <div className="myres-active-actions">
+                {/* Checkout & Settle Balance CTA */}
+                {!isCheckedOut && (
+                  <button
+                    type="button"
+                    className="myres-btn-checkout-cta"
+                    onClick={() => onOpenCheckout && onOpenCheckout(activeReservation)}
+                  >
+                    <span>Check Out & Settle Balance →</span>
+                  </button>
+                )}
+
                 {activeReservation.payment_proof_url && (
                   <button
                     type="button"
