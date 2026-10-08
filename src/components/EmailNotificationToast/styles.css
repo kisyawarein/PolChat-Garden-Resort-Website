@@ -1,0 +1,130 @@
+/* ==========================================================================
+   POLCHAT GARDEN RESORT - EMAIL NOTIFICATION TOAST STYLES
+   ========================================================================== */
+
+.email-toast-container {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 380px;
+  width: calc(100vw - 32px);
+  pointer-events: none;
+}
+
+.email-toast-card {
+  pointer-events: auto;
+  background: #ffffff;
+  border-left: 5px solid var(--color-lime, #7CCE17);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(67, 89, 59, 0.22), 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 14px 16px;
+  animation: emailToastSlideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  border: 1px solid rgba(172, 173, 121, 0.35);
+  border-left: 5px solid #7CCE17;
+}
+
+@keyframes emailToastSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.email-toast-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.email-toast-badge-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.email-toast-icon {
+  font-size: 1rem;
+}
+
+.email-toast-tag {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-forest, #43593B);
+  background: rgba(124, 206, 23, 0.15);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.email-toast-close {
+  background: none;
+  border: none;
+  font-size: 0.85rem;
+  color: #888888;
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.email-toast-close:hover {
+  color: var(--color-bark, #58402E);
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.email-toast-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.email-toast-to {
+  font-size: 0.8rem;
+  color: #666666;
+  margin: 0;
+}
+
+.email-toast-to strong {
+  color: var(--color-bark, #58402E);
+}
+
+.email-toast-subject {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--color-forest, #43593B);
+  margin: 0;
+  line-height: 1.35;
+}
+
+.email-toast-otp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  background: #fbfbf6;
+  border: 1px dashed var(--color-lime, #7CCE17);
+  padding: 6px 12px;
+  border-radius: 8px;
+}
+
+.email-toast-otp-chip span {
+  font-size: 0.75rem;
+  color: #555555;
+}
+
+.email-toast-otp-chip strong {
+  font-size: 1.05rem;
+  letter-spacing: 0.15em;
+  color: var(--color-bark, #58402E);
+  font-family: monospace;
+}

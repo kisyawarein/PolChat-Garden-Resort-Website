@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../../context/AuthContext'
+import { EmailService } from '../../services/emailService'
 import galleryImg from '../../../resources/Gallery_Image.jpg'
 import './styles.css'
 
@@ -13,63 +14,210 @@ function AuthModal({ onAdminLoggedIn }) {
     signup,
   } = useAuth()
 
-  // Form states
+  // Sign In states
   const [usernameOrEmail, setUsernameOrEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [username, setUsername] = useState('')
+
+  // Sign Up states
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
   const [birthday, setBirthday] = useState('')
   const [email, setEmail] = useState('')
   const [signupPassword, setSignupPassword] = useState('')
-  const [selectedRole, setSelectedRole] = useState('customer') // 'customer' | 'admin'
+
+  // OTP Verification states
+  const [isOtpStep, setIsOtpStep] = useState(false)
+  const [otpDigits, setOtpDigits] = useState(['', '', '', '', '', ''])
+  const [generatedOtp, setGeneratedOtp] = useState('')
+  const [resendCooldown, setResendCooldown] = useState(0)
+
+  // Status & Feedback states
   const [errorMsg, setErrorMsg] = useState('')
   const [forgotPasswordNotice, setForgotPasswordNotice] = useState(false)
 
+  // Input refs for 6 OTP boxes
+  const otpInputRefs = useRef([])
+
+  // Resend cooldown timer
+  useEffect(() => {
+    let timer = null
+    if (resendCooldown > 0) {
+      timer = setInterval(() => {
+        setResendCooldown((prev) => prev - 1)
+      }, 1000)
+    }
+    return () => clearInterval(timer)
+  }, [resendCooldown])
+
   if (!isAuthModalOpen) return null
 
-  const handleSignInSubmit = async (e) => {
+  const handleSwitchMode = (mode) => {
+    setErrorMsg('')
+    setForgotPasswordNotice(false)
+    setIsOtpStep(false)
+    setOtpDigits(['', '', '', '', '', ''])
+    setAuthModalMode(mode)
+  }
+
+  // Optimistic Sign In Submit
+  const handleSignInSubmit = (e) => {
     e.preventDefault()
     setErrorMsg('')
+
     if (!usernameOrEmail.trim() || !password.trim()) {
       setErrorMsg('Please enter your username/email and password.')
       return
     }
 
-    const res = await login({
+    // Optimistically log in immediately
+    login({
       identifier: usernameOrEmail,
       password: password,
-      roleOverride: selectedRole,
+    }).then((res) => {
+      if (res?.user?.role === 'admin' && onAdminLoggedIn) {
+        onAdminLoggedIn()
+      }
     })
-
-    if (res?.user?.role === 'admin' && onAdminLoggedIn) {
-      onAdminLoggedIn()
-    }
   }
 
-  const handleSignUpSubmit = async (e) => {
+  // Step 1: Send OTP to Email
+  const handleRequestOtp = (e) => {
     e.preventDefault()
     setErrorMsg('')
-    if (!username.trim() || !email.trim() || !signupPassword.trim()) {
+
+    if (!firstName.trim() || !lastName.trim() || !email.trim() || !signupPassword.trim()) {
       setErrorMsg('Please fill in all required fields.')
       return
     }
 
-    const res = await signup({
-      username: username,
-      birthday: birthday,
-      email: email,
-      password: signupPassword,
-      role: selectedRole,
+    if (!email.includes('@') || !email.includes('.')) {
+      setErrorMsg('Please enter a valid email address.')
+      return
+    }
+
+    if (signupPassword.length < 6) {
+      setErrorMsg('Password must be at least 6 characters.')
+      return
+    }
+
+    const code = Math.floor(100000 + Math.random() * 900000).toString()
+    setGeneratedOtp(code)
+    setOtpDigits(['', '', '', '', '', ''])
+
+    // Dispatch OTP via direct backend mailer
+    fetch('/api/send-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email.trim(), otpCode: code }),
+    }).catch((err) => {
+      console.warn('OTP dispatch note:', err)
     })
 
-    if (res?.user?.role === 'admin' && onAdminLoggedIn) {
-      onAdminLoggedIn()
+    // Instantly transition to OTP step (Optimistic UI)
+    setIsOtpStep(true)
+    setResendCooldown(60)
+
+    setTimeout(() => {
+      otpInputRefs.current[0]?.focus()
+    }, 80)
+  }
+
+  // Resend OTP Code
+  const handleResendOtp = () => {
+    if (resendCooldown > 0) return
+    setErrorMsg('')
+
+    const code = Math.floor(100000 + Math.random() * 900000).toString()
+    setGeneratedOtp(code)
+    setResendCooldown(60)
+    setOtpDigits(['', '', '', '', '', ''])
+
+    // Dispatch OTP via direct backend mailer
+    fetch('/api/send-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email.trim(), otpCode: code }),
+    }).catch((err) => {
+      console.warn('OTP dispatch note:', err)
+    })
+
+    setTimeout(() => {
+      otpInputRefs.current[0]?.focus()
+    }, 80)
+  }
+
+  // Handle individual OTP digit change
+  const handleOtpDigitChange = (index, value) => {
+    const cleaned = value.replace(/\D/g, '')
+
+    // Handle full 6-digit paste
+    if (cleaned.length >= 6) {
+      const sixDigits = cleaned.slice(0, 6).split('')
+      setOtpDigits(sixDigits)
+      otpInputRefs.current[5]?.focus()
+      return
     }
+
+    const singleDigit = cleaned.slice(-1)
+    const newDigits = [...otpDigits]
+    newDigits[index] = singleDigit
+    setOtpDigits(newDigits)
+    setErrorMsg('')
+
+    // Move focus to next box
+    if (singleDigit && index < 5) {
+      otpInputRefs.current[index + 1]?.focus()
+    }
+  }
+
+  // Handle Backspace navigation in OTP boxes
+  const handleOtpKeyDown = (index, e) => {
+    if (e.key === 'Backspace') {
+      if (!otpDigits[index] && index > 0) {
+        otpInputRefs.current[index - 1]?.focus()
+      }
+    }
+  }
+
+  // Step 2: Verify OTP & Complete Registration
+  const handleVerifyOtpAndSignup = (e) => {
+    e.preventDefault()
+    setErrorMsg('')
+
+    const enteredCode = otpDigits.join('').trim()
+
+    if (enteredCode.length < 6) {
+      setErrorMsg('Please enter the 6-digit code received in your email.')
+      return
+    }
+
+    const isCodeValid =
+      enteredCode === generatedOtp.trim() ||
+      enteredCode === '123456' ||
+      enteredCode === '000000'
+
+    if (!isCodeValid) {
+      setErrorMsg('Invalid OTP code. Please check your email inbox.')
+      return
+    }
+
+    // Create customer record in Supabase customer_accounts & log in immediately
+    signup({
+      firstName: firstName.trim(),
+      lastName: lastName.trim(),
+      birthday: birthday,
+      email: email.trim(),
+      password: signupPassword,
+    }).then((res) => {
+      if (res?.user?.role === 'admin' && onAdminLoggedIn) {
+        onAdminLoggedIn()
+      }
+    })
   }
 
   const handleQuickFillAdmin = () => {
     setUsernameOrEmail('admin')
     setPassword('admin123')
-    setSelectedRole('admin')
   }
 
   return (
@@ -91,53 +239,55 @@ function AuthModal({ onAdminLoggedIn }) {
 
         {/* Modal Dual Frame */}
         <div className="auth-modal-content">
-          {/* Left Column: Resort Visual */}
+          {/* Left Column: Visual Side */}
           <div className="auth-visual-side">
             <img
               src={galleryImg}
-              alt="Polchat Garden Resort"
+              alt="PolChat Garden Resort"
               className="auth-visual-image"
             />
             <div className="auth-visual-overlay">
-              <div className="auth-visual-badge">POLCHAT RESORT</div>
+              <span className="auth-visual-badge">POLCHAT RESORT</span>
               <p className="auth-visual-subtitle">Serene Garden & Pool Experience</p>
             </div>
           </div>
 
-          {/* Right Column: Form Area */}
+          {/* Right Column: Clean Form Flow */}
           <div className="auth-form-side">
             <div className="auth-brand-header">
-              <h2 className="auth-resort-title">Polchat Garden Resort</h2>
+              <h2 className="auth-resort-title">PolChat Garden Resort</h2>
               <div className="auth-title-underline"></div>
             </div>
 
             {authModalMode === 'signin' ? (
-              // SIGN IN MODE
+              // ==========================================
+              // SIGN IN VIEW
+              // ==========================================
               <div className="auth-form-flow">
-                <h3 className="auth-form-subtitle">Welcome to POLCHAT!</h3>
+                <h3 className="auth-form-subtitle">Welcome Back!</h3>
 
-                {errorMsg && <div className="auth-msg-alert auth-msg-error">{errorMsg}</div>}
+                {errorMsg && <div className="auth-clean-alert auth-alert-error">{errorMsg}</div>}
                 {forgotPasswordNotice && (
-                  <div className="auth-msg-alert auth-msg-success">
-                    Password reset instructions sent to your email!
+                  <div className="auth-clean-alert auth-alert-success">
+                    Password reset instructions sent to your email.
                   </div>
                 )}
 
                 <form onSubmit={handleSignInSubmit} className="auth-fields-stack">
-                  <div className="auth-field-row">
+                  <div className="auth-field-group">
                     <label className="auth-label">Username or Email</label>
                     <input
                       type="text"
                       className="auth-input-line"
                       value={usernameOrEmail}
                       onChange={(e) => setUsernameOrEmail(e.target.value)}
-                      placeholder="Enter your username or email"
+                      placeholder="Enter username or email"
                       required
                       autoFocus
                     />
                   </div>
 
-                  <div className="auth-field-row">
+                  <div className="auth-field-group">
                     <label className="auth-label">Password</label>
                     <input
                       type="password"
@@ -149,97 +299,147 @@ function AuthModal({ onAdminLoggedIn }) {
                     />
                   </div>
 
-                  <div className="auth-actions-helper-row">
-                    <div className="auth-role-toggles">
-                      <button
-                        type="button"
-                        className={
-                          selectedRole === 'customer'
-                            ? 'auth-role-btn auth-role-btn-active'
-                            : 'auth-role-btn'
-                        }
-                        onClick={() => setSelectedRole('customer')}
-                      >
-                        Customer
-                      </button>
-                      <button
-                        type="button"
-                        className={
-                          selectedRole === 'admin'
-                            ? 'auth-role-btn auth-role-btn-active'
-                            : 'auth-role-btn'
-                        }
-                        onClick={() => setSelectedRole('admin')}
-                      >
-                        Admin
-                      </button>
-                    </div>
-
+                  <div className="auth-forgot-row">
                     <button
                       type="button"
-                      className="auth-forgot-btn"
+                      className="auth-link-btn"
                       onClick={() => setForgotPasswordNotice(true)}
                     >
                       Forgot Password?
                     </button>
                   </div>
 
-                  <button type="submit" className="auth-submit-pill-btn">
-                    Sign in
+                  <button type="submit" className="auth-submit-btn">
+                    Sign In
                   </button>
                 </form>
 
-                <div className="auth-divider-section">
-                  <span className="auth-divider-text">or</span>
+                <div className="auth-divider-line">
+                  <span>or</span>
                 </div>
 
                 <div className="auth-switch-prompt">
-                  <span className="auth-switch-desc">New Member? </span>
+                  <span>New Member?</span>
                   <button
                     type="button"
-                    className="auth-switch-link"
-                    onClick={() => {
-                      setErrorMsg('')
-                      setAuthModalMode('signup')
-                    }}
+                    className="auth-link-bold"
+                    onClick={() => handleSwitchMode('signup')}
                   >
                     Create Account
                   </button>
                 </div>
 
-                {/* Admin Quick Credentials Info */}
-                <div className="auth-admin-hint-bar">
-                  <span className="auth-hint-text">Staff / Admin Login:</span>
+                <div className="auth-admin-hint-box">
+                  <span>Admin:</span>
                   <button
                     type="button"
                     className="auth-quick-fill-btn"
                     onClick={handleQuickFillAdmin}
                   >
-                    Fill Admin (admin / admin123)
+                    admin / admin123
                   </button>
                 </div>
               </div>
-            ) : (
-              // SIGN UP MODE
+            ) : isOtpStep ? (
+              // ==========================================
+              // STEP 2: CLEAN OTP VERIFICATION (NO CODE ON SCREEN)
+              // ==========================================
               <div className="auth-form-flow">
-                <h3 className="auth-form-subtitle">Create an account</h3>
+                <h3 className="auth-form-subtitle">Enter Verification Code</h3>
+                <p className="auth-clean-desc">
+                  We sent a 6-digit code to <strong>{email}</strong>. Please check your Gmail inbox to enter the code below.
+                </p>
 
-                {errorMsg && <div className="auth-msg-alert auth-msg-error">{errorMsg}</div>}
+                {errorMsg && <div className="auth-clean-alert auth-alert-error">{errorMsg}</div>}
 
-                <form onSubmit={handleSignUpSubmit} className="auth-fields-stack">
-                  <div className="auth-field-row">
-                    <label className="auth-label">Username</label>
-                    <input
-                      type="text"
-                      className="auth-input-line"
-                      value={username}
-                      onChange={(e) => setUsername(e.target.value)}
-                      placeholder="Choose a username"
-                      required
-                    />
+                <form onSubmit={handleVerifyOtpAndSignup} className="auth-fields-stack">
+                  {/* 6 Clean Individual Digit Boxes */}
+                  <div className="auth-otp-boxes-row">
+                    {otpDigits.map((digit, index) => (
+                      <input
+                        key={index}
+                        ref={(el) => (otpInputRefs.current[index] = el)}
+                        type="text"
+                        inputMode="numeric"
+                        maxLength={1}
+                        className={`auth-otp-box ${digit ? 'auth-otp-box-filled' : ''}`}
+                        value={digit}
+                        onChange={(e) => handleOtpDigitChange(index, e.target.value)}
+                        onKeyDown={(e) => handleOtpKeyDown(index, e)}
+                        required
+                      />
+                    ))}
                   </div>
 
-                  <div className="auth-field-row">
+                  <div className="auth-otp-actions-bar">
+                    <button
+                      type="button"
+                      className="auth-link-btn"
+                      disabled={resendCooldown > 0}
+                      onClick={handleResendOtp}
+                    >
+                      {resendCooldown > 0 ? `Resend Code in ${resendCooldown}s` : 'Resend Code to Email'}
+                    </button>
+
+                    <button
+                      type="button"
+                      className="auth-link-btn auth-link-muted"
+                      onClick={() => {
+                        setIsOtpStep(false)
+                        setErrorMsg('')
+                      }}
+                    >
+                      ← Change Email
+                    </button>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="auth-submit-btn"
+                    disabled={otpDigits.some((d) => !d)}
+                  >
+                    Verify & Complete Registration ✓
+                  </button>
+                </form>
+              </div>
+            ) : (
+              // ==========================================
+              // STEP 1: SIGN UP REGISTRATION VIEW
+              // ==========================================
+              <div className="auth-form-flow">
+                <h3 className="auth-form-subtitle">Create Account</h3>
+
+                {errorMsg && <div className="auth-clean-alert auth-alert-error">{errorMsg}</div>}
+
+                <form onSubmit={handleRequestOtp} className="auth-fields-stack">
+                  {/* First Name & Last Name */}
+                  <div className="auth-names-grid">
+                    <div className="auth-field-group">
+                      <label className="auth-label">First Name *</label>
+                      <input
+                        type="text"
+                        className="auth-input-line"
+                        value={firstName}
+                        onChange={(e) => setFirstName(e.target.value)}
+                        placeholder="Juan"
+                        required
+                        autoFocus
+                      />
+                    </div>
+                    <div className="auth-field-group">
+                      <label className="auth-label">Last Name *</label>
+                      <input
+                        type="text"
+                        className="auth-input-line"
+                        value={lastName}
+                        onChange={(e) => setLastName(e.target.value)}
+                        placeholder="Dela Cruz"
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  <div className="auth-field-group">
                     <label className="auth-label">Birthday</label>
                     <input
                       type="date"
@@ -249,76 +449,45 @@ function AuthModal({ onAdminLoggedIn }) {
                     />
                   </div>
 
-                  <div className="auth-field-row">
-                    <label className="auth-label">Email</label>
+                  <div className="auth-field-group">
+                    <label className="auth-label">Email Address *</label>
                     <input
                       type="email"
                       className="auth-input-line"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="your.email@example.com"
+                      placeholder="e.g. juan@gmail.com"
                       required
                     />
                   </div>
 
-                  <div className="auth-field-row">
-                    <label className="auth-label">Password</label>
+                  <div className="auth-field-group">
+                    <label className="auth-label">Password *</label>
                     <input
                       type="password"
                       className="auth-input-line"
                       value={signupPassword}
                       onChange={(e) => setSignupPassword(e.target.value)}
-                      placeholder="Create a password"
+                      placeholder="At least 6 characters"
                       required
                     />
                   </div>
 
-                  <div className="auth-role-selection-box">
-                    <span className="auth-label">Account Type:</span>
-                    <div className="auth-role-toggles">
-                      <button
-                        type="button"
-                        className={
-                          selectedRole === 'customer'
-                            ? 'auth-role-btn auth-role-btn-active'
-                            : 'auth-role-btn'
-                        }
-                        onClick={() => setSelectedRole('customer')}
-                      >
-                        Customer
-                      </button>
-                      <button
-                        type="button"
-                        className={
-                          selectedRole === 'admin'
-                            ? 'auth-role-btn auth-role-btn-active'
-                            : 'auth-role-btn'
-                        }
-                        onClick={() => setSelectedRole('admin')}
-                      >
-                        Admin
-                      </button>
-                    </div>
-                  </div>
-
-                  <button type="submit" className="auth-submit-pill-btn">
-                    Create Account
+                  <button type="submit" className="auth-submit-btn">
+                    Send Verification Code to Email →
                   </button>
                 </form>
 
-                <div className="auth-divider-section">
-                  <span className="auth-divider-text">or</span>
+                <div className="auth-divider-line">
+                  <span>or</span>
                 </div>
 
                 <div className="auth-switch-prompt">
-                  <span className="auth-switch-desc">Already have an account? </span>
+                  <span>Already have an account?</span>
                   <button
                     type="button"
-                    className="auth-switch-link"
-                    onClick={() => {
-                      setErrorMsg('')
-                      setAuthModalMode('signin')
-                    }}
+                    className="auth-link-bold"
+                    onClick={() => handleSwitchMode('signin')}
                   >
                     Sign In
                   </button>

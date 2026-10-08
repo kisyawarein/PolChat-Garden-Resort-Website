@@ -9,6 +9,7 @@ function CurrentActiveCard({
   onOpenReceipt,
   onOpenPhoto,
   onOpenCheckout,
+  onOpenReview,
 }) {
   const getPackageImage = (durationId) => {
     switch (durationId) {
@@ -154,13 +155,21 @@ function CurrentActiveCard({
               {/* Action Buttons */}
               <div className="myres-active-actions">
                 {/* Checkout & Settle Balance CTA */}
-                {!isCheckedOut && (
+                {!isCheckedOut ? (
                   <button
                     type="button"
                     className="myres-btn-checkout-cta"
                     onClick={() => onOpenCheckout && onOpenCheckout(activeReservation)}
                   >
                     <span>Check Out & Settle Balance →</span>
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    className="myres-btn-leave-review"
+                    onClick={() => onOpenReview && onOpenReview(activeReservation)}
+                  >
+                    <span>⭐ Leave a Review</span>
                   </button>
                 )}
 

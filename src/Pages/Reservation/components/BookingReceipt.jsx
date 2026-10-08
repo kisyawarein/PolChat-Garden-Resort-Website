@@ -45,8 +45,8 @@ function BookingReceipt({
         <div className="resv-receipt-doc-header">
           <div>
             <h1 className="resv-receipt-resort-title">PolChat Garden Resort</h1>
-            <p className="resv-receipt-resort-sub">Private Resort & Event Venue • Dayap, Calauan, Laguna</p>
-            <p className="resv-receipt-resort-sub">Contact: 0953 495 4389 • bookings@polchatresort.com</p>
+            <p className="resv-receipt-resort-sub">PolChat Garden, 346 Monaco Street Antipolo Calabarzon</p>
+            <p className="resv-receipt-resort-sub">Contact: 0953 495 4389 • polchat2k20@gmail.com</p>
           </div>
           <div className="resv-receipt-id-box">
             <span className="resv-receipt-id-label">OFFICIAL RESERVATION SLIP</span>

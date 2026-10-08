@@ -450,16 +450,13 @@
   background-color: #1877f2;
 }
 
+.about-section-6-social-tiktok {
+  background-color: #010101;
+  color: #ffffff;
+}
+
 .about-section-6-social-instagram {
   background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-}
-
-.about-section-6-social-messenger {
-  background: linear-gradient(45deg, #00b2ff 0%, #006aff 100%);
-}
-
-.about-section-6-social-email {
-  background-color: var(--color-forest, #43593B);
 }
 
 .about-section-6-social-icon {

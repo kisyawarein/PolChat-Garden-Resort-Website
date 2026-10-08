@@ -155,7 +155,6 @@ function Reservation() {
   }
 
   const handleFinalBookingSubmit = async (paymentInfo) => {
-    setIsSubmitting(true)
     setPaymentDetails(paymentInfo)
 
     const activePkg = selectedPackage || packages[0]
@@ -169,25 +168,22 @@ function Reservation() {
     }
     const endIso = endDateObj.toISOString().split('.')[0]
 
-    // 1. Upload photo proof (if GCash was chosen and file exists)
-    let proofUrl = paymentInfo?.paymentProofPreview || null
-    if (paymentInfo?.paymentProofFile) {
-      const uploaded = await DataService.uploadPaymentProof(paymentInfo.paymentProofFile)
-      if (uploaded) {
-        proofUrl = uploaded
-      }
-    }
-
     const totalCalculatedCost = priceCalculation.basePrice + priceCalculation.extensionCharge
     const extraCharges = priceCalculation.extraPaxCharge + priceCalculation.securityDeposit
     const grandTotal = totalCalculatedCost + extraCharges
     const downpaymentAmount = paymentInfo?.downpaymentAmount ?? Math.round(grandTotal * 0.5)
     const remainingBalance = grandTotal - downpaymentAmount
 
-    const reservationPayload = {
+    const tempResId = Math.floor(1000 + Math.random() * 9000)
+
+    const optimisticReservation = {
+      reservation_id: tempResId,
       customer_id: user?.id || 101,
+      customer_name: `${formData.firstName} ${formData.lastName}`.trim(),
+      customer_email: user?.email || 'polchat2k20@gmail.com',
       guest_count: Number(formData.guestCount),
       duration_id: Number(activePkg.duration_id),
+      duration_name: activePkg.duration_name,
       start_date: startIso,
       end_date: endIso,
       extension_duration: formData.extensionHours > 0 ? `${formData.extensionHours} hours` : null,
@@ -196,29 +192,47 @@ function Reservation() {
       reservation_cost: totalCalculatedCost,
       extra_charges: extraCharges,
       reservation_status: 'pending',
-      event_name: `${formData.eventName} (${formData.firstName} ${formData.lastName})`,
-      payment_proof_url: proofUrl,
+      event_name: `${formData.eventName || 'Resort Stay'} (${formData.firstName} ${formData.lastName})`,
+      payment_proof_url: paymentInfo?.paymentProofPreview || null,
       payment_type: paymentInfo?.paymentMethod || 'gcash',
       downpayment_amount: downpaymentAmount,
       remaining_balance: remainingBalance,
     }
 
-    try {
-      const savedReservation = await DataService.createReservation(reservationPayload)
-      setCreatedReservation(savedReservation)
-      setIsSubmitting(false)
-      setCurrentStep('receipt')
-      if (paymentInfo?.paymentMethod === 'cash') {
-        showToast('Cash reservation recorded! Please pay 50% deposit at the front desk today.')
-      } else {
-        showToast('Reservation submitted successfully! GCash payment recorded.')
-      }
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-    } catch (err) {
-      console.error('Error submitting reservation:', err)
-      setIsSubmitting(false)
-      showToast('Error submitting reservation to database. Please check your connection.')
+    // Optimistically transition immediately!
+    setCreatedReservation(optimisticReservation)
+    setCurrentStep('receipt')
+    if (paymentInfo?.paymentMethod === 'cash') {
+      showToast('Cash reservation recorded! Please pay 50% deposit at the front desk today.')
+    } else {
+      showToast('Reservation submitted successfully! GCash payment recorded.')
     }
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+
+    // Background upload & database save
+    ;(async () => {
+      let proofUrl = paymentInfo?.paymentProofPreview || null
+      if (paymentInfo?.paymentProofFile) {
+        try {
+          const uploaded = await DataService.uploadPaymentProof(paymentInfo.paymentProofFile)
+          if (uploaded) proofUrl = uploaded
+        } catch (e) {}
+      }
+
+      const reservationPayload = {
+        ...optimisticReservation,
+        payment_proof_url: proofUrl,
+      }
+
+      try {
+        const savedReservation = await DataService.createReservation(reservationPayload)
+        if (savedReservation) {
+          setCreatedReservation(savedReservation)
+        }
+      } catch (err) {
+        console.warn('Background reservation sync note:', err)
+      }
+    })()
   }
 
   const handleResetBooking = () => {

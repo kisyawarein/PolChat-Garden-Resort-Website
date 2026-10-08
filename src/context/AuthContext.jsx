@@ -3,33 +3,39 @@ import { DataService } from '../services/dataService'
 
 const AuthContext = createContext(null)
 
-// Standard configured user credentials
+// Standard configured user accounts
 const DEFAULT_USERS = [
   {
     id: 999,
     username: 'admin',
-    name: 'Admin Sarah',
-    email: 'admin@polchatresort.com',
+    first_name: 'Admin',
+    last_name: 'Management',
+    name: 'Admin Management',
+    email: 'polchat2k20@gmail.com',
     password: 'admin123',
     birthday: '1990-01-01',
-    phone: '09998887766',
+    phone: '09534954389',
     role: 'admin',
   },
   {
     id: 998,
     username: 'polchat_admin',
-    name: 'Admin Management',
-    email: 'manager@polchatresort.com',
+    first_name: 'Admin',
+    last_name: 'Staff',
+    name: 'Admin Staff',
+    email: 'polchat2k20@gmail.com',
     password: 'admin123',
     birthday: '1988-05-20',
-    phone: '09991112233',
+    phone: '09534954389',
     role: 'admin',
   },
   {
     id: 42,
     username: 'customer',
+    first_name: 'Raishawn',
+    last_name: 'Alejandro',
     name: 'Raishawn Alejandro',
-    email: 'raishawn@polchatresort.com',
+    email: 'raishawn@gmail.com',
     password: 'customer123',
     birthday: '1995-06-12',
     phone: '09534954389',
@@ -38,8 +44,10 @@ const DEFAULT_USERS = [
   {
     id: 42,
     username: 'raishawn',
+    first_name: 'Raishawn',
+    last_name: 'Alejandro',
     name: 'Raishawn Alejandro',
-    email: 'raishawn@polchatresort.com',
+    email: 'raishawn@gmail.com',
     password: 'customer123',
     birthday: '1995-06-12',
     phone: '09534954389',
@@ -48,8 +56,10 @@ const DEFAULT_USERS = [
   {
     id: 3,
     username: 'keisha',
+    first_name: 'Keisha',
+    last_name: 'Medina',
     name: 'Keisha Medina',
-    email: 'keisha@polchatresort.com',
+    email: 'keisha@gmail.com',
     password: 'customer123',
     birthday: '1996-03-24',
     phone: '09488318687',
@@ -78,67 +88,106 @@ export function AuthProvider({ children }) {
     }
   }, [user])
 
-  const login = async ({ identifier, password, roleOverride }) => {
+  const login = async ({ identifier, password }) => {
     const cleanId = (identifier || '').trim().toLowerCase()
+    
+    // 1. Check if matches preconfigured system users
     let found = DEFAULT_USERS.find(
       (u) =>
         u.username.toLowerCase() === cleanId ||
         u.email.toLowerCase() === cleanId
     )
 
-    if (!found) {
-      const isNamedAdmin = cleanId.includes('admin') || roleOverride === 'admin'
-      found = {
-        id: null,
-        username: cleanId.split('@')[0],
-        name: isNamedAdmin ? 'Admin User' : cleanId.split('@')[0],
-        email: cleanId.includes('@') ? cleanId : `${cleanId}@polchat.com`,
-        birthday: '1995-01-01',
-        phone: '09170000000',
-        role: isNamedAdmin ? 'admin' : 'customer',
+    if (found) {
+      // If admin account, login as admin directly
+      if (found.role === 'admin') {
+        setUser(found)
+        setIsAuthModalOpen(false)
+        return { success: true, user: found }
       }
-    } else if (roleOverride) {
-      found = { ...found, role: roleOverride }
-    }
-
-    // If customer, ensure they are registered in Supabase customer_accounts and have a valid customer_id
-    if (found.role === 'customer') {
+      
+      // If customer account, ensure in Supabase customer_accounts
       const realCustomerId = await DataService.ensureCustomer({
         customerId: found.id,
         customerName: found.name,
         phone: Number(found.phone.replace(/\D/g, '')) || 9171234567,
       })
-      found.id = realCustomerId
+      found = { ...found, id: realCustomerId }
+      setUser(found)
+      setIsAuthModalOpen(false)
+      return { success: true, user: found }
     }
 
-    setUser(found)
+    // 2. Dynamic credentials evaluation
+    // If username is "admin" or email is admin email, treat as admin
+    const isAdminAccount = cleanId === 'admin' || cleanId === 'polchat_admin' || cleanId === 'admin@polchat2k20@gmail.com' || cleanId.startsWith('admin_')
+
+    if (isAdminAccount) {
+      const adminUser = {
+        id: 999,
+        username: cleanId,
+        first_name: 'Admin',
+        last_name: 'Staff',
+        name: 'Admin Management',
+        email: cleanId.includes('@') ? cleanId : 'polchat2k20@gmail.com',
+        birthday: '1990-01-01',
+        phone: '09534954389',
+        role: 'admin',
+      }
+      setUser(adminUser)
+      setIsAuthModalOpen(false)
+      return { success: true, user: adminUser }
+    }
+
+    // Otherwise, user is treated strictly as Customer
+    const nameFallback = cleanId.split('@')[0]
+    const realCustomerId = await DataService.ensureCustomer({
+      customerName: nameFallback,
+      phone: 9171234567,
+    })
+
+    const customerUser = {
+      id: realCustomerId,
+      username: nameFallback,
+      first_name: nameFallback,
+      last_name: '',
+      name: nameFallback,
+      email: cleanId.includes('@') ? cleanId : `${cleanId}@gmail.com`,
+      birthday: '1995-01-01',
+      phone: '09171234567',
+      role: 'customer',
+    }
+
+    setUser(customerUser)
     setIsAuthModalOpen(false)
-    return { success: true, user: found }
+    return { success: true, user: customerUser }
   }
 
-  const signup = async ({ username, birthday, email, password, role = 'customer' }) => {
-    const isNamedAdmin = username.toLowerCase().includes('admin') || role === 'admin'
-    const nameParts = username.trim().split(' ')
+  const signup = async ({ firstName, lastName, birthday, email, password }) => {
+    const cleanFirst = (firstName || '').trim()
+    const cleanLast = (lastName || '').trim()
+    const cleanEmail = (email || '').trim()
+    const fullName = `${cleanFirst} ${cleanLast}`.trim() || 'Customer Guest'
 
-    let customerId = null
-    if (!isNamedAdmin) {
-      // Create directly in Supabase customer_accounts
-      const created = await DataService.addCustomer({
-        first_name: nameParts[0] || username.trim(),
-        last_name: nameParts.slice(1).join(' ') || '',
-        phone_number: 9171234567,
-      })
-      customerId = created ? created.customer_id : 1
-    }
+    // Create directly in Supabase customer_accounts
+    const created = await DataService.addCustomer({
+      first_name: cleanFirst || 'Customer',
+      last_name: cleanLast,
+      phone_number: 9171234567,
+    })
+
+    const customerId = created ? created.customer_id : 1
 
     const newUser = {
-      id: customerId || (isNamedAdmin ? 999 : 1),
-      username: username.trim(),
-      name: username.trim(),
-      email: email.trim(),
-      birthday: birthday,
+      id: customerId,
+      username: cleanFirst.toLowerCase() || 'customer',
+      first_name: cleanFirst,
+      last_name: cleanLast,
+      name: fullName,
+      email: cleanEmail,
+      birthday: birthday || '',
       phone: '09171234567',
-      role: isNamedAdmin ? 'admin' : 'customer',
+      role: 'customer', // Customer accounts always stay as customers
     }
 
     setUser(newUser)

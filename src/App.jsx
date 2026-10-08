@@ -20,6 +20,7 @@ import CustomerInquiries from './Pages/CustomerInquiries/CustomerInquiries'
 import CustomerReviews from './Pages/CustomerReviews/CustomerReviews'
 import Analytics from './Pages/Analytics/Analytics'
 import PricesPolicies from './Pages/PricesPolicies/PricesPolicies'
+import EmailNotificationToast from './components/EmailNotificationToast/EmailNotificationToast'
 import './App.css'
 
 function AppContent() {
@@ -132,6 +133,7 @@ function AppContent() {
       {!isAdmin && <Footer onNavigate={setCurrentPage} />}
       
       <AuthModal onAdminLoggedIn={() => setCurrentPage('dashboard')} />
+      <EmailNotificationToast />
     </div>
   )
 }

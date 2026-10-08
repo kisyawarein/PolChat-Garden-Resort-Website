@@ -65,7 +65,7 @@ function PrintableReceipt({ item, onClose }) {
                 <p className="receipt-tagline">Your Serene Garden & Pool Escape</p>
               </div>
             </div>
-            <p className="receipt-address">Brgy. Garden Bliss, Philippines • Contact: 0917-888-POLCHAT • info@polchatresort.com</p>
+            <p className="receipt-address">PolChat Garden, 346 Monaco Street Antipolo Calabarzon • Contact: 0953 495 4389 • polchat2k20@gmail.com</p>
             <div className="receipt-divider" />
             
             <h2 className="receipt-doc-title">OFFICIAL RESERVATION CONFIRMATION RECEIPT</h2>

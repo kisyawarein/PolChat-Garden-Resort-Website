@@ -3,6 +3,7 @@ import { useState } from 'react'
 function PastReservationsList({
   pastReservations = [],
   onOpenReceipt,
+  onOpenReview,
 }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [sortDirection, setSortDirection] = useState('desc') // 'asc' | 'desc'

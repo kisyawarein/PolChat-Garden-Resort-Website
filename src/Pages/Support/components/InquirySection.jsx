@@ -52,7 +52,7 @@ function InquirySection() {
     }
   }, [activeInquiry])
 
-  // Submit Inquiry (Logged in or Guest with email)
+  // Submit Inquiry (Logged in or Guest with email) - Optimistic
   const handleCreateInquirySubmit = async (e) => {
     e.preventDefault()
     if (!inquiryLabel.trim() || !startingStatement.trim()) return
@@ -61,51 +61,86 @@ function InquirySection() {
       return
     }
 
-    setIsSubmitting(true)
-
     const customerId = user ? user.id : 101
     const customerDisplayName = user
       ? (user.name || user.username)
       : `${guestName.trim() || 'Guest'} (${guestEmail.trim()})`
 
-    const result = await DataService.createInquiry({
-      label: inquiryLabel.trim(),
-      message: startingStatement.trim(),
-      customerId: customerId,
-      customerName: customerDisplayName,
-    })
-
-    if (result && result.newInquiry) {
-      setCustomerInquiries((prev) => [result.newInquiry, ...prev])
-      setActiveInquiry(result.newInquiry)
-      setActiveChats([result.firstChat])
-      setInquiryLabel('')
-      setStartingStatement('')
-      setSuccessNotice('Your inquiry has been submitted! PolChat staff will review and respond.')
-    } else {
-      setSuccessNotice('Error submitting inquiry. Please check your connection.')
+    const optimisticInquiry = {
+      inquiry_id: `temp_${Date.now()}`,
+      inquiry_label: inquiryLabel.trim(),
+      customer_id: customerId,
+      customer_name: customerDisplayName,
+      created_at: new Date().toISOString(),
+      date_created: new Date().toISOString().split('T')[0],
+      is_resolved: false,
     }
-    setIsSubmitting(false)
+
+    const optimisticChat = {
+      chat_id: `chat_${Date.now()}`,
+      inquiry_id: optimisticInquiry.inquiry_id,
+      sender: 'customer',
+      sender_name: customerDisplayName,
+      message: startingStatement.trim(),
+      created_at: new Date().toISOString(),
+    }
+
+    // Instant optimistic update
+    setCustomerInquiries((prev) => [optimisticInquiry, ...prev])
+    setActiveInquiry(optimisticInquiry)
+    setActiveChats([optimisticChat])
+    setInquiryLabel('')
+    setStartingStatement('')
+    setSuccessNotice('Your inquiry has been submitted! PolChat staff will review and respond.')
 
     setTimeout(() => {
       setSuccessNotice('')
     }, 5000)
+
+    // Sync in background
+    DataService.createInquiry({
+      label: optimisticInquiry.inquiry_label,
+      message: optimisticChat.message,
+      customerId: customerId,
+      customerName: customerDisplayName,
+    }).then((res) => {
+      if (res?.newInquiry) {
+        setCustomerInquiries((prev) =>
+          prev.map((i) => (i.inquiry_id === optimisticInquiry.inquiry_id ? res.newInquiry : i))
+        )
+        setActiveInquiry(res.newInquiry)
+      }
+    })
   }
 
-  // Customer Send Follow-up Message
-  const handleSendFollowUp = async (e) => {
+  // Customer Send Follow-up Message - Optimistic
+  const handleSendFollowUp = (e) => {
     e.preventDefault()
     if (!replyText.trim() || !activeInquiry) return
 
-    const newChat = await DataService.sendChatMessage({
+    const msg = replyText.trim()
+    const senderName = user ? (user.name || user.username) : guestName || 'Guest User'
+
+    const optimisticMsg = {
+      chat_id: `chat_${Date.now()}`,
+      inquiry_id: activeInquiry.inquiry_id,
+      sender: 'customer',
+      sender_name: senderName,
+      message: msg,
+      created_at: new Date().toISOString(),
+    }
+
+    // Instantly append to chat
+    setActiveChats((prev) => [...prev, optimisticMsg])
+    setReplyText('')
+
+    // Sync in background
+    DataService.sendChatMessage({
       inquiryId: activeInquiry.inquiry_id,
       sender: 'customer',
-      senderName: user ? (user.name || user.username) : guestName || 'Guest User',
-      message: replyText.trim(),
+      senderName: senderName,
+      message: msg,
     })
-
-    setActiveChats((prev) => [...prev, newChat])
-    setReplyText('')
   }
 
   return (

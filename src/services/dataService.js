@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { EmailService } from './emailService'
 
 export const DataService = {
   // Helper: Ensure customer exists in customer_accounts table
@@ -433,6 +434,37 @@ export const DataService = {
         return null
       }
 
+      // If reply is from admin, dispatch email notification to the customer
+      if (sender === 'admin') {
+        try {
+          const { data: inqData } = await supabase
+            .from('resort_inquiries')
+            .select(`
+              *,
+              customer:customer_accounts(first_name, last_name, phone_number)
+            `)
+            .eq('inquiry_id', Number(inquiryId))
+            .maybeSingle()
+
+          if (inqData) {
+            const customerName = inqData.customer
+              ? `${inqData.customer.first_name} ${inqData.customer.last_name || ''}`.trim()
+              : (inqData.inquiry_label || 'Valued Guest')
+
+            await EmailService.sendInquiryReplyEmail({
+              inquiry: {
+                ...inqData,
+                customer_name: customerName,
+              },
+              replyMessage: message,
+              adminName: senderName || 'PolChat Staff',
+            })
+          }
+        } catch (emailErr) {
+          console.warn('Inquiry reply email dispatch note:', emailErr)
+        }
+      }
+
       return {
         ...(data?.[0] || {}),
         sender_name: senderName,
@@ -641,13 +673,33 @@ export const DataService = {
 
   async updateReservationStatus(reservationId, newStatus) {
     try {
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('resort_reservations')
         .update({ reservation_status: newStatus })
         .eq('reservation_id', reservationId)
+        .select(`
+          *,
+          customer:customer_accounts(first_name, last_name, phone_number)
+        `)
 
       if (error) {
         console.error('Error updating reservation status:', error)
+      }
+
+      // Automatically dispatch email notification to the customer for confirmation or cancellation
+      if (newStatus === 'confirmed' || newStatus === 'cancelled') {
+        const targetRes = data?.[0] || { reservation_id: reservationId, reservation_status: newStatus }
+        const customerName = targetRes.customer
+          ? `${targetRes.customer.first_name} ${targetRes.customer.last_name || ''}`.trim()
+          : (targetRes.event_name || 'Valued Guest')
+
+        await EmailService.sendReservationStatusEmail({
+          reservation: {
+            ...targetRes,
+            customer_name: customerName,
+          },
+          newStatus,
+        })
       }
     } catch (err) {
       console.error('Update reservation status exception:', err)

@@ -5,6 +5,7 @@ import MyReservationSummaryCards from './components/MyReservationSummaryCards'
 import CurrentActiveCard from './components/CurrentActiveCard'
 import PastReservationsList from './components/PastReservationsList'
 import CheckoutModal from './components/CheckoutModal'
+import LeaveReviewModal from './components/LeaveReviewModal'
 import PrintableReceipt from '../BookingCatalog/components/PrintableReceipt'
 import './styles.css'
 
@@ -14,10 +15,9 @@ function MyReservations({ onNavigate }) {
   const [selectedReceipt, setSelectedReceipt] = useState(null)
   const [selectedPhotoUrl, setSelectedPhotoUrl] = useState(null)
   const [checkoutModalRes, setCheckoutModalRes] = useState(null)
-  const [isLoading, setIsLoading] = useState(true)
+  const [reviewPromptRes, setReviewPromptRes] = useState(null)
 
   const loadData = async () => {
-    setIsLoading(true)
     const all = await DataService.getReservations()
 
     // Filter reservations belonging to the logged-in customer
@@ -33,7 +33,6 @@ function MyReservations({ onNavigate }) {
     } else {
       setUserReservations(all || [])
     }
-    setIsLoading(false)
   }
 
   useEffect(() => {
@@ -48,6 +47,8 @@ function MyReservations({ onNavigate }) {
           : r
       )
     )
+    // Automatically prompt customer with the Review modal upon check out!
+    setReviewPromptRes(updatedRes)
   }
 
   // Identify Current Active Reservation (latest pending or confirmed stay)
@@ -111,12 +112,14 @@ function MyReservations({ onNavigate }) {
           onOpenReceipt={setSelectedReceipt}
           onOpenPhoto={setSelectedPhotoUrl}
           onOpenCheckout={setCheckoutModalRes}
+          onOpenReview={setReviewPromptRes}
         />
 
         {/* Right Column: Past Reservations & History */}
         <PastReservationsList
           pastReservations={pastReservations}
           onOpenReceipt={setSelectedReceipt}
+          onOpenReview={setReviewPromptRes}
         />
       </div>
 
@@ -126,6 +129,17 @@ function MyReservations({ onNavigate }) {
           reservation={checkoutModalRes}
           onClose={() => setCheckoutModalRes(null)}
           onCheckoutSuccess={handleCheckoutSuccess}
+        />
+      )}
+
+      {/* Leave Review & Feedback Modal */}
+      {reviewPromptRes && (
+        <LeaveReviewModal
+          reservation={reviewPromptRes}
+          onClose={() => setReviewPromptRes(null)}
+          onReviewSubmitted={() => {
+            // Optional callback
+          }}
         />
       )}
 
