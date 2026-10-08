@@ -19,6 +19,7 @@ function Navbar({ currentPage, onNavigate, onToggleSidebar }) {
     { id: 'dashboard', label: '🏠 Home' },
     { id: 'booking-catalog', label: '📋 Bookings' },
     { id: 'customer-records', label: '👥 Customers' },
+    { id: 'admin-gallery', label: '🖼️ Gallery' },
     { id: 'customer-inquiries', label: '💬 Inquiries' },
     { id: 'customer-reviews', label: '⭐ Reviews' },
     { id: 'analytics', label: '📈 Analytics' },

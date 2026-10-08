@@ -1,0 +1,914 @@
+/* ==========================================================================
+   Admin Gallery Manager Stylesheet
+   Color Palette:
+   Forest Green: #43593B
+   Accent Green: #7CCE17
+   Gold Sand:    #F2D17E
+   Sage Olive:   #ACAD79
+   Warm Bark:    #58402E
+   ========================================================================== */
+
+.admin-gallery-page {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #F8FAF6;
+  padding: 40px 24px 100px;
+  box-sizing: border-box;
+}
+
+.admin-gallery-container {
+  max-width: 1380px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* Toast Banner */
+.adm-gal-toast {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  background-color: #43593B;
+  color: #ffffff;
+  padding: 14px 22px;
+  border-radius: 12px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  box-shadow: 0 10px 28px rgba(67, 89, 59, 0.35);
+  border: 1.5px solid #7CCE17;
+  z-index: 99999;
+  animation: admGalToastFadeIn 0.3s ease;
+}
+
+@keyframes admGalToastFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ==========================================================================
+   1. Stats & Controls Header
+   ========================================================================== */
+.adm-gal-stats-card {
+  background-color: #ffffff;
+  border: 1.5px solid #D2DEC9;
+  border-radius: 18px;
+  padding: 28px 32px;
+  box-shadow: 0 4px 20px rgba(67, 89, 59, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.adm-gal-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.adm-gal-page-title {
+  margin: 0 0 6px 0;
+  font-size: 1.75rem;
+  font-weight: 900;
+  color: #43593B;
+  letter-spacing: -0.01em;
+}
+
+.adm-gal-page-desc {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #58402E;
+  max-width: 680px;
+  line-height: 1.45;
+}
+
+.adm-gal-header-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.adm-gal-preview-btn {
+  background-color: #43593B;
+  color: #ffffff;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 9999px;
+  font-size: 0.88rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(67, 89, 59, 0.2);
+}
+
+.adm-gal-preview-btn:hover {
+  background-color: #58402E;
+  transform: translateY(-2px);
+}
+
+.adm-gal-reset-btn {
+  background-color: #FAFBF8;
+  color: #58402E;
+  border: 1.5px solid #D2DEC9;
+  padding: 10px 18px;
+  border-radius: 9999px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.adm-gal-reset-btn:hover {
+  background-color: #EDE8DE;
+  border-color: #ACAD79;
+}
+
+/* KPI Badges */
+.adm-gal-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 768px) {
+  .adm-gal-kpi-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.adm-gal-kpi-item {
+  background-color: #FAFBF8;
+  border: 1.5px solid #EDE8DE;
+  border-radius: 14px;
+  padding: 16px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.adm-gal-kpi-val {
+  font-size: 1.6rem;
+  font-weight: 900;
+  color: #43593B;
+}
+
+.adm-gal-kpi-green {
+  color: #2D5A27;
+}
+
+.adm-gal-kpi-gold {
+  color: #855C0A;
+}
+
+.adm-gal-kpi-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #796656;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Category Filter Bar */
+.adm-gal-filter-bar {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding-top: 14px;
+  border-top: 1px solid #EDE8DE;
+}
+
+.adm-gal-filter-label {
+  font-size: 0.84rem;
+  font-weight: 800;
+  color: #58402E;
+}
+
+.adm-gal-filter-pills {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.adm-gal-filter-pill {
+  background-color: #FAFBF8;
+  border: 1.5px solid #D2DEC9;
+  color: #58402E;
+  padding: 6px 14px;
+  border-radius: 9999px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.adm-gal-filter-pill:hover {
+  border-color: #ACAD79;
+  background-color: #ffffff;
+}
+
+.adm-gal-filter-pill-active {
+  background-color: #43593B !important;
+  color: #ffffff !important;
+  border-color: #43593B !important;
+}
+
+/* ==========================================================================
+   2. Slots Grid Section
+   ========================================================================== */
+.adm-gal-grid-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.adm-gal-grid-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.adm-gal-grid-title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 800;
+  color: #43593B;
+}
+
+.adm-gal-capacity-notice {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #58402E;
+  background-color: #FFFBEB;
+  border: 1px solid #FDE68A;
+  padding: 4px 12px;
+  border-radius: 8px;
+}
+
+.adm-gal-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+  gap: 20px;
+}
+
+/* Individual Slot Card */
+.adm-gal-slot-card {
+  background-color: #ffffff;
+  border: 1.5px solid #D2DEC9;
+  border-radius: 16px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 4px 14px rgba(67, 89, 59, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.adm-gal-slot-card:hover {
+  transform: translateY(-2px);
+  border-color: #ACAD79;
+  box-shadow: 0 8px 24px rgba(67, 89, 59, 0.1);
+}
+
+.adm-gal-card-populated {
+  border-color: #C5E5BC;
+}
+
+.adm-gal-slot-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.adm-gal-slot-badge-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.adm-gal-slot-id-badge {
+  background-color: #43593B;
+  color: #F2D17E;
+  font-size: 0.74rem;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.04em;
+}
+
+.adm-gal-dimension-tag {
+  background-color: #FAFBF8;
+  border: 1px solid #EDE8DE;
+  color: #796656;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 6px;
+  border-radius: 6px;
+}
+
+.adm-gal-cat-tag {
+  font-size: 0.74rem;
+  font-weight: 800;
+  color: #43593B;
+  background-color: #F2F7F0;
+  padding: 3px 8px;
+  border-radius: 6px;
+}
+
+/* Preview Box */
+.adm-gal-slot-preview-box {
+  width: 100%;
+  height: 180px;
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  border: 1.5px solid #EDE8DE;
+  cursor: pointer;
+  background-color: #eadfae;
+}
+
+.adm-gal-slot-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.adm-gal-placeholder-box {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px;
+  box-sizing: border-box;
+  background-color: #eadfae;
+  border: 2px dashed #58402E;
+  border-radius: 10px;
+}
+
+.adm-gal-placeholder-icon {
+  font-size: 1.8rem;
+}
+
+.adm-gal-placeholder-text {
+  font-size: 0.95rem;
+  font-weight: 900;
+  color: #43593B;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.adm-gal-upload-hint {
+  font-size: 0.74rem;
+  color: #58402E;
+  font-weight: 700;
+}
+
+.adm-gal-preview-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(67, 89, 59, 0.75);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.95rem;
+  font-weight: 800;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.adm-gal-slot-preview-box:hover .adm-gal-preview-overlay {
+  opacity: 1;
+}
+
+/* Info */
+.adm-gal-slot-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-height: 52px;
+}
+
+.adm-gal-slot-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 800;
+  color: #43593B;
+}
+
+.adm-gal-slot-caption {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #796656;
+  line-height: 1.35;
+}
+
+/* Card Actions */
+.adm-gal-slot-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: auto;
+}
+
+.adm-gal-edit-btn {
+  flex: 1;
+  background-color: #FAFBF8;
+  color: #43593B;
+  border: 1.5px solid #43593B;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 0.84rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.18s ease;
+}
+
+.adm-gal-edit-btn:hover {
+  background-color: #43593B;
+  color: #ffffff;
+}
+
+.adm-gal-remove-btn {
+  background-color: #FFF5F5;
+  color: #DC2626;
+  border: 1.5px solid #FECACA;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: all 0.18s ease;
+}
+
+.adm-gal-remove-btn:hover {
+  background-color: #DC2626;
+  color: #ffffff;
+  border-color: #DC2626;
+}
+
+/* ==========================================================================
+   3. Modal Dialogs (Edit & Preview)
+   ========================================================================== */
+.adm-gal-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 99999;
+}
+
+.adm-gal-modal-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
+}
+
+.adm-gal-modal-dialog {
+  position: relative;
+  background: #ffffff;
+  border: 1.5px solid #ACAD79;
+  border-radius: 20px;
+  padding: 28px 32px;
+  max-width: 580px;
+  width: 92%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+  z-index: 10;
+  animation: admGalModalFade 0.25s ease;
+}
+
+.adm-gal-preview-dialog {
+  max-width: 960px;
+}
+
+@keyframes admGalModalFade {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.adm-gal-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #EDE8DE;
+  margin-bottom: 16px;
+}
+
+.adm-gal-modal-badge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #43593B;
+  background-color: #F2F7F0;
+  padding: 3px 8px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.adm-gal-modal-title {
+  margin: 4px 0 0 0;
+  font-size: 1.35rem;
+  font-weight: 800;
+  color: #43593B;
+}
+
+.adm-gal-modal-close {
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  color: #796656;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.adm-gal-modal-close:hover {
+  background-color: #EDE8DE;
+  color: #58402E;
+}
+
+.adm-gal-modal-alert {
+  background-color: #FEF2F2;
+  border: 1px solid #FCA5A5;
+  color: #991B1B;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-bottom: 14px;
+}
+
+.adm-gal-modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.adm-gal-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.adm-gal-form-label {
+  font-size: 0.86rem;
+  font-weight: 800;
+  color: #43593B;
+}
+
+.adm-gal-req {
+  color: #DC2626;
+}
+
+.adm-gal-input-field,
+.adm-gal-select-field,
+.adm-gal-textarea-field {
+  width: 100%;
+  padding: 10px 14px;
+  border: 1.5px solid #D2DEC9;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  color: #58402E;
+  background-color: #FAFBF8;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
+
+.adm-gal-input-field:focus,
+.adm-gal-select-field:focus,
+.adm-gal-textarea-field:focus {
+  border-color: #43593B;
+  background-color: #ffffff;
+}
+
+.adm-gal-fields-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 580px) {
+  .adm-gal-fields-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Upload Dropzone */
+.adm-gal-upload-dropzone {
+  border: 2px dashed #ACAD79;
+  border-radius: 14px;
+  padding: 16px;
+  background-color: #FAFBF8;
+  position: relative;
+  text-align: center;
+}
+
+.adm-gal-dropzone-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 24px 16px;
+}
+
+.adm-gal-dropzone-icon {
+  font-size: 2.2rem;
+}
+
+.adm-gal-dropzone-title {
+  font-size: 0.95rem;
+  color: #43593B;
+}
+
+.adm-gal-dropzone-hint {
+  font-size: 0.78rem;
+  color: #796656;
+}
+
+.adm-gal-hidden-file-input {
+  display: none;
+}
+
+.adm-gal-active-preview-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.adm-gal-active-preview-img {
+  width: 100%;
+  max-height: 220px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #EDE8DE;
+}
+
+.adm-gal-preview-btn-row {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.adm-gal-change-photo-btn {
+  background-color: #43593B;
+  color: #ffffff;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.adm-gal-clear-photo-btn {
+  background-color: #FEF2F2;
+  color: #DC2626;
+  border: 1px solid #FECACA;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+/* Quick Presets */
+.adm-gal-presets-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.adm-gal-preset-label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #796656;
+}
+
+.adm-gal-preset-btn {
+  background-color: #FAFBF8;
+  border: 1px solid #D2DEC9;
+  color: #43593B;
+  font-size: 0.78rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.adm-gal-preset-btn:hover {
+  background-color: #EDE8DE;
+}
+
+/* Modal Actions */
+.adm-gal-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid #EDE8DE;
+  margin-top: 4px;
+}
+
+.adm-gal-btn-cancel {
+  background-color: #FAFBF8;
+  color: #58402E;
+  border: 1.5px solid #D2DEC9;
+  padding: 10px 20px;
+  border-radius: 9999px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.adm-gal-btn-save {
+  background-color: #43593B;
+  color: #ffffff;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 9999px;
+  font-size: 0.92rem;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(67, 89, 59, 0.2);
+  transition: all 0.2s ease;
+}
+
+.adm-gal-btn-save:hover {
+  background-color: #58402E;
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   4. Customer Preview Modal Styles
+   ========================================================================== */
+.adm-gal-preview-viewport {
+  background-color: #fbf3dc;
+  padding: 28px;
+  border-radius: 14px;
+  border: 1.5px solid #ACAD79;
+  max-height: 65vh;
+  overflow-y: auto;
+}
+
+.adm-gal-preview-header {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.adm-gal-preview-main-title {
+  margin: 0;
+  font-size: 2.2rem;
+  font-weight: 900;
+  color: #43593B;
+  letter-spacing: 0.04em;
+}
+
+.adm-gal-preview-sub {
+  margin: 4px 0 0 0;
+  font-size: 0.82rem;
+  font-weight: 800;
+  color: #58402E;
+  letter-spacing: 0.04em;
+}
+
+.adm-gal-preview-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.adm-gal-preview-row {
+  display: grid;
+  gap: 12px;
+}
+
+.adm-gal-preview-1cols {
+  grid-template-columns: 1fr;
+}
+
+.adm-gal-preview-2cols {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.adm-gal-preview-3cols {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.adm-preview-row-large {
+  height: 220px;
+}
+
+.adm-preview-row-medium {
+  height: 170px;
+}
+
+.adm-preview-row-small {
+  height: 140px;
+}
+
+.adm-gal-preview-card {
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1.5px solid #58402E;
+}
+
+.adm-gal-preview-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.adm-gal-preview-card-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 8px 12px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0) 100%);
+  color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  box-sizing: border-box;
+}
+
+.adm-gal-preview-card-theme {
+  width: 100%;
+  height: 100%;
+  background-color: #eadfae;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.adm-gal-preview-card-label {
+  font-size: 0.85rem;
+  font-weight: 900;
+  color: #43593B;
+  letter-spacing: 0.04em;
+}
+
+.adm-gal-preview-card-overlay .adm-gal-preview-card-label {
+  color: #F2D17E;
+}
+
+.adm-gal-preview-card-title {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #58402E;
+}
+
+.adm-gal-preview-card-overlay .adm-gal-preview-card-title {
+  color: #ffffff;
+}
+
+.adm-gal-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #EDE8DE;
+}

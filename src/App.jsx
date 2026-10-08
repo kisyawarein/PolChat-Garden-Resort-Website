@@ -20,6 +20,7 @@ import CustomerInquiries from './Pages/CustomerInquiries/CustomerInquiries'
 import CustomerReviews from './Pages/CustomerReviews/CustomerReviews'
 import Analytics from './Pages/Analytics/Analytics'
 import PricesPolicies from './Pages/PricesPolicies/PricesPolicies'
+import AdminGallery from './Pages/AdminGallery/AdminGallery'
 import EmailNotificationToast from './components/EmailNotificationToast/EmailNotificationToast'
 import './App.css'
 
@@ -60,6 +61,7 @@ function AppContent() {
         'customer-reviews',
         'analytics',
         'prices-policies',
+        'admin-gallery',
         'admin',
         'my-reservations',
         'reservation',
@@ -105,6 +107,8 @@ function AppContent() {
         return <Analytics />
       case 'prices-policies':
         return <PricesPolicies />
+      case 'admin-gallery':
+        return <AdminGallery />
       default:
         return isAdmin ? <Dashboard onNavigate={setCurrentPage} /> : <Home />
     }

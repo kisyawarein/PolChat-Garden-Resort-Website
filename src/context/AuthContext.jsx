@@ -92,8 +92,14 @@ export function AuthProvider({ children }) {
     const cleanId = (identifier || '').trim().toLowerCase()
     const cleanPass = (password || '').trim()
 
-    // 1. Admin login verification
-    if (cleanId === 'admin' || cleanId === 'polchat_admin' || cleanId === 'polchat2k20@gmail.com') {
+    // 1. Admin login verification (by username, role name, or admin email)
+    if (
+      cleanId === 'admin' ||
+      cleanId === 'polchat_admin' ||
+      cleanId === 'polchat2k20@gmail.com' ||
+      cleanId === 'admin management' ||
+      cleanId === 'management'
+    ) {
       if (cleanPass !== 'admin123') {
         return { success: false, error: 'Incorrect password for admin account.' }
       }
@@ -113,15 +119,16 @@ export function AuthProvider({ children }) {
       return { success: true, user: adminUser }
     }
 
-    // 2. Check registered accounts from local storage
+    // 2. Check registered accounts from local storage (by First Name, Last Name, Full Name, or Email)
     try {
       const savedAccounts = JSON.parse(localStorage.getItem('polchat_registered_users') || '[]')
       const localMatch = savedAccounts.find(
         (u) =>
           (u.email && u.email.toLowerCase() === cleanId) ||
-          (u.username && u.username.toLowerCase() === cleanId) ||
           (u.first_name && u.first_name.toLowerCase() === cleanId) ||
-          (u.name && u.name.toLowerCase() === cleanId)
+          (u.last_name && u.last_name.toLowerCase() === cleanId) ||
+          (u.name && u.name.toLowerCase() === cleanId) ||
+          (u.username && u.username.toLowerCase() === cleanId)
       )
       if (localMatch) {
         if (localMatch.password && cleanPass && localMatch.password !== cleanPass) {
@@ -133,17 +140,19 @@ export function AuthProvider({ children }) {
       }
     } catch (e) {}
 
-    // 3. Query actual customer_accounts from Supabase
+    // 3. Query actual customer_accounts from Supabase (by First Name, Last Name, Full Name, or Email)
     try {
       const customers = await DataService.getCustomers()
       const match = (customers || []).find((c) => {
-        const first = (c.first_name || '').toLowerCase()
-        const last = (c.last_name || '').toLowerCase()
-        const full = `${first} ${last}`.trim()
+        const first = (c.first_name || '').trim().toLowerCase()
+        const last = (c.last_name || '').trim().toLowerCase()
+        const full = `${first} ${last}`.trim().toLowerCase()
+        const email = (c.email || '').trim().toLowerCase()
         return (
           first === cleanId ||
           last === cleanId ||
           full === cleanId ||
+          email === cleanId ||
           (c.customer_id && String(c.customer_id) === cleanId)
         )
       })
@@ -155,7 +164,7 @@ export function AuthProvider({ children }) {
           first_name: match.first_name,
           last_name: match.last_name || '',
           name: `${match.first_name} ${match.last_name || ''}`.trim(),
-          email: `${(match.first_name || 'user').toLowerCase().replace(/\s+/g, '')}@gmail.com`,
+          email: match.email || `${(match.first_name || 'user').toLowerCase().replace(/\s+/g, '')}@gmail.com`,
           phone: match.phone_number ? `0${match.phone_number}` : '09171234567',
           role: 'customer',
         }
@@ -167,10 +176,28 @@ export function AuthProvider({ children }) {
       console.error('Login customer lookup error:', err)
     }
 
+    // 4. Check default seeded accounts (First Name, Last Name, Full Name, or Email)
+    const defaultMatch = DEFAULT_USERS.find(
+      (u) =>
+        (u.email && u.email.toLowerCase() === cleanId) ||
+        (u.first_name && u.first_name.toLowerCase() === cleanId) ||
+        (u.last_name && u.last_name.toLowerCase() === cleanId) ||
+        (u.name && u.name.toLowerCase() === cleanId) ||
+        (u.username && u.username.toLowerCase() === cleanId)
+    )
+    if (defaultMatch) {
+      if (defaultMatch.password && cleanPass && defaultMatch.password !== cleanPass) {
+        return { success: false, error: 'Incorrect password.' }
+      }
+      setUser(defaultMatch)
+      setIsAuthModalOpen(false)
+      return { success: true, user: defaultMatch }
+    }
+
     // Return error if not found in database
     return {
       success: false,
-      error: 'Account does not exist in the database. Please check your credentials or create an account.',
+      error: 'Account not found in the database. Please check your First Name, Last Name, or Email.',
     }
   }
 

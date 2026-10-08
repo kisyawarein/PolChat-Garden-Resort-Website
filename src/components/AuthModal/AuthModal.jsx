@@ -15,7 +15,7 @@ function AuthModal({ onAdminLoggedIn }) {
   } = useAuth()
 
   // Sign In states
-  const [usernameOrEmail, setUsernameOrEmail] = useState('')
+  const [nameOrEmail, setNameOrEmail] = useState('')
   const [password, setPassword] = useState('')
 
   // Sign Up states
@@ -64,13 +64,13 @@ function AuthModal({ onAdminLoggedIn }) {
     e.preventDefault()
     setErrorMsg('')
 
-    if (!usernameOrEmail.trim() || !password.trim()) {
-      setErrorMsg('Please enter your username/email and password.')
+    if (!nameOrEmail.trim() || !password.trim()) {
+      setErrorMsg('Please enter your First Name, Last Name, or Email and password.')
       return
     }
 
     const res = await login({
-      identifier: usernameOrEmail,
+      identifier: nameOrEmail,
       password: password,
     })
 
@@ -279,13 +279,13 @@ function AuthModal({ onAdminLoggedIn }) {
 
                 <form onSubmit={handleSignInSubmit} className="auth-fields-stack">
                   <div className="auth-field-group">
-                    <label className="auth-label">Username or Email</label>
+                    <label className="auth-label">First Name, Last Name, or Email</label>
                     <input
                       type="text"
                       className="auth-input-line"
-                      value={usernameOrEmail}
-                      onChange={(e) => setUsernameOrEmail(e.target.value)}
-                      placeholder="Enter username or email"
+                      value={nameOrEmail}
+                      onChange={(e) => setNameOrEmail(e.target.value)}
+                      placeholder="Enter your First Name, Last Name, or Email"
                       required
                       autoFocus
                     />
@@ -338,9 +338,12 @@ function AuthModal({ onAdminLoggedIn }) {
                   <button
                     type="button"
                     className="auth-quick-fill-btn"
-                    onClick={handleQuickFillAdmin}
+                    onClick={() => {
+                      setNameOrEmail('Admin')
+                      setPassword('admin123')
+                    }}
                   >
-                    admin / admin123
+                    Admin / admin123
                   </button>
                 </div>
               </div>

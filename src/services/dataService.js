@@ -1010,4 +1010,207 @@ export const DataService = {
     link.click()
     document.body.removeChild(link)
   },
+
+  // ==========================================
+  // 7. GALLERY MANAGEMENT (13 CAPACITY SLOTS)
+  // ==========================================
+  getDefaultGalleryItems() {
+    return [
+      {
+        slot_id: 1,
+        label: 'PHOTO 01',
+        title: 'Grand Resort Grounds',
+        category: 'Resort Highlights',
+        image_url: null,
+        row_type: 'large',
+        caption: 'Expansive landscaped grounds and greenery surrounding the resort.',
+        last_updated: '2026-10-09T00:00:00.000Z',
+      },
+      {
+        slot_id: 2,
+        label: 'PHOTO 02',
+        title: 'Pavilion Celebration',
+        category: 'Event Gatherings',
+        image_url: null,
+        row_type: 'medium',
+        caption: 'Open-air events and festive gatherings under the pavilion.',
+        last_updated: '2026-10-09T00:00:00.000Z',
+      },
+      {
+        slot_id: 3,
+        label: 'PHOTO 03',
+        title: 'Veranda Sunset View',
+        category: 'Scenic Grounds',
+        image_url: null,
+        row_type: 'medium',
+        caption: 'Picturesque sunsets viewed from our wooden terrace.',
+        last_updated: '2026-10-09T00:00:00.000Z',
+      },
+      {
+        slot_id: 4,
+        label: 'PHOTO 04',
+        title: 'Cabin Room Comfort',
+        category: 'Cozy Corners',
+        image_url: null,
+        row_type: 'small',
+        caption: 'Air-conditioned private cabin accommodations.',
+        last_updated: '2026-10-09T00:00:00.000Z',
+      },
+      {
+        slot_id: 5,
+        label: 'PHOTO 05',
+        title: 'Tree House Canopy',
+        category: 'Cozy Corners',
+        image_url: null,
+        row_type: 'small',
+        caption: 'Unique elevated tree house retreat surrounded by trees.',
+        last_updated: '2026-10-09T00:00:00.000Z',
+      },
+      {
+        slot_id: 6,
+        label: 'PHOTO 06',
+        title: 'Bahay Kubo Sanctuary',
+        category: 'Lush Botanicals',
+        image_url: null,
+        row_type: 'small',
+        caption: 'Traditional Filipino kubo cottages for native relaxation.',
+        last_updated: '2026-10-09T00:00:00.000Z',
+      },
+      {
+        slot_id: 7,
+        label: 'PHOTO 07',
+        title: 'Lush Botanical Garden',
+        category: 'Lush Botanicals',
+        image_url: null,
+        row_type: 'large',
+        caption: 'Vibrant flowering flora, palms, and winding pathways.',
+        last_updated: '2026-10-09T00:00:00.000Z',
+      },
+      {
+        slot_id: 8,
+        label: 'PHOTO 08',
+        title: 'Refreshing Swimming Pool',
+        category: 'Resort Highlights',
+        image_url: null,
+        row_type: 'medium',
+        caption: 'Crystal-clear swimming pools for kids and adults.',
+        last_updated: '2026-10-09T00:00:00.000Z',
+      },
+      {
+        slot_id: 9,
+        label: 'PHOTO 09',
+        title: 'Evening Garden Lights',
+        category: 'Scenic Grounds',
+        image_url: null,
+        row_type: 'medium',
+        caption: 'Fairy lights and evening ambiance under the night sky.',
+        last_updated: '2026-10-09T00:00:00.000Z',
+      },
+      {
+        slot_id: 10,
+        label: 'PHOTO 10',
+        title: 'Outdoor Gathering Nook',
+        category: 'Cozy Corners',
+        image_url: null,
+        row_type: 'small',
+        caption: 'Intimate seating corners for group conversations.',
+        last_updated: '2026-10-09T00:00:00.000Z',
+      },
+      {
+        slot_id: 11,
+        label: 'PHOTO 11',
+        title: 'Private Family Lounge',
+        category: 'Cozy Corners',
+        image_url: null,
+        row_type: 'small',
+        caption: 'Dedicated family relaxation and dining lounge.',
+        last_updated: '2026-10-09T00:00:00.000Z',
+      },
+      {
+        slot_id: 12,
+        label: 'PHOTO 12',
+        title: 'Scenic Landscape Walk',
+        category: 'Scenic Grounds',
+        image_url: null,
+        row_type: 'small',
+        caption: 'Peaceful garden strolls and picture-perfect photo spots.',
+        last_updated: '2026-10-09T00:00:00.000Z',
+      },
+      {
+        slot_id: 13,
+        label: 'PHOTO 13',
+        title: 'PolChat Panoramic Horizon',
+        category: 'Resort Highlights',
+        image_url: null,
+        row_type: 'large',
+        caption: 'Wide-angle panoramic horizon view of the entire resort grounds.',
+        last_updated: '2026-10-09T00:00:00.000Z',
+      },
+    ]
+  },
+
+  async getGalleryItems() {
+    try {
+      const saved = localStorage.getItem('polchat_gallery_items')
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (Array.isArray(parsed) && parsed.length === 13) {
+          return parsed
+        }
+      }
+    } catch (e) {}
+
+    const defaults = this.getDefaultGalleryItems()
+    try {
+      localStorage.setItem('polchat_gallery_items', JSON.stringify(defaults))
+    } catch (e) {}
+    return defaults
+  },
+
+  async updateGalleryItem(slotId, updates) {
+    try {
+      const items = await this.getGalleryItems()
+      const updated = items.map((item) => {
+        if (Number(item.slot_id) === Number(slotId)) {
+          return {
+            ...item,
+            ...updates,
+            last_updated: new Date().toISOString(),
+          }
+        }
+        return item
+      })
+
+      localStorage.setItem('polchat_gallery_items', JSON.stringify(updated))
+      window.dispatchEvent(new CustomEvent('polchat_gallery_updated', { detail: updated }))
+      return updated
+    } catch (err) {
+      console.error('Failed to update gallery slot:', err)
+      return null
+    }
+  },
+
+  async resetGalleryItem(slotId) {
+    try {
+      const defaults = this.getDefaultGalleryItems()
+      const defaultItem = defaults.find((d) => Number(d.slot_id) === Number(slotId))
+      if (!defaultItem) return null
+      return this.updateGalleryItem(slotId, defaultItem)
+    } catch (err) {
+      console.error('Failed to reset gallery slot:', err)
+      return null
+    }
+  },
+
+  async resetAllGalleryItems() {
+    try {
+      const defaults = this.getDefaultGalleryItems()
+      localStorage.setItem('polchat_gallery_items', JSON.stringify(defaults))
+      window.dispatchEvent(new CustomEvent('polchat_gallery_updated', { detail: defaults }))
+      return defaults
+    } catch (err) {
+      console.error('Failed to reset all gallery items:', err)
+      return null
+    }
+  },
 }

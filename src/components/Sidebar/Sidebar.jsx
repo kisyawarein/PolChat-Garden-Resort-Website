@@ -122,7 +122,18 @@ function Sidebar({
                     <span className="sidebar-item-label">Customer Records</span>
                   </button>
                 </li>
-                {/* 4. Customer Inquiries */}
+                {/* 4. Gallery Photos */}
+                <li>
+                  <button
+                    type="button"
+                    className={`sidebar-nav-item ${currentPage === 'admin-gallery' ? 'sidebar-nav-item-active' : ''}`}
+                    onClick={() => handleNav('admin-gallery')}
+                  >
+                    <span className="sidebar-item-icon">🖼️</span>
+                    <span className="sidebar-item-label">Resort Gallery</span>
+                  </button>
+                </li>
+                {/* 5. Customer Inquiries */}
                 <li>
                   <button
                     type="button"
