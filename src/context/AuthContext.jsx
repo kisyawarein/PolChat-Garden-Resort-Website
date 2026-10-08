@@ -90,46 +90,20 @@ export function AuthProvider({ children }) {
 
   const login = async ({ identifier, password }) => {
     const cleanId = (identifier || '').trim().toLowerCase()
-    
-    // 1. Check if matches preconfigured system users
-    let found = DEFAULT_USERS.find(
-      (u) =>
-        u.username.toLowerCase() === cleanId ||
-        u.email.toLowerCase() === cleanId
-    )
+    const cleanPass = (password || '').trim()
 
-    if (found) {
-      // If admin account, login as admin directly
-      if (found.role === 'admin') {
-        setUser(found)
-        setIsAuthModalOpen(false)
-        return { success: true, user: found }
+    // 1. Admin login verification
+    if (cleanId === 'admin' || cleanId === 'polchat_admin' || cleanId === 'polchat2k20@gmail.com') {
+      if (cleanPass !== 'admin123') {
+        return { success: false, error: 'Incorrect password for admin account.' }
       }
-      
-      // If customer account, ensure in Supabase customer_accounts
-      const realCustomerId = await DataService.ensureCustomer({
-        customerId: found.id,
-        customerName: found.name,
-        phone: Number(found.phone.replace(/\D/g, '')) || 9171234567,
-      })
-      found = { ...found, id: realCustomerId }
-      setUser(found)
-      setIsAuthModalOpen(false)
-      return { success: true, user: found }
-    }
-
-    // 2. Dynamic credentials evaluation
-    // If username is "admin" or email is admin email, treat as admin
-    const isAdminAccount = cleanId === 'admin' || cleanId === 'polchat_admin' || cleanId === 'admin@polchat2k20@gmail.com' || cleanId.startsWith('admin_')
-
-    if (isAdminAccount) {
       const adminUser = {
         id: 999,
-        username: cleanId,
+        username: 'admin',
         first_name: 'Admin',
-        last_name: 'Staff',
+        last_name: 'Management',
         name: 'Admin Management',
-        email: cleanId.includes('@') ? cleanId : 'polchat2k20@gmail.com',
+        email: 'polchat2k20@gmail.com',
         birthday: '1990-01-01',
         phone: '09534954389',
         role: 'admin',
@@ -139,28 +113,65 @@ export function AuthProvider({ children }) {
       return { success: true, user: adminUser }
     }
 
-    // Otherwise, user is treated strictly as Customer
-    const nameFallback = cleanId.split('@')[0]
-    const realCustomerId = await DataService.ensureCustomer({
-      customerName: nameFallback,
-      phone: 9171234567,
-    })
+    // 2. Check registered accounts from local storage
+    try {
+      const savedAccounts = JSON.parse(localStorage.getItem('polchat_registered_users') || '[]')
+      const localMatch = savedAccounts.find(
+        (u) =>
+          (u.email && u.email.toLowerCase() === cleanId) ||
+          (u.username && u.username.toLowerCase() === cleanId) ||
+          (u.first_name && u.first_name.toLowerCase() === cleanId) ||
+          (u.name && u.name.toLowerCase() === cleanId)
+      )
+      if (localMatch) {
+        if (localMatch.password && cleanPass && localMatch.password !== cleanPass) {
+          return { success: false, error: 'Incorrect password.' }
+        }
+        setUser(localMatch)
+        setIsAuthModalOpen(false)
+        return { success: true, user: localMatch }
+      }
+    } catch (e) {}
 
-    const customerUser = {
-      id: realCustomerId,
-      username: nameFallback,
-      first_name: nameFallback,
-      last_name: '',
-      name: nameFallback,
-      email: cleanId.includes('@') ? cleanId : `${cleanId}@gmail.com`,
-      birthday: '1995-01-01',
-      phone: '09171234567',
-      role: 'customer',
+    // 3. Query actual customer_accounts from Supabase
+    try {
+      const customers = await DataService.getCustomers()
+      const match = (customers || []).find((c) => {
+        const first = (c.first_name || '').toLowerCase()
+        const last = (c.last_name || '').toLowerCase()
+        const full = `${first} ${last}`.trim()
+        return (
+          first === cleanId ||
+          last === cleanId ||
+          full === cleanId ||
+          (c.customer_id && String(c.customer_id) === cleanId)
+        )
+      })
+
+      if (match) {
+        const customerUser = {
+          id: match.customer_id,
+          username: (match.first_name || 'customer').toLowerCase(),
+          first_name: match.first_name,
+          last_name: match.last_name || '',
+          name: `${match.first_name} ${match.last_name || ''}`.trim(),
+          email: `${(match.first_name || 'user').toLowerCase().replace(/\s+/g, '')}@gmail.com`,
+          phone: match.phone_number ? `0${match.phone_number}` : '09171234567',
+          role: 'customer',
+        }
+        setUser(customerUser)
+        setIsAuthModalOpen(false)
+        return { success: true, user: customerUser }
+      }
+    } catch (err) {
+      console.error('Login customer lookup error:', err)
     }
 
-    setUser(customerUser)
-    setIsAuthModalOpen(false)
-    return { success: true, user: customerUser }
+    // Return error if not found in database
+    return {
+      success: false,
+      error: 'Account does not exist in the database. Please check your credentials or create an account.',
+    }
   }
 
   const signup = async ({ firstName, lastName, birthday, email, password }) => {
@@ -176,7 +187,7 @@ export function AuthProvider({ children }) {
       phone_number: 9171234567,
     })
 
-    const customerId = created ? created.customer_id : 1
+    const customerId = created ? created.customer_id : Math.floor(100 + Math.random() * 900)
 
     const newUser = {
       id: customerId,
@@ -185,10 +196,18 @@ export function AuthProvider({ children }) {
       last_name: cleanLast,
       name: fullName,
       email: cleanEmail,
+      password: password,
       birthday: birthday || '',
       phone: '09171234567',
-      role: 'customer', // Customer accounts always stay as customers
+      role: 'customer',
     }
+
+    // Save to registered users list
+    try {
+      const existing = JSON.parse(localStorage.getItem('polchat_registered_users') || '[]')
+      const updated = [newUser, ...existing.filter((u) => u.email !== cleanEmail)]
+      localStorage.setItem('polchat_registered_users', JSON.stringify(updated))
+    } catch (e) {}
 
     setUser(newUser)
     setIsAuthModalOpen(false)

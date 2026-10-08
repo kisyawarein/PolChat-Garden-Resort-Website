@@ -49,6 +49,14 @@ function Navbar({ currentPage, onNavigate, onToggleSidebar }) {
     return () => window.removeEventListener('resize', updateIndicator)
   }, [updateIndicator, isAdmin])
 
+  // Only show the first part of the first name (e.g. "Raishawn" from "Raishawn Alejandro")
+  const getShortFirstName = () => {
+    if (isAdmin) return 'Admin'
+    const raw = user?.first_name || user?.name || user?.username || 'User'
+    const firstPart = raw.trim().split(/\s+/)[0]
+    return firstPart || 'User'
+  }
+
   return (
     <header className="navbar-wrapper">
       {/* Burger Icon Button (Only for Customer accounts, removed for Admin) */}
@@ -60,7 +68,7 @@ function Navbar({ currentPage, onNavigate, onToggleSidebar }) {
           title="Open Customer Portal Menu"
           aria-label="Toggle Portal Navigation Menu"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <line x1="3" y1="6" x2="21" y2="6"></line>
             <line x1="3" y1="12" x2="21" y2="12"></line>
             <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -121,10 +129,12 @@ function Navbar({ currentPage, onNavigate, onToggleSidebar }) {
               onClick={!isAdmin ? onToggleSidebar : undefined}
               style={{ cursor: !isAdmin ? 'pointer' : 'default' }}
             >
-              <span className="navbar-user-name">{user?.name || user?.username}</span>
-              <span className={isAdmin ? 'navbar-user-role-badge navbar-role-admin' : 'navbar-user-role-badge navbar-role-customer'}>
-                {isAdmin ? 'Admin' : 'Guest'}
-              </span>
+              <span className="navbar-user-name">{getShortFirstName()}</span>
+              {isAdmin && (
+                <span className="navbar-user-role-badge navbar-role-admin">
+                  Admin
+                </span>
+              )}
             </div>
             <button
               type="button"

@@ -524,30 +524,35 @@ export const DataService = {
     if (!file) return null
 
     try {
-      const processedBlob = await this.compressImage(file)
+      const processedBlob = await this.compressImage(file, 1000, 0.7)
       const cleanFileName = `proof_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.jpg`
       const filePath = `receipts/${cleanFileName}`
 
-      // 1. Try uploading to Supabase Storage bucket 'payment-proofs'
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('payment-proofs')
-        .upload(filePath, processedBlob, {
-          cacheControl: '3600',
-          upsert: true,
-          contentType: 'image/jpeg',
-        })
+      // List candidate storage buckets to try in Supabase Storage
+      const candidateBuckets = ['payment-proofs', 'receipts', 'proofs', 'attachments', 'public']
+      for (const bucket of candidateBuckets) {
+        try {
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from(bucket)
+            .upload(filePath, processedBlob, {
+              cacheControl: '3600',
+              upsert: true,
+              contentType: 'image/jpeg',
+            })
 
-      if (!uploadError && uploadData) {
-        const { data: publicUrlData } = supabase.storage
-          .from('payment-proofs')
-          .getPublicUrl(filePath)
+          if (!uploadError && uploadData) {
+            const { data: publicUrlData } = supabase.storage
+              .from(bucket)
+              .getPublicUrl(filePath)
 
-        if (publicUrlData?.publicUrl) {
-          return publicUrlData.publicUrl
-        }
+            if (publicUrlData?.publicUrl) {
+              return publicUrlData.publicUrl
+            }
+          }
+        } catch (bErr) {}
       }
     } catch (storageErr) {
-      // Gracefully silent fallback
+      // Gracefully continue to base64 fallback
     }
 
     // 2. Reliable Fallback: Convert to Base64 Data URL so proof is NEVER lost
@@ -578,20 +583,69 @@ export const DataService = {
         return []
       }
 
-      return (data || []).map((r) => ({
-        ...r,
-        customer_name: r.customer
-          ? `${r.customer.first_name} ${r.customer.last_name || ''}`.trim()
-          : `Customer #${r.customer_id}`,
-        customer_phone: r.customer?.phone_number ? `0${r.customer.phone_number}` : '',
-        payment_proof_url: r.payment_proof_url || null,
-        payment_type: r.payment_type || (r.payment_proof_url ? 'gcash' : 'cash'),
-        downpayment_amount: r.downpayment_amount ?? Math.round(((r.reservation_cost || 0) + (r.extra_charges || 0)) * 0.5),
-        remaining_balance: r.remaining_balance ?? Math.round(((r.reservation_cost || 0) + (r.extra_charges || 0)) * 0.5),
-        checkout_payment_type: r.checkout_payment_type || null,
-        checkout_proof_url: r.checkout_proof_url || null,
-        is_checked_out: !!r.is_checked_out,
-      }))
+      // Load any locally cached proofs as extra layer
+      let cachedProofs = {}
+      try {
+        cachedProofs = JSON.parse(localStorage.getItem('polchat_reservation_proofs') || '{}')
+      } catch (e) {}
+
+      return (data || []).map((r) => {
+        let extractedProof = r.payment_proof_url || cachedProofs[r.reservation_id] || null
+        let extractedPayType = r.payment_type || null
+        let extractedDown = r.downpayment_amount
+        let extractedRem = r.remaining_balance
+        let cleanEventName = r.event_name || 'Resort Stay'
+
+        // Parse encoded metadata from event_name if present
+        if (cleanEventName && cleanEventName.includes('__PROOF__')) {
+          const matchProof = cleanEventName.match(/__PROOF__(.*?)__(?:PAY|DOWN|REM|$)/)
+          if (matchProof && matchProof[1]) {
+            extractedProof = matchProof[1]
+          }
+        }
+        if (cleanEventName && cleanEventName.includes('__PAY__')) {
+          const matchPay = cleanEventName.match(/__PAY__(.*?)__(?:DOWN|REM|$)/)
+          if (matchPay && matchPay[1]) {
+            extractedPayType = matchPay[1]
+          }
+        }
+        if (cleanEventName && cleanEventName.includes('__DOWN__')) {
+          const matchDown = cleanEventName.match(/__DOWN__(.*?)__(?:REM|$)/)
+          if (matchDown && matchDown[1]) {
+            extractedDown = Number(matchDown[1])
+          }
+        }
+        if (cleanEventName && cleanEventName.includes('__REM__')) {
+          const matchRem = cleanEventName.match(/__REM__(.*?)$/)
+          if (matchRem && matchRem[1]) {
+            extractedRem = Number(matchRem[1])
+          }
+        }
+
+        // Clean up event name to look nice in UI
+        cleanEventName = cleanEventName.split(' __PROOF__')[0].split(' __PAY__')[0].trim()
+
+        const totalCost = (r.reservation_cost || 0) + (r.extra_charges || 0)
+        const downpayment = extractedDown ?? Math.round(totalCost * 0.5)
+        const remaining = extractedRem ?? (totalCost - downpayment)
+        const finalPayType = extractedPayType || (extractedProof ? 'gcash' : 'cash')
+
+        return {
+          ...r,
+          event_name: cleanEventName,
+          customer_name: r.customer
+            ? `${r.customer.first_name} ${r.customer.last_name || ''}`.trim()
+            : `Customer #${r.customer_id}`,
+          customer_phone: r.customer?.phone_number ? `0${r.customer.phone_number}` : '',
+          payment_proof_url: extractedProof,
+          payment_type: finalPayType,
+          downpayment_amount: downpayment,
+          remaining_balance: remaining,
+          checkout_payment_type: r.checkout_payment_type || null,
+          checkout_proof_url: r.checkout_proof_url || null,
+          is_checked_out: !!r.is_checked_out,
+        }
+      })
     } catch (err) {
       console.error('Reservation query exception:', err)
       return []
@@ -608,6 +662,15 @@ export const DataService = {
       const totalCost = Number(reservationData.reservation_cost || 0) + Number(reservationData.extra_charges || 0)
       const downpayment = reservationData.downpayment_amount ?? Math.round(totalCost * 0.5)
       const remaining = reservationData.remaining_balance ?? (totalCost - downpayment)
+      const proofUrl = reservationData.payment_proof_url || null
+      const paymentType = reservationData.payment_type || (proofUrl ? 'gcash' : 'cash')
+
+      // Encode metadata into event_name to guarantee persistence across all browsers/devices
+      // even if Supabase table columns are not yet manually added
+      const baseEventName = (reservationData.event_name || 'Resort Stay').split(' __PROOF__')[0].split(' __PAY__')[0].trim()
+      const eventWithMeta = proofUrl
+        ? `${baseEventName} __PROOF__${proofUrl}__PAY__${paymentType}__DOWN__${downpayment}__REM__${remaining}`
+        : `${baseEventName} __PAY__${paymentType}__DOWN__${downpayment}__REM__${remaining}`
 
       const payload = {
         customer_id: validCustomerId,
@@ -617,13 +680,13 @@ export const DataService = {
         end_date: reservationData.end_date,
         extension_duration: reservationData.extension_duration ? reservationData.start_date : null,
         has_paid_sec_dep: !!reservationData.has_paid_sec_dep,
-        has_paid_reservation: !!reservationData.has_paid_reservation,
+        has_paid_reservation: paymentType === 'gcash' || !!reservationData.has_paid_reservation,
         reservation_cost: Number(reservationData.reservation_cost),
         extra_charges: Number(reservationData.extra_charges || 0),
         reservation_status: reservationData.reservation_status || 'pending',
-        event_name: reservationData.event_name || 'Resort Stay',
-        payment_proof_url: reservationData.payment_proof_url || null,
-        payment_type: reservationData.payment_type || 'gcash',
+        event_name: eventWithMeta,
+        payment_proof_url: proofUrl,
+        payment_type: paymentType,
         downpayment_amount: downpayment,
         remaining_balance: remaining,
         is_checked_out: false,
@@ -636,8 +699,8 @@ export const DataService = {
         .select()
 
       // 2. Fallback: If DB table schema cache is missing new columns, strip optional columns and retry
-      if (error && (error.code === 'PGRST204' || error.code === '42703' || error.message?.includes('column'))) {
-        console.warn('Some reservation columns not yet created in Supabase. Inserting standard compatible payload.')
+      if (error && (error.code === 'PGRST204' || error.code === '42703' || error.message?.includes('column') || error.message?.includes('schema cache'))) {
+        console.warn('Some reservation columns not yet created in Supabase. Inserting standard compatible payload with metadata backup.')
         const fallbackPayload = { ...payload }
         delete fallbackPayload.payment_proof_url
         delete fallbackPayload.payment_type
@@ -658,10 +721,23 @@ export const DataService = {
         console.error('Error creating resort_reservation in Supabase:', error)
         return null
       }
+
+      const createdRow = data?.[0] || payload
+
+      // Save to local cache as extra backup
+      if (createdRow.reservation_id && proofUrl) {
+        try {
+          const cachedProofs = JSON.parse(localStorage.getItem('polchat_reservation_proofs') || '{}')
+          cachedProofs[createdRow.reservation_id] = proofUrl
+          localStorage.setItem('polchat_reservation_proofs', JSON.stringify(cachedProofs))
+        } catch (e) {}
+      }
+
       return {
-        ...(data?.[0] || payload),
-        payment_proof_url: reservationData.payment_proof_url || null,
-        payment_type: reservationData.payment_type || 'gcash',
+        ...createdRow,
+        event_name: baseEventName,
+        payment_proof_url: proofUrl,
+        payment_type: paymentType,
         downpayment_amount: downpayment,
         remaining_balance: remaining,
       }

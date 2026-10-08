@@ -442,6 +442,8 @@ function Reservation() {
         isOpen={isOcularOpen}
         onClose={() => setIsOcularOpen(false)}
         user={user}
+        reservations={reservations}
+        visitations={visitations}
         onSuccess={(newVisit) => {
           setVisitations((prev) => [newVisit, ...prev])
           showToast('Ocular visit booked! Awaiting resort confirmation.')

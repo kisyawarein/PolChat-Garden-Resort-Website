@@ -203,7 +203,7 @@ function PriorityPendingList({
                       <span>Details</span>
                     </button>
 
-                    {item.itemType === 'resort' && item.paymentType === 'gcash' && item.photoUrl && (
+                    {item.itemType === 'resort' && (item.photoUrl || item.raw?.payment_proof_url) && (
                       <button
                         type="button"
                         className="pending-btn-photo"

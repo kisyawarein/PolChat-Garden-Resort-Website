@@ -59,8 +59,8 @@ function AuthModal({ onAdminLoggedIn }) {
     setAuthModalMode(mode)
   }
 
-  // Optimistic Sign In Submit
-  const handleSignInSubmit = (e) => {
+  // Sign In Submit with strict database validation
+  const handleSignInSubmit = async (e) => {
     e.preventDefault()
     setErrorMsg('')
 
@@ -69,15 +69,19 @@ function AuthModal({ onAdminLoggedIn }) {
       return
     }
 
-    // Optimistically log in immediately
-    login({
+    const res = await login({
       identifier: usernameOrEmail,
       password: password,
-    }).then((res) => {
-      if (res?.user?.role === 'admin' && onAdminLoggedIn) {
-        onAdminLoggedIn()
-      }
     })
+
+    if (!res || !res.success) {
+      setErrorMsg(res?.error || 'Account does not exist in the database. Please check your credentials or create an account.')
+      return
+    }
+
+    if (res?.user?.role === 'admin' && onAdminLoggedIn) {
+      onAdminLoggedIn()
+    }
   }
 
   // Step 1: Send OTP to Email
