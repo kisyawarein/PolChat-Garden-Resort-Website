@@ -528,28 +528,23 @@ export const DataService = {
       const cleanFileName = `proof_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.jpg`
       const filePath = `receipts/${cleanFileName}`
 
-      // List candidate storage buckets to try in Supabase Storage
-      const candidateBuckets = ['payment-proofs', 'receipts', 'proofs', 'attachments', 'public']
-      for (const bucket of candidateBuckets) {
-        try {
-          const { data: uploadData, error: uploadError } = await supabase.storage
-            .from(bucket)
-            .upload(filePath, processedBlob, {
-              cacheControl: '3600',
-              upsert: true,
-              contentType: 'image/jpeg',
-            })
+      // 1. Try uploading to Supabase Storage bucket 'payment-proofs'
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('payment-proofs')
+        .upload(filePath, processedBlob, {
+          cacheControl: '3600',
+          upsert: true,
+          contentType: 'image/jpeg',
+        })
 
-          if (!uploadError && uploadData) {
-            const { data: publicUrlData } = supabase.storage
-              .from(bucket)
-              .getPublicUrl(filePath)
+      if (!uploadError && uploadData) {
+        const { data: publicUrlData } = supabase.storage
+          .from('payment-proofs')
+          .getPublicUrl(filePath)
 
-            if (publicUrlData?.publicUrl) {
-              return publicUrlData.publicUrl
-            }
-          }
-        } catch (bErr) {}
+        if (publicUrlData?.publicUrl) {
+          return publicUrlData.publicUrl
+        }
       }
     } catch (storageErr) {
       // Gracefully continue to base64 fallback
@@ -692,29 +687,43 @@ export const DataService = {
         is_checked_out: false,
       }
 
-      // 1. Attempt insert with full payload
+      // 1. Attempt insert with all columns
       let { data, error } = await supabase
         .from('resort_reservations')
         .insert([payload])
         .select()
 
-      // 2. Fallback: If DB table schema cache is missing new columns, strip optional columns and retry
+      // 2. Fallback A: If extended helper columns (is_checked_out, payment_type, etc.) are missing,
+      // keep payment_proof_url intact and retry!
       if (error && (error.code === 'PGRST204' || error.code === '42703' || error.message?.includes('column') || error.message?.includes('schema cache'))) {
-        console.warn('Some reservation columns not yet created in Supabase. Inserting standard compatible payload with metadata backup.')
-        const fallbackPayload = { ...payload }
-        delete fallbackPayload.payment_proof_url
-        delete fallbackPayload.payment_type
-        delete fallbackPayload.downpayment_amount
-        delete fallbackPayload.remaining_balance
-        delete fallbackPayload.is_checked_out
+        console.warn('Retrying reservation insert with standard columns including payment_proof_url:', error.message)
+        const standardPayload = { ...payload }
+        delete standardPayload.payment_type
+        delete standardPayload.downpayment_amount
+        delete standardPayload.remaining_balance
+        delete standardPayload.is_checked_out
 
-        const fallbackRes = await supabase
+        const retryRes = await supabase
           .from('resort_reservations')
-          .insert([fallbackPayload])
+          .insert([standardPayload])
           .select()
 
-        data = fallbackRes.data
-        error = fallbackRes.error
+        data = retryRes.data
+        error = retryRes.error
+
+        // Fallback B: If even payment_proof_url is missing in DB, strip it as final fallback
+        if (error && (error.code === 'PGRST204' || error.code === '42703' || error.message?.includes('column') || error.message?.includes('schema cache'))) {
+          console.warn('Retrying reservation insert without payment_proof_url column.')
+          delete standardPayload.payment_proof_url
+
+          const finalRes = await supabase
+            .from('resort_reservations')
+            .insert([standardPayload])
+            .select()
+
+          data = finalRes.data
+          error = finalRes.error
+        }
       }
 
       if (error) {
