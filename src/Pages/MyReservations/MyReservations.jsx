@@ -20,18 +20,22 @@ function MyReservations({ onNavigate }) {
   const loadData = async () => {
     const all = await DataService.getReservations()
 
-    // Filter reservations belonging to the logged-in customer
+    // Filter reservations strictly belonging to the logged-in customer
     if (user) {
-      const filtered = (all || []).filter(
-        (r) =>
-          r.customer_id === user.id ||
-          (r.customer_name && user.name && r.customer_name.toLowerCase().includes(user.name.toLowerCase())) ||
-          (r.event_name && user.name && r.event_name.toLowerCase().includes(user.name.toLowerCase()))
-      )
-      // Fallback: If demo user has no records yet, show relevant bookings
-      setUserReservations(filtered.length > 0 ? filtered : all.slice(0, 5))
+      const userFullName = (user.name || `${user.first_name || ''} ${user.last_name || ''}`).trim().toLowerCase()
+      const userFirstName = (user.first_name || '').trim().toLowerCase()
+      const userLastName = (user.last_name || '').trim().toLowerCase()
+
+      const filtered = (all || []).filter((r) => {
+        if (r.customer_id && user.id && Number(r.customer_id) === Number(user.id)) return true
+        const custName = (r.customer_name || '').trim().toLowerCase()
+        if (userFullName && custName === userFullName) return true
+        if (userFirstName && userLastName && custName.includes(userFirstName) && custName.includes(userLastName)) return true
+        return false
+      })
+      setUserReservations(filtered)
     } else {
-      setUserReservations(all || [])
+      setUserReservations([])
     }
   }
 

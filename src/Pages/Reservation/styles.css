@@ -1263,10 +1263,26 @@
   outline: none;
 }
 
+.resv-guest-note-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 5px;
+  gap: 8px;
+}
+
 .resv-field-note {
   font-size: 0.75rem;
   color: #888888;
-  margin-top: 4px;
+  margin: 0;
+}
+
+.resv-field-max-pax {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #43593B;
+  text-align: right;
+  white-space: nowrap;
 }
 
 .resv-form-actions-bar {

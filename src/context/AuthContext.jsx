@@ -92,6 +92,10 @@ export function AuthProvider({ children }) {
     const cleanId = (identifier || '').trim().toLowerCase()
     const cleanPass = (password || '').trim()
 
+    if (!cleanId || !cleanPass) {
+      return { success: false, error: 'Please enter both your identifier and password.' }
+    }
+
     // 1. Admin login verification (by username, role name, or admin email)
     if (
       cleanId === 'admin' ||
@@ -119,10 +123,11 @@ export function AuthProvider({ children }) {
       return { success: true, user: adminUser }
     }
 
-    // 2. Check registered accounts from local storage (by First Name, Last Name, Full Name, or Email)
+    // 2. Check registered accounts from local storage
+    let localMatch = null
     try {
       const savedAccounts = JSON.parse(localStorage.getItem('polchat_registered_users') || '[]')
-      const localMatch = savedAccounts.find(
+      localMatch = savedAccounts.find(
         (u) =>
           (u.email && u.email.toLowerCase() === cleanId) ||
           (u.first_name && u.first_name.toLowerCase() === cleanId) ||
@@ -131,8 +136,8 @@ export function AuthProvider({ children }) {
           (u.username && u.username.toLowerCase() === cleanId)
       )
       if (localMatch) {
-        if (localMatch.password && cleanPass && localMatch.password !== cleanPass) {
-          return { success: false, error: 'Incorrect password.' }
+        if (!localMatch.password || localMatch.password !== cleanPass) {
+          return { success: false, error: 'Incorrect password. Please try again.' }
         }
         setUser(localMatch)
         setIsAuthModalOpen(false)
@@ -140,7 +145,25 @@ export function AuthProvider({ children }) {
       }
     } catch (e) {}
 
-    // 3. Query actual customer_accounts from Supabase (by First Name, Last Name, Full Name, or Email)
+    // 3. Check default seeded accounts (First Name, Last Name, Full Name, or Email)
+    const defaultMatch = DEFAULT_USERS.find(
+      (u) =>
+        (u.email && u.email.toLowerCase() === cleanId) ||
+        (u.first_name && u.first_name.toLowerCase() === cleanId) ||
+        (u.last_name && u.last_name.toLowerCase() === cleanId) ||
+        (u.name && u.name.toLowerCase() === cleanId) ||
+        (u.username && u.username.toLowerCase() === cleanId)
+    )
+    if (defaultMatch) {
+      if (defaultMatch.password !== cleanPass) {
+        return { success: false, error: 'Incorrect password. Please try again.' }
+      }
+      setUser(defaultMatch)
+      setIsAuthModalOpen(false)
+      return { success: true, user: defaultMatch }
+    }
+
+    // 4. Query customer_accounts from Supabase
     try {
       const customers = await DataService.getCustomers()
       const match = (customers || []).find((c) => {
@@ -158,6 +181,10 @@ export function AuthProvider({ children }) {
       })
 
       if (match) {
+        // Require standard customer password for Supabase database customer rows
+        if (cleanPass !== 'customer123') {
+          return { success: false, error: 'Incorrect password. Please try again.' }
+        }
         const customerUser = {
           id: match.customer_id,
           username: (match.first_name || 'customer').toLowerCase(),
@@ -176,28 +203,10 @@ export function AuthProvider({ children }) {
       console.error('Login customer lookup error:', err)
     }
 
-    // 4. Check default seeded accounts (First Name, Last Name, Full Name, or Email)
-    const defaultMatch = DEFAULT_USERS.find(
-      (u) =>
-        (u.email && u.email.toLowerCase() === cleanId) ||
-        (u.first_name && u.first_name.toLowerCase() === cleanId) ||
-        (u.last_name && u.last_name.toLowerCase() === cleanId) ||
-        (u.name && u.name.toLowerCase() === cleanId) ||
-        (u.username && u.username.toLowerCase() === cleanId)
-    )
-    if (defaultMatch) {
-      if (defaultMatch.password && cleanPass && defaultMatch.password !== cleanPass) {
-        return { success: false, error: 'Incorrect password.' }
-      }
-      setUser(defaultMatch)
-      setIsAuthModalOpen(false)
-      return { success: true, user: defaultMatch }
-    }
-
     // Return error if not found in database
     return {
       success: false,
-      error: 'Account not found in the database. Please check your First Name, Last Name, or Email.',
+      error: 'Account not found in the database. Please check your credentials or create an account.',
     }
   }
 

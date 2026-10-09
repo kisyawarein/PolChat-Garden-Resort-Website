@@ -226,9 +226,14 @@ function BookingForm({
                     +
                   </button>
                 </div>
-                <span className="resv-field-note">
-                  Extra guests: ₱{selectedPackage?.duration_extra_pax_charge || 200} Per head
-                </span>
+                <div className="resv-guest-note-row">
+                  <span className="resv-field-note">
+                    Extra guests: ₱{selectedPackage?.duration_extra_pax_charge ?? 200} Per head
+                  </span>
+                  <span className="resv-field-max-pax">
+                    Max Pax: {selectedPackage?.max_pax ?? 0}
+                  </span>
+                </div>
               </div>
 
               {/* Extension Hours directly below Number of Guests */}

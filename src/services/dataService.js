@@ -117,6 +117,19 @@ export const DataService = {
   // 2. DURATION TYPES (RESORT PACKAGES & CHARGES)
   // ==========================================
   async getDurationTypes() {
+    let localOverrides = {}
+    try {
+      const cached = localStorage.getItem('polchat_duration_types')
+      if (cached) {
+        const parsed = JSON.parse(cached)
+        parsed.forEach((p) => {
+          if (p && p.duration_id) {
+            localOverrides[p.duration_id] = p
+          }
+        })
+      }
+    } catch (e) {}
+
     try {
       const { data, error } = await supabase
         .from('duration_types')
@@ -124,8 +137,17 @@ export const DataService = {
         .order('duration_id', { ascending: true })
 
       if (!error && data && data.length > 0) {
-        localStorage.setItem('polchat_duration_types', JSON.stringify(data))
-        return data
+        const merged = data.map((d) => {
+          const cachedPkg = localOverrides[d.duration_id] || {}
+          const defaultMax = d.duration_id === 2 ? 25 : 35
+          return {
+            ...d,
+            max_pax: d.max_pax !== undefined && d.max_pax !== null ? Number(d.max_pax) : (cachedPkg.max_pax !== undefined ? Number(cachedPkg.max_pax) : defaultMax),
+            sec_dep: d.sec_dep !== undefined && d.sec_dep !== null ? Number(d.sec_dep) : (cachedPkg.sec_dep !== undefined ? Number(cachedPkg.sec_dep) : 2000),
+          }
+        })
+        localStorage.setItem('polchat_duration_types', JSON.stringify(merged))
+        return merged
       }
     } catch (err) {
       console.error('Duration types fetch exception:', err)
@@ -201,16 +223,22 @@ export const DataService = {
         .eq('duration_id', Number(durationId))
         .select()
 
+      if (error && (error.code === 'PGRST204' || error.code === '42703' || error.message?.includes('column'))) {
+        const standardUpdates = { ...updates }
+        delete standardUpdates.max_pax
+        delete standardUpdates.sec_dep
+        await supabase
+          .from('duration_types')
+          .update(standardUpdates)
+          .eq('duration_id', Number(durationId))
+      }
+
       // 2. Cache updated packages locally for instant smooth sync
       const current = await this.getDurationTypes()
       const updatedList = current.map((p) =>
         p.duration_id === Number(durationId) ? { ...p, ...updates } : p
       )
       localStorage.setItem('polchat_duration_types', JSON.stringify(updatedList))
-
-      if (error) {
-        console.warn('Supabase duration_types update note:', error.message)
-      }
       return data?.[0] || { duration_id: Number(durationId), ...updates }
     } catch (err) {
       console.error('Update duration type exception:', err)
@@ -651,7 +679,7 @@ export const DataService = {
     try {
       const validCustomerId = await this.ensureCustomer({
         customerId: reservationData.customer_id,
-        customerName: reservationData.event_name,
+        customerName: reservationData.customer_name || reservationData.event_name,
       })
 
       const totalCost = Number(reservationData.reservation_cost || 0) + Number(reservationData.extra_charges || 0)

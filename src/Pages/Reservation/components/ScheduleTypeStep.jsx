@@ -70,43 +70,43 @@ function ScheduleTypeStep({
       case 2:
         return {
           image: overnightImg,
-          label: 'Overnight',
-          duration: '10 Hours',
+          label: overnightPkg.duration_name || 'Overnight',
+          duration: `${overnightPkg.duration_hours || 10} Hours`,
           timeRange: '8:00 PM – 6:00 AM',
-          paxLimit: 'Up to 25 Guests',
-          price: `PHP ${Math.round(Number(overnightPkg.duration_price || 10000)).toLocaleString()}`,
-          extraPaxRate: overnightPkg.duration_extra_pax_charge || 200,
+          paxLimit: `Up to ${overnightPkg.max_pax ?? 0} Guests`,
+          price: `PHP ${Math.round(Number(overnightPkg.duration_price ?? 0)).toLocaleString()}`,
+          extraPaxRate: overnightPkg.duration_extra_pax_charge ?? 200,
         }
       case 3:
         return {
           image: twentytwoImg,
-          label: '22 Hours (Day Start)',
-          duration: '22 Hours',
+          label: day22Pkg.duration_name || '22 Hours (Day Start)',
+          duration: `${day22Pkg.duration_hours || 22} Hours`,
           timeRange: '8:00 AM – 6:00 AM',
-          paxLimit: 'Up to 35 Guests',
-          price: `PHP ${Math.round(Number(day22Pkg.duration_price || 17000)).toLocaleString()}`,
-          extraPaxRate: day22Pkg.duration_extra_pax_charge || 200,
+          paxLimit: `Up to ${day22Pkg.max_pax ?? 0} Guests`,
+          price: `PHP ${Math.round(Number(day22Pkg.duration_price ?? 0)).toLocaleString()}`,
+          extraPaxRate: day22Pkg.duration_extra_pax_charge ?? 200,
         }
       case 4:
         return {
           image: twentytwoImg,
-          label: '22 Hours (Night Start)',
-          duration: '22 Hours',
+          label: night22Pkg.duration_name || '22 Hours (Night Start)',
+          duration: `${night22Pkg.duration_hours || 22} Hours`,
           timeRange: '8:00 PM – 6:00 PM',
-          paxLimit: 'Up to 35 Guests',
-          price: `PHP ${Math.round(Number(night22Pkg.duration_price || 17000)).toLocaleString()}`,
-          extraPaxRate: night22Pkg.duration_extra_pax_charge || 200,
+          paxLimit: `Up to ${night22Pkg.max_pax ?? 0} Guests`,
+          price: `PHP ${Math.round(Number(night22Pkg.duration_price ?? 0)).toLocaleString()}`,
+          extraPaxRate: night22Pkg.duration_extra_pax_charge ?? 200,
         }
       case 1:
       default:
         return {
           image: dayTourImg,
-          label: 'Day Tour',
-          duration: '8 Hours',
+          label: dayPkg.duration_name || 'Day Tour',
+          duration: `${dayPkg.duration_hours || 8} Hours`,
           timeRange: '9:00 AM – 5:00 PM',
-          paxLimit: 'Up to 35 Guests',
-          price: `PHP ${Math.round(Number(dayPkg.duration_price || 9000)).toLocaleString()}`,
-          extraPaxRate: dayPkg.duration_extra_pax_charge || 200,
+          paxLimit: `Up to ${dayPkg.max_pax ?? 0} Guests`,
+          price: `PHP ${Math.round(Number(dayPkg.duration_price ?? 0)).toLocaleString()}`,
+          extraPaxRate: dayPkg.duration_extra_pax_charge ?? 200,
         }
     }
   }
@@ -137,12 +137,14 @@ function ScheduleTypeStep({
               }`}
             >
               <div className="sched-row-title-col">
-                <span className="sched-row-name">Day Tour</span>
+                <span className="sched-row-name">{dayPkg.duration_name || 'Day Tour'}</span>
               </div>
 
               <div className="sched-row-info-col">
-                <span className="sched-row-price">PHP {Math.round(Number(dayPkg.duration_price || 9000)).toLocaleString()}</span>
-                <span className="sched-row-time">TIME: 9:00 AM - 5:00 PM (8 Hours)</span>
+                <span className="sched-row-price">PHP {Math.round(Number(dayPkg.duration_price ?? 0)).toLocaleString()}</span>
+                <span className="sched-row-time">
+                  TIME: 9:00 AM - 5:00 PM ({dayPkg.duration_hours || 8} Hours) • Max {dayPkg.max_pax ?? 0} Guests
+                </span>
               </div>
 
               <div className="sched-row-btn-col">
@@ -167,12 +169,14 @@ function ScheduleTypeStep({
               }`}
             >
               <div className="sched-row-title-col">
-                <span className="sched-row-name">Overnight</span>
+                <span className="sched-row-name">{overnightPkg.duration_name || 'Overnight'}</span>
               </div>
 
               <div className="sched-row-info-col">
-                <span className="sched-row-price">PHP {Math.round(Number(overnightPkg.duration_price || 10000)).toLocaleString()}</span>
-                <span className="sched-row-time">TIME: 8:00 PM - 6:00 AM (10 Hours)</span>
+                <span className="sched-row-price">PHP {Math.round(Number(overnightPkg.duration_price ?? 0)).toLocaleString()}</span>
+                <span className="sched-row-time">
+                  TIME: 8:00 PM - 6:00 AM ({overnightPkg.duration_hours || 10} Hours) • Max {overnightPkg.max_pax ?? 0} Guests
+                </span>
               </div>
 
               <div className="sched-row-btn-col">
@@ -203,11 +207,11 @@ function ScheduleTypeStep({
               </div>
 
               <div className="sched-row-info-col">
-                <span className="sched-row-price">PHP {Math.round(Number(day22Pkg.duration_price || 17000)).toLocaleString()}</span>
+                <span className="sched-row-price">PHP {Math.round(Number((currentSelectedId === 4 ? night22Pkg : day22Pkg).duration_price ?? 0)).toLocaleString()}</span>
                 <span className="sched-row-time">
                   {currentSelectedId === 4
-                    ? 'TIME: 8:00 PM - 6:00 PM (22 Hours)'
-                    : 'TIME: 8:00 AM - 6:00 AM (22 Hours)'}
+                    ? `TIME: 8:00 PM - 6:00 PM (22 Hours) • Max ${night22Pkg.max_pax ?? 0} Guests`
+                    : `TIME: 8:00 AM - 6:00 AM (22 Hours) • Max ${day22Pkg.max_pax ?? 0} Guests`}
                 </span>
               </div>
 

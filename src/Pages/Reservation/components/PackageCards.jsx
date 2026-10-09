@@ -70,26 +70,26 @@ function PackageCards({ packages, onSelectPackage, onOpenOcular }) {
 
           <div className="resv-card-pricing">
             <span className="resv-currency">PHP</span>
-            <span className="resv-price-amount">9,000</span>
+            <span className="resv-price-amount">{Number(dayTourPkg.duration_price || 9000).toLocaleString()}</span>
             <span className="resv-price-label">/ session</span>
           </div>
 
           <ul className="resv-card-features">
             <li className="resv-feature-item">
               <span className="resv-feature-dot">✓</span>
-              <span><strong>Up to 35</strong> maximum guests</span>
+              <span><strong>Up to {dayTourPkg.max_pax ?? 0}</strong> maximum guests</span>
             </li>
             <li className="resv-feature-item">
               <span className="resv-feature-dot">✓</span>
-              <span>₱200/head exceeding max pax</span>
+              <span>₱{dayTourPkg.duration_extra_pax_charge ?? 200}/head exceeding max pax</span>
             </li>
             <li className="resv-feature-item">
               <span className="resv-feature-dot">✓</span>
-              <span>₱700/hour extension fee</span>
+              <span>₱{dayTourPkg.duration_extension_charge ?? 700}/hour extension fee</span>
             </li>
             <li className="resv-feature-item">
               <span className="resv-feature-dot">✓</span>
-              <span>₱2,000 refundable security deposit</span>
+              <span>₱{Number(dayTourPkg.sec_dep ?? 2000).toLocaleString()} refundable security deposit</span>
             </li>
             <li className="resv-feature-item">
               <span className="resv-feature-dot">✓</span>
@@ -116,26 +116,26 @@ function PackageCards({ packages, onSelectPackage, onOpenOcular }) {
 
           <div className="resv-card-pricing">
             <span className="resv-currency">PHP</span>
-            <span className="resv-price-amount">10,000</span>
+            <span className="resv-price-amount">{Number(overnightPkg.duration_price ?? 0).toLocaleString()}</span>
             <span className="resv-price-label">/ session</span>
           </div>
 
           <ul className="resv-card-features">
             <li className="resv-feature-item">
               <span className="resv-feature-dot">✓</span>
-              <span><strong>Up to 25</strong> maximum guests</span>
+              <span><strong>Up to {overnightPkg.max_pax ?? 0}</strong> maximum guests</span>
             </li>
             <li className="resv-feature-item">
               <span className="resv-feature-dot">✓</span>
-              <span>₱200/head exceeding max pax</span>
+              <span>₱{overnightPkg.duration_extra_pax_charge ?? 200}/head exceeding max pax</span>
             </li>
             <li className="resv-feature-item">
               <span className="resv-feature-dot">✓</span>
-              <span>₱800/hour extension fee</span>
+              <span>₱{overnightPkg.duration_extension_charge ?? 800}/hour extension fee</span>
             </li>
             <li className="resv-feature-item">
               <span className="resv-feature-dot">✓</span>
-              <span>₱2,000 refundable security deposit</span>
+              <span>₱{Number(overnightPkg.sec_dep ?? 2000).toLocaleString()} refundable security deposit</span>
             </li>
             <li className="resv-feature-item">
               <span className="resv-feature-dot">✓</span>
@@ -168,22 +168,22 @@ function PackageCards({ packages, onSelectPackage, onOpenOcular }) {
 
             <div className="resv-card-pricing">
               <span className="resv-currency">PHP</span>
-              <span className="resv-price-amount">17,000</span>
+              <span className="resv-price-amount">{Number(day22Pkg.duration_price ?? 0).toLocaleString()}</span>
               <span className="resv-price-label">/ session</span>
             </div>
 
             <ul className="resv-card-features">
               <li className="resv-feature-item">
                 <span className="resv-feature-dot">✓</span>
-                <span><strong>Up to 35</strong> pax (Day) / 25 pax after 5PM</span>
+                <span><strong>Up to {day22Pkg.max_pax ?? 0}</strong> pax capacity</span>
               </li>
               <li className="resv-feature-item">
                 <span className="resv-feature-dot">✓</span>
-                <span>₱200/head exceeding pax</span>
+                <span>₱{day22Pkg.duration_extra_pax_charge ?? 200}/head exceeding pax</span>
               </li>
               <li className="resv-feature-item">
                 <span className="resv-feature-dot">✓</span>
-                <span>₱2,000 refundable security deposit</span>
+                <span>₱{Number(day22Pkg.sec_dep ?? 2000).toLocaleString()} refundable security deposit</span>
               </li>
               <li className="resv-feature-item">
                 <span className="resv-feature-dot">✓</span>

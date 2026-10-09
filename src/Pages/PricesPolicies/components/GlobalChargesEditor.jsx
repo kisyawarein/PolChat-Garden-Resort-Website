@@ -5,7 +5,6 @@ export default function GlobalChargesEditor({ policies, onSavePolicies, isSaving
     security_deposit: policies.security_deposit || 2000,
     downpayment_percentage: policies.downpayment_percentage || 50,
     cancellation_notice_days: policies.cancellation_notice_days || 5,
-    ocular_visit_fee: policies.ocular_visit_fee || 0,
     gcash_number: policies.gcash_number || '0953 495 4389',
     gcash_name: policies.gcash_name || 'PolChat Garden Resort Admin',
   })
@@ -23,7 +22,7 @@ export default function GlobalChargesEditor({ policies, onSavePolicies, isSaving
       security_deposit: Number(formData.security_deposit),
       downpayment_percentage: Number(formData.downpayment_percentage),
       cancellation_notice_days: Number(formData.cancellation_notice_days),
-      ocular_visit_fee: Number(formData.ocular_visit_fee),
+      ocular_visit_fee: 0,
     }
 
     const res = await onSavePolicies(numericPayload)
@@ -91,19 +90,6 @@ export default function GlobalChargesEditor({ policies, onSavePolicies, isSaving
             </div>
 
             <div className="pp-field-group">
-              <label className="pp-label">Ocular Inspection Fee (₱)</label>
-              <input
-                type="number"
-                className="pp-input"
-                value={formData.ocular_visit_fee}
-                onChange={(e) => handleChange('ocular_visit_fee', e.target.value)}
-                min="0"
-                step="100"
-              />
-              <span className="pp-field-hint">Set to 0 for complimentary visits.</span>
-            </div>
-
-            <div className="pp-field-group">
               <label className="pp-label">Cancellation Notice (Days)</label>
               <input
                 type="number"
@@ -167,10 +153,8 @@ export default function GlobalChargesEditor({ policies, onSavePolicies, isSaving
 
           <div className="pp-global-card">
             <span className="pp-global-card-label">OCULAR VISIT FEE</span>
-            <strong className="pp-global-card-val">
-              {Number(policies.ocular_visit_fee) === 0 ? 'FREE' : `₱${Number(policies.ocular_visit_fee).toLocaleString()}`}
-            </strong>
-            <span className="pp-global-card-sub">Guided site inspection</span>
+            <strong className="pp-global-card-val">FREE</strong>
+            <span className="pp-global-card-sub">Complimentary guided site visit</span>
           </div>
 
           <div className="pp-global-card">

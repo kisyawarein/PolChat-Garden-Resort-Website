@@ -50,9 +50,12 @@ function Reservation() {
       setPackages(pkgs || [])
       setReservations(resvs || [])
       setVisitations(visits || [])
-      // Default to day tour
-      if (pkgs && pkgs.length > 0 && !selectedPackage) {
-        setSelectedPackage(pkgs[0])
+      if (pkgs && pkgs.length > 0) {
+        setSelectedPackage((prev) => {
+          if (!prev) return pkgs[0]
+          const match = pkgs.find((p) => p.duration_id === prev.duration_id)
+          return match || pkgs[0]
+        })
       }
     }
     loadData()
@@ -73,29 +76,23 @@ function Reservation() {
 
   // Real-time dynamic pricing calculation
   const priceCalculation = useMemo(() => {
-    const pkg = selectedPackage || packages[0] || {
-      duration_price: 9000,
-      max_pax: 35,
-      duration_extra_pax_charge: 200,
-      duration_extension_charge: 700,
-      duration_event_rate: 2000,
-    }
+    const pkg = selectedPackage || packages[0] || {}
 
-    const basePrice = Number(pkg.duration_price || 9000)
-    const maxPax = Number(pkg.max_pax || 35)
+    const basePrice = Number(pkg.duration_price ?? 0)
+    const maxPax = Number(pkg.max_pax ?? 0)
     const currentGuests = Number(formData.guestCount) || 1
     const extraPaxCount = Math.max(0, currentGuests - maxPax)
-    const extraPaxRate = Number(pkg.duration_extra_pax_charge || 200)
+    const extraPaxRate = Number(pkg.duration_extra_pax_charge ?? 200)
     const extraPaxCharge = extraPaxCount * extraPaxRate
 
     const extHours = Number(formData.extensionHours) || 0
-    const extRate = Number(pkg.duration_extension_charge || 700)
+    const extRate = Number(pkg.duration_extension_charge ?? 700)
     const extensionCharge = extHours * extRate
 
     const hasEvent = Boolean(formData.eventName && formData.eventName.trim().length > 0)
-    const eventCharge = hasEvent ? Number(pkg.duration_event_rate || 0) : 0
+    const eventCharge = hasEvent ? Number(pkg.duration_event_rate ?? 0) : 0
 
-    const securityDeposit = 2000
+    const securityDeposit = Number(pkg.sec_dep ?? 2000)
     const totalAmount = basePrice + extraPaxCharge + extensionCharge + eventCharge + securityDeposit
 
     return {
