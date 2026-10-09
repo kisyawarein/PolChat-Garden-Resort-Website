@@ -1027,7 +1027,8 @@ export const DataService = {
           } catch (e) {}
         }
 
-        await EmailService.sendReservationStatusEmail({
+        // Dispatch status notification asynchronously (non-blocking)
+        EmailService.sendReservationStatusEmail({
           reservation: {
             ...targetRes,
             customer_name: customerName,
@@ -1035,7 +1036,7 @@ export const DataService = {
           },
           newStatus: normalizedStatus === 'accepted' || normalizedStatus === 'approved' ? 'confirmed' : normalizedStatus === 'declined' || normalizedStatus === 'rejected' ? 'cancelled' : normalizedStatus,
           customerEmail: resolvedEmail,
-        })
+        }).catch((err) => console.warn('Background status email dispatch note:', err))
       }
 
       if (_adminCache.reservations) {
