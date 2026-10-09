@@ -4,6 +4,7 @@ import { DataService } from '../../services/dataService'
 import CustomerSummaryCards from './components/CustomerSummaryCards'
 import CustomerArchiveModal from './components/CustomerArchiveModal'
 import AddCustomerModal from './components/AddCustomerModal'
+import DeleteCustomerModal from './components/DeleteCustomerModal'
 import './styles.css'
 
 function CustomerRecords() {
@@ -20,12 +21,18 @@ function CustomerRecords() {
   const [selectedArchive, setSelectedArchive] = useState(null)
   const [isAddOpen, setIsAddOpen] = useState(false)
   const [toastMsg, setToastMsg] = useState('')
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const [deleteTarget, setDeleteTarget] = useState(null)
+  const [isDeleteAll, setIsDeleteAll] = useState(false)
 
   const headerRef = useRef(null)
 
   const loadData = async () => {
+    // Automatically sanitize any legacy polluted records in Supabase
+    DataService.cleanAllCustomerPollutedData().catch(() => {})
+
     const [custData, resData, visData, inqData] = await Promise.all([
-      DataService.getCustomers(),
+      DataService.getCustomers({ force: true }),
       DataService.getReservations(),
       DataService.getVisitations(),
       DataService.getInquiries(),
@@ -70,11 +77,61 @@ function CustomerRecords() {
       'First Name': c.first_name,
       'Last Name': c.last_name || '',
       'Phone': c.phone_number ? `0${c.phone_number}` : '',
-      'Email': c.email || '',
       'Date Registered': c.date_create || '',
     }))
     DataService.exportToCsv('Polchat_Customer_Records', dataToExport)
     showToast('Customer directory exported to CSV.')
+  }
+
+  const handleRequestDeleteCustomer = (customer) => {
+    setDeleteTarget(customer)
+    setIsDeleteAll(false)
+    setIsDeleteModalOpen(true)
+  }
+
+  const handleRequestDeleteAll = () => {
+    if (customers.length === 0) {
+      showToast('No customer accounts to delete.')
+      return
+    }
+    setDeleteTarget(null)
+    setIsDeleteAll(true)
+    setIsDeleteModalOpen(true)
+  }
+
+  const handleConfirmDelete = async () => {
+    if (isDeleteAll) {
+      // Optimistic delete all
+      setCustomers([])
+      setSelectedArchive(null)
+      setIsDeleteModalOpen(false)
+      showToast('Deleting all customer accounts and registered emails...')
+      
+      const res = await DataService.deleteAllCustomers()
+      if (res && res.success) {
+        showToast('All customer accounts and registered emails successfully deleted from Supabase.')
+      } else {
+        showToast('Error deleting customer accounts from Supabase.')
+        loadData()
+      }
+    } else if (deleteTarget) {
+      const targetId = deleteTarget.customer_id
+      const targetName = `${deleteTarget.first_name} ${deleteTarget.last_name || ''}`.trim()
+      
+      // Optimistic delete single
+      setCustomers((prev) => prev.filter((c) => c.customer_id !== targetId))
+      if (selectedArchive?.customer_id === targetId) {
+        setSelectedArchive(null)
+      }
+      setIsDeleteModalOpen(false)
+      showToast(`Account for ${targetName} deleted.`)
+
+      const res = await DataService.deleteCustomer(targetId)
+      if (!res || !res.success) {
+        showToast(`Failed to delete customer from Supabase: ${res?.error?.message || 'Error'}`)
+        loadData()
+      }
+    }
   }
 
   const toggleSort = (field) => {
@@ -106,10 +163,9 @@ function CustomerRecords() {
   const filteredCustomers = customers.filter((c) => {
     const fullName = `${c.first_name} ${c.last_name || ''}`.toLowerCase()
     const phone = String(c.phone_number || '')
-    const email = (c.email || '').toLowerCase()
     const id = String(c.customer_id)
     const term = searchTerm.toLowerCase().trim()
-    const matchSearch = !term || fullName.includes(term) || phone.includes(term) || email.includes(term) || id.includes(term)
+    const matchSearch = !term || fullName.includes(term) || phone.includes(term) || id.includes(term)
 
     const custBookings = reservations.filter((r) => r.customer_id === c.customer_id)
     if (filterType === 'active') return matchSearch && custBookings.length >= 1
@@ -255,6 +311,21 @@ function CustomerRecords() {
               </svg>
               <span>Export CSV</span>
             </button>
+
+            <button
+              type="button"
+              className="cust-header-btn cust-btn-delete-all"
+              onClick={handleRequestDeleteAll}
+              title="Delete all registered customer accounts and their emails"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="3 6 5 6 21 6" />
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                <line x1="10" y1="11" x2="10" y2="17" />
+                <line x1="14" y1="11" x2="14" y2="17" />
+              </svg>
+              <span>Delete All Accounts</span>
+            </button>
           </div>
         </div>
 
@@ -263,12 +334,12 @@ function CustomerRecords() {
           <div className="cust-table-scroll-wrap">
             <table className="cust-data-table">
               <colgroup>
-                <col style={{ width: '13%' }} />
-                <col style={{ width: '23%' }} />
-                <col style={{ width: '16%' }} />
-                <col style={{ width: '22%' }} />
-                <col style={{ width: '13%' }} />
-                <col style={{ width: '13%' }} />
+                <col style={{ width: '15%' }} />
+                <col style={{ width: '31%' }} />
+                <col style={{ width: '20%' }} />
+                <col style={{ width: '15%' }} />
+                <col style={{ width: '11%' }} />
+                <col style={{ width: '8%' }} />
               </colgroup>
               <thead ref={headerRef}>
                 <tr>
@@ -300,13 +371,6 @@ function CustomerRecords() {
                   <th>
                     <div className="col-header-static">
                       <span>Phone Contact</span>
-                    </div>
-                  </th>
-
-                  {/* Email */}
-                  <th>
-                    <div className="col-header-static">
-                      <span>Email Address</span>
                     </div>
                   </th>
 
@@ -386,6 +450,13 @@ function CustomerRecords() {
                       </div>
                     )}
                   </th>
+
+                  {/* Actions (Delete) */}
+                  <th className="cust-th-actions">
+                    <div className="col-header-static">
+                      <span>Actions</span>
+                    </div>
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -413,7 +484,6 @@ function CustomerRecords() {
                           </div>
                         </td>
                         <td className="cust-plain-text">{c.phone_number ? `0${c.phone_number}` : '—'}</td>
-                        <td className="cust-plain-text cust-email-text">{c.email || '—'}</td>
                         <td className="cust-plain-text">{c.date_create || 'Recent'}</td>
                         <td>
                           <button
@@ -424,6 +494,21 @@ function CustomerRecords() {
                             <span>{custBookings.length} {custBookings.length === 1 ? 'Booking' : 'Bookings'}</span>
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                               <polyline points="9 18 15 12 9 6" />
+                            </svg>
+                          </button>
+                        </td>
+                        <td className="cust-td-actions">
+                          <button
+                            type="button"
+                            className="cust-row-delete-btn"
+                            onClick={() => handleRequestDeleteCustomer(c)}
+                            title={`Delete account for ${c.first_name} ${c.last_name || ''}`}
+                          >
+                            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                              <polyline points="3 6 5 6 21 6" />
+                              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                              <line x1="10" y1="11" x2="10" y2="17" />
+                              <line x1="14" y1="11" x2="14" y2="17" />
                             </svg>
                           </button>
                         </td>
@@ -452,10 +537,22 @@ function CustomerRecords() {
           visitations={visitations}
           inquiries={inquiries}
           onClose={() => setSelectedArchive(null)}
+          onDeleteCustomer={handleRequestDeleteCustomer}
         />
       )}
+
+      {/* Delete Confirmation Modal */}
+      <DeleteCustomerModal
+        isOpen={isDeleteModalOpen}
+        onClose={() => setIsDeleteModalOpen(false)}
+        onConfirm={handleConfirmDelete}
+        customer={deleteTarget}
+        isDeleteAll={isDeleteAll}
+        count={customers.length}
+      />
     </div>
   )
 }
 
 export default CustomerRecords
+

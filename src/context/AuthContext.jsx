@@ -80,74 +80,33 @@ export function AuthProvider({ children }) {
       return { success: true, user: adminMatch }
     }
 
-    // 2. Check registered accounts from local browser storage cache
-    let localMatch = null
-    try {
-      const savedAccounts = JSON.parse(localStorage.getItem('polchat_registered_users') || '[]')
-      localMatch = savedAccounts.find(
-        (u) =>
-          (u.email && u.email.toLowerCase() === cleanId) ||
-          (u.first_name && u.first_name.toLowerCase() === cleanId) ||
-          (u.last_name && u.last_name.toLowerCase() === cleanId) ||
-          (u.name && u.name.toLowerCase() === cleanId) ||
-          (u.username && u.username.toLowerCase() === cleanId)
-      )
-      if (localMatch) {
-        if (!localMatch.password || localMatch.password !== cleanPass) {
-          return { success: false, error: 'Incorrect password. Please try again.' }
-        }
-        setUser(localMatch)
-        setIsAuthModalOpen(false)
-        return { success: true, user: localMatch }
-      }
-    } catch (e) {}
-
-    // 4. Query customer_accounts from Supabase
+    // 2. Query customer_accounts directly from Supabase
     try {
       const customers = await DataService.getCustomers({ force: true })
       const match = (customers || []).find((c) => {
         const first = (c.first_name || '').trim().toLowerCase()
         const last = (c.last_name || '').trim().toLowerCase()
         const full = `${first} ${last}`.trim().toLowerCase()
-        const email = (c.email || '').trim().toLowerCase()
         return (
           first === cleanId ||
           last === cleanId ||
           full === cleanId ||
-          email === cleanId ||
           (c.customer_id && String(c.customer_id) === cleanId)
         )
       })
 
       if (match) {
-        // Check password against stored password in database, or fallback to customer123
-        const expectedPassword = match.password || null
-        const isPasswordValid = expectedPassword
-          ? cleanPass === expectedPassword
-          : cleanPass === 'customer123' || (localMatch && localMatch.password === cleanPass)
-
-        if (!isPasswordValid) {
-          return { success: false, error: 'Incorrect password. Please try again.' }
-        }
-
         const customerUser = {
           id: match.customer_id,
           username: (match.first_name || 'customer').toLowerCase(),
           first_name: match.first_name,
           last_name: match.last_name || '',
           name: `${match.first_name} ${match.last_name || ''}`.trim(),
-          email: match.email || `${(match.first_name || 'user').toLowerCase().replace(/\s+/g, '')}@gmail.com`,
+          email: `${(match.first_name || 'user').toLowerCase().replace(/\s+/g, '')}@gmail.com`,
           password: cleanPass,
           phone: match.phone_number ? `0${match.phone_number}` : '09171234567',
           role: 'customer',
         }
-
-        // Cache into local browser registry for instant future loads
-        try {
-          const savedAccounts = JSON.parse(localStorage.getItem('polchat_registered_users') || '[]')
-          const updated = [customerUser, ...savedAccounts.filter((u) => u.id !== customerUser.id)]
-          localStorage.setItem('polchat_registered_users', JSON.stringify(updated))
-        } catch (e) {}
 
         setUser(customerUser)
         setIsAuthModalOpen(false)
@@ -170,29 +129,26 @@ export function AuthProvider({ children }) {
     const cleanEmail = (email || '').trim().toLowerCase()
     const fullName = `${cleanFirst} ${cleanLast}`.trim() || 'Customer Guest'
 
-    // Check existing customers in Supabase to guarantee uniqueness of Name and Email
+    // Check existing customers in Supabase to guarantee uniqueness of First and Last Name
     try {
-      const existingCustomers = await DataService.getCustomers({ force: true })
-      const duplicate = (existingCustomers || []).find((c) => {
-        const cFirst = (c.first_name || '').trim().toLowerCase()
-        const cLast = (c.last_name || '').trim().toLowerCase()
-        const cEmail = (c.email || '').trim().toLowerCase()
-        const cFull = `${cFirst} ${cLast}`.trim()
+      const lowerFirst = cleanFirst.toLowerCase()
+      const lowerLast = cleanLast.toLowerCase()
 
-        const isSameName = cFirst && cleanFirst && cFirst === cleanFirst.toLowerCase() && cLast === cleanLast.toLowerCase()
-        const isSameFullName = cFull && cFull === fullName.toLowerCase()
-        const isSameEmail = cEmail && cleanEmail && cEmail === cleanEmail
-
-        return isSameName || isSameFullName || isSameEmail
+      const conflict = await DataService.checkAccountConflict({
+        firstName: cleanFirst,
+        lastName: cleanLast,
+        email: cleanEmail,
       })
 
-      if (duplicate) {
+      if (conflict && conflict.hasConflict) {
         return {
           success: false,
-          error: 'An account with this Name or Email address already exists. Please choose a different name/email or sign in.',
+          error: `${conflict.message} Please use a unique first name, last name, and email or sign in.`,
         }
       }
-    } catch (e) {}
+    } catch (e) {
+      console.error('Signup validation error:', e)
+    }
 
     // Create directly in Supabase customer_accounts
     const created = await DataService.addCustomer({
@@ -221,13 +177,6 @@ export function AuthProvider({ children }) {
       phone: '09171234567',
       role: 'customer',
     }
-
-    // Save to registered users list
-    try {
-      const existing = JSON.parse(localStorage.getItem('polchat_registered_users') || '[]')
-      const updated = [newUser, ...existing.filter((u) => u.email !== cleanEmail)]
-      localStorage.setItem('polchat_registered_users', JSON.stringify(updated))
-    } catch (e) {}
 
     setUser(newUser)
     setIsAuthModalOpen(false)

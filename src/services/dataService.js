@@ -100,6 +100,12 @@ export const DataService = {
       return _adminCache.customers
     }
     try {
+      // Purge any legacy stored background emails from browser storage
+      try {
+        localStorage.removeItem('polchat_registered_users')
+        localStorage.removeItem('polchat_email_notifications')
+      } catch (e) {}
+
       const { data, error } = await supabase
         .from('customer_accounts')
         .select('*')
@@ -111,28 +117,27 @@ export const DataService = {
       }
 
       const mapped = (data || []).map((c) => {
-        let cleanLast = c.last_name || ''
-        let extractedEmail = c.email || null
-        let extractedPassword = c.password || null
+        let rawLast = (c.last_name || '').trim()
+        let cleanLast = rawLast
 
-        if (cleanLast.includes('__AUTH__') || cleanLast.includes('__PW__')) {
-          const matchEmail = cleanLast.match(/__AUTH__(.*?)__(?:PW|$)/)
-          if (matchEmail && matchEmail[1]) {
-            extractedEmail = matchEmail[1].trim()
-          }
-          const matchPw = cleanLast.match(/__PW__(.*?)$/)
-          if (matchPw && matchPw[1]) {
-            extractedPassword = matchPw[1].trim()
-          }
-          cleanLast = cleanLast.split(' __AUTH__')[0].split(' __PW__')[0].trim()
+        // Clean any legacy pollution if present
+        if (rawLast.includes('__AUTH__') || rawLast.includes('__PW__') || rawLast.includes('@')) {
+          cleanLast = rawLast.split(' __AUTH__')[0].split(' __PW__')[0].split('__AUTH__')[0].split('@')[0].trim()
+
+          // Auto-fix the polluted database row in Supabase immediately
+          supabase
+            .from('customer_accounts')
+            .update({ last_name: cleanLast })
+            .eq('customer_id', c.customer_id)
+            .then(() => {})
+            .catch(() => {})
         }
 
         return {
           ...c,
-          first_name: c.first_name,
+          first_name: (c.first_name || '').trim(),
           last_name: cleanLast,
-          email: extractedEmail || c.email || '',
-          password: extractedPassword || c.password || null,
+          email: '', // Never record or attach legacy emails from background
         }
       })
 
@@ -144,68 +149,273 @@ export const DataService = {
     }
   },
 
-  async addCustomer(customer) {
-    const rawLast = (customer.last_name || '').trim()
-    const email = (customer.email || '').trim()
-    const password = (customer.password || '').trim()
+  getRegisteredEmails() {
+    try {
+      return JSON.parse(localStorage.getItem('polchat_customer_emails') || '{}')
+    } catch {
+      return {}
+    }
+  },
 
-    let fullLastWithMeta = rawLast
-    if (email || password) {
-      fullLastWithMeta = `${rawLast} __AUTH__${email}__PW__${password}`.trim()
+  saveRegisteredEmail(customerId, email) {
+    if (!email) return
+    try {
+      const emails = this.getRegisteredEmails()
+      emails[String(customerId)] = email.trim().toLowerCase()
+      localStorage.setItem('polchat_customer_emails', JSON.stringify(emails))
+    } catch (e) {}
+  },
+
+  deleteRegisteredEmail(customerId) {
+    try {
+      const emails = this.getRegisteredEmails()
+      delete emails[String(customerId)]
+      delete emails[customerId]
+      localStorage.setItem('polchat_customer_emails', JSON.stringify(emails))
+    } catch (e) {}
+  },
+
+  clearAllRegisteredEmails() {
+    try {
+      localStorage.removeItem('polchat_customer_emails')
+    } catch (e) {}
+  },
+
+  async checkAccountConflict({ firstName, lastName, email }) {
+    const cleanFirst = (firstName || '').trim().toLowerCase()
+    const cleanLast = (lastName || '').trim().toLowerCase()
+    const cleanEmail = (email || '').trim().toLowerCase()
+
+    // 1. Reserved Admin credentials
+    if (cleanFirst === 'admin') {
+      return {
+        hasConflict: true,
+        field: 'first_name',
+        message: 'The first name "Admin" is reserved. Please choose a different first name.',
+      }
+    }
+    if (cleanLast === 'admin' || cleanLast === 'management' || cleanLast === 'staff') {
+      return {
+        hasConflict: true,
+        field: 'last_name',
+        message: `The last name "${lastName}" is reserved for management. Please choose a different last name.`,
+      }
+    }
+    if (cleanEmail === 'polchat2k20@gmail.com') {
+      return {
+        hasConflict: true,
+        field: 'email',
+        message: 'The email "polchat2k20@gmail.com" is reserved for resort management.',
+      }
     }
 
-    const baseCustomer = {
-      first_name: customer.first_name,
-      last_name: fullLastWithMeta,
-      phone_number: customer.phone_number ? Number(customer.phone_number) : 9171234567,
+    // 2. Check registered customer emails
+    if (cleanEmail) {
+      const emailMap = this.getRegisteredEmails()
+      const registeredEmails = Object.values(emailMap).map((em) => String(em || '').trim().toLowerCase())
+      if (registeredEmails.includes(cleanEmail)) {
+        return {
+          hasConflict: true,
+          field: 'email',
+          message: `The email "${cleanEmail}" is already registered with another account.`,
+        }
+      }
+    }
+
+    // 3. Fetch fresh live customers from Supabase customer_accounts
+    const { data: customerRows, error } = await supabase
+      .from('customer_accounts')
+      .select('*')
+
+    if (error) {
+      console.error('Error querying customer_accounts for uniqueness check:', error)
+      throw error
+    }
+
+    if (Array.isArray(customerRows)) {
+      for (const c of customerRows) {
+        const cFirst = (c.first_name || '').trim().toLowerCase()
+        let cLast = (c.last_name || '').trim().toLowerCase()
+        if (cLast.includes('__auth__') || cLast.includes('__pw__') || cLast.includes('@')) {
+          cLast = cLast.split(' __auth__')[0].split(' __pw__')[0].split('__auth__')[0].split('@')[0].trim()
+        }
+        const cEmail = (c.email || '').trim().toLowerCase()
+
+        if (cleanFirst && cFirst && cFirst === cleanFirst) {
+          return {
+            hasConflict: true,
+            field: 'first_name',
+            message: `The first name "${(c.first_name || '').trim()}" is already taken by an existing account.`,
+          }
+        }
+
+        if (cleanLast && cLast && cLast === cleanLast) {
+          const displayLast = (c.last_name || '').split(' __AUTH__')[0].split(' __PW__')[0].trim()
+          return {
+            hasConflict: true,
+            field: 'last_name',
+            message: `The last name "${displayLast}" is already taken by an existing account.`,
+          }
+        }
+
+        if (cleanEmail && cEmail && cEmail === cleanEmail) {
+          return {
+            hasConflict: true,
+            field: 'email',
+            message: `The email "${cleanEmail}" is already registered.`,
+          }
+        }
+      }
+    }
+
+    return { hasConflict: false }
+  },
+
+  async addCustomer(customer) {
+    const cleanFirst = (customer.first_name || 'Customer').trim()
+    const cleanLast = (customer.last_name || '').split(' __AUTH__')[0].split(' __PW__')[0].trim()
+    const cleanPhone = customer.phone_number ? Number(String(customer.phone_number).replace(/\D/g, '')) : 9171234567
+
+    const payload = {
+      first_name: cleanFirst,
+      last_name: cleanLast,
+      phone_number: cleanPhone || 9171234567,
       date_create: new Date().toISOString().split('T')[0],
       date_modified: new Date().toISOString().split('T')[0],
     }
 
     try {
-      // 1. Try inserting with direct email/password columns if available
-      const fullPayload = {
-        ...baseCustomer,
-        last_name: rawLast,
-        email: email || null,
-        password: password || null,
-      }
-
-      let { data, error } = await supabase
+      const { data, error } = await supabase
         .from('customer_accounts')
-        .insert([fullPayload])
+        .insert([payload])
         .select()
 
-      // 2. Fallback: If table doesn't have email/password columns, insert with encoded metadata in last_name
-      if (error && (error.code === 'PGRST204' || error.code === '42703' || error.message?.includes('column'))) {
-        const retryRes = await supabase
-          .from('customer_accounts')
-          .insert([baseCustomer])
-          .select()
-        data = retryRes.data
-        error = retryRes.error
-      }
-
       if (error) {
-        console.error('Error inserting customer:', error)
+        console.error('Error inserting customer into Supabase:', error)
       }
 
       const created = data?.[0] || {
-        ...baseCustomer,
+        ...payload,
         customer_id: Date.now(),
+      }
+
+      if (created?.customer_id && customer.email) {
+        this.saveRegisteredEmail(created.customer_id, customer.email)
       }
 
       this.invalidateCache('customers')
       return {
         ...created,
-        first_name: customer.first_name,
-        last_name: rawLast,
-        email: email,
-        password: password,
+        first_name: cleanFirst,
+        last_name: cleanLast,
+        email: customer.email || '',
       }
     } catch (err) {
       console.error('Customer insert exception:', err)
       return null
+    }
+  },
+
+  async cleanAllCustomerPollutedData() {
+    try {
+      const { data, error } = await supabase
+        .from('customer_accounts')
+        .select('*')
+
+      if (error || !data) return { success: false, error }
+
+      let updatedCount = 0
+      for (const c of data) {
+        let cleanLast = (c.last_name || '').trim()
+        if (cleanLast.includes('__AUTH__') || cleanLast.includes('__PW__') || cleanLast.includes('@')) {
+          cleanLast = cleanLast.split(' __AUTH__')[0].split(' __PW__')[0].split('__AUTH__')[0].split('@')[0].trim()
+          await supabase
+            .from('customer_accounts')
+            .update({ last_name: cleanLast })
+            .eq('customer_id', c.customer_id)
+          updatedCount++
+        }
+      }
+
+      try {
+        const cached = JSON.parse(localStorage.getItem('polchat_registered_users') || '[]')
+        const cleanedCached = cached.map((u) => ({
+          ...u,
+          last_name: (u.last_name || '').split(' __AUTH__')[0].split(' __PW__')[0].trim(),
+        }))
+        localStorage.setItem('polchat_registered_users', JSON.stringify(cleanedCached))
+      } catch (e) {}
+
+      this.invalidateCache('customers')
+      return { success: true, updatedCount }
+    } catch (err) {
+      console.error('Error cleaning customer data:', err)
+      return { success: false, error: err }
+    }
+  },
+
+  async deleteCustomer(customerId) {
+    if (!customerId) return { success: false, error: 'Customer ID required' }
+    try {
+      // 1. Delete from Supabase customer_accounts
+      const { error } = await supabase
+        .from('customer_accounts')
+        .delete()
+        .eq('customer_id', customerId)
+
+      if (error) {
+        console.error('Error deleting customer from Supabase:', error)
+      }
+
+      // 2. Delete customer's registered email
+      this.deleteRegisteredEmail(customerId)
+
+      // 3. Clear from local storage registered accounts
+      try {
+        localStorage.removeItem('polchat_registered_users')
+        const authUser = JSON.parse(localStorage.getItem('polchat_auth_user') || 'null')
+        if (authUser && (authUser.id === customerId || authUser.customer_id === customerId)) {
+          localStorage.removeItem('polchat_auth_user')
+        }
+      } catch (e) {}
+
+      this.invalidateCache('customers')
+      return { success: true }
+    } catch (err) {
+      console.error('Exception deleting customer:', err)
+      return { success: false, error: err }
+    }
+  },
+
+  async deleteAllCustomers() {
+    try {
+      // 1. Delete all rows from Supabase customer_accounts
+      const { error } = await supabase
+        .from('customer_accounts')
+        .delete()
+        .neq('customer_id', 0)
+
+      if (error) {
+        console.error('Error deleting all customers from Supabase:', error)
+      }
+
+      // 2. Clear all registered emails
+      this.clearAllRegisteredEmails()
+
+      // 3. Clear all cached customer accounts
+      try {
+        localStorage.removeItem('polchat_registered_users')
+        const authUser = JSON.parse(localStorage.getItem('polchat_auth_user') || 'null')
+        if (authUser && authUser.role !== 'admin') {
+          localStorage.removeItem('polchat_auth_user')
+        }
+      } catch (e) {}
+
+      this.invalidateCache('customers')
+      return { success: true }
+    } catch (err) {
+      console.error('Exception deleting all customers:', err)
+      return { success: false, error: err }
     }
   },
 

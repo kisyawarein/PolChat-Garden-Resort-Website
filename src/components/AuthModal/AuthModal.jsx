@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../../context/AuthContext'
+import { DataService } from '../../services/dataService'
 import { EmailService } from '../../services/emailService'
 import galleryImg from '../../../resources/Gallery_Image.jpg'
 import './styles.css'
@@ -151,30 +152,31 @@ function AuthModal({ onAdminLoggedIn }) {
       return
     }
 
-    // Check database to prevent duplicate First Name / Last Name or Email
+    // Check database to prevent duplicate First Name, Last Name, or Email
     setIsCheckingName(true)
     try {
-      const customers = await DataService.getCustomers({ force: true })
-      const duplicate = (customers || []).find((c) => {
-        const cFirst = (c.first_name || '').trim().toLowerCase()
-        const cLast = (c.last_name || '').trim().toLowerCase()
-        const cEmail = (c.email || '').trim().toLowerCase()
-        const cFull = `${cFirst} ${cLast}`.trim()
+      // Purge any legacy stored background emails
+      try {
+        localStorage.removeItem('polchat_registered_users')
+        localStorage.removeItem('polchat_email_notifications')
+      } catch (e) {}
 
-        const isSameName = cFirst === cleanFirst.toLowerCase() && cLast === cleanLast.toLowerCase()
-        const isSameFullName = cFull === fullName.toLowerCase()
-        const isSameEmail = cEmail && cleanEmail && cEmail === cleanEmail
-
-        return isSameName || isSameFullName || isSameEmail
+      const conflict = await DataService.checkAccountConflict({
+        firstName: cleanFirst,
+        lastName: cleanLast,
+        email: cleanEmail,
       })
 
-      if (duplicate) {
+      if (conflict && conflict.hasConflict) {
         setIsCheckingName(false)
-        setErrorMsg('An account with this Name or Email address already exists. Please choose a different name/email or sign in.')
-        return
+        setErrorMsg(`${conflict.message} Please use a unique first name, last name, and email or sign in.`)
+        return // STOP IMMEDIATELY: Do NOT send OTP, do NOT move to OTP screen
       }
     } catch (err) {
-      console.warn('Customer existence check note:', err)
+      console.error('Account availability check error:', err)
+      setIsCheckingName(false)
+      setErrorMsg('Could not verify account details with server. Please try again.')
+      return // STOP IMMEDIATELY on error: Do NOT send OTP, do NOT move to OTP screen
     }
     setIsCheckingName(false)
 
@@ -191,7 +193,7 @@ function AuthModal({ onAdminLoggedIn }) {
       console.warn('OTP dispatch note:', err)
     })
 
-    // Instantly transition to OTP step (Optimistic UI)
+    // Transition to OTP step only after successful verification
     setIsOtpStep(true)
     setResendCooldown(60)
 

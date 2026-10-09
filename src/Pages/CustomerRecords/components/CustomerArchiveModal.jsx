@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-function CustomerArchiveModal({ customer, reservations = [], visitations = [], inquiries = [], onClose }) {
+function CustomerArchiveModal({ customer, reservations = [], visitations = [], inquiries = [], onClose, onDeleteCustomer }) {
   const [activeTab, setActiveTab] = useState('bookings') // 'bookings' | 'visitations' | 'inquiries'
 
   if (!customer) return null
@@ -85,13 +85,6 @@ function CustomerArchiveModal({ customer, reservations = [], visitations = [], i
             <span className="cust-overview-label">Phone Contact</span>
             <span className="cust-overview-val">
               {customer.phone_number ? `0${customer.phone_number}` : 'No phone recorded'}
-            </span>
-          </div>
-
-          <div className="cust-modal-overview-item">
-            <span className="cust-overview-label">Email Address</span>
-            <span className="cust-overview-val cust-overview-email">
-              {customer.email || 'No email registered'}
             </span>
           </div>
 
@@ -357,9 +350,26 @@ function CustomerArchiveModal({ customer, reservations = [], visitations = [], i
 
         {/* Modal Footer */}
         <div className="cust-modal-footer">
-          <span className="cust-modal-footer-count">
-            Total {custBookings.length} {custBookings.length === 1 ? 'Booking' : 'Bookings'} on file
-          </span>
+          <div className="cust-modal-footer-left">
+            {onDeleteCustomer && (
+              <button
+                type="button"
+                className="cust-btn-delete-modal"
+                onClick={() => {
+                  onDeleteCustomer(customer)
+                }}
+              >
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <polyline points="3 6 5 6 21 6" />
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                </svg>
+                <span>Delete Account</span>
+              </button>
+            )}
+            <span className="cust-modal-footer-count">
+              Total {custBookings.length} {custBookings.length === 1 ? 'Booking' : 'Bookings'} on file
+            </span>
+          </div>
           <button type="button" className="cust-btn-close-modal" onClick={onClose}>
             Close Archive
           </button>

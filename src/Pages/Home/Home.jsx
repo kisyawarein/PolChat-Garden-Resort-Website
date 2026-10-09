@@ -430,7 +430,7 @@ This is for family outings, barkada bonding, birthday celebrations, and simply t
                 ].filter(Boolean).join(' ')
 
                 return (
-                  <div key={triangle.type} className={triangleClass}>
+                  <div key={`triangle-${rowIndex}-${triangleIndex}-${triangle.type}`} className={triangleClass}>
                     <img
                       className="home-section-6-triangle-image"
                       src={getHomeImageUrl(image)}

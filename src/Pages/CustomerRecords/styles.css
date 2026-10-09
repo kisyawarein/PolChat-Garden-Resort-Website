@@ -1173,3 +1173,182 @@
   border-color: #35492E;
   color: #ffffff;
 }
+
+/* =========================================================
+   DELETE BUTTONS & MODAL STYLES
+   ========================================================= */
+
+/* Header Delete All Button */
+.cust-btn-delete-all {
+  background-color: #fff1f2;
+  border: 1.5px solid #fecdd3;
+  color: #be123c;
+  font-weight: 700;
+  font-size: 0.84rem;
+  padding: 8px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.cust-btn-delete-all:hover {
+  background-color: #ffe4e6;
+  border-color: #fda4af;
+  color: #9f1239;
+  transform: translateY(-1px);
+}
+
+/* Actions Column Header & Cell */
+.cust-th-actions {
+  text-align: center;
+}
+
+.cust-td-actions {
+  text-align: center;
+  vertical-align: middle;
+}
+
+/* Row Trash Delete Button */
+.cust-row-delete-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  background-color: #fff1f2;
+  border: 1px solid #fecdd3;
+  color: #be123c;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cust-row-delete-btn:hover {
+  background-color: #be123c;
+  border-color: #be123c;
+  color: #ffffff;
+  transform: scale(1.05);
+}
+
+/* Modal Footer Delete Button */
+.cust-modal-footer-left {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.cust-btn-delete-modal {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background-color: #fff1f2;
+  border: 1.5px solid #fecdd3;
+  color: #be123c;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cust-btn-delete-modal:hover {
+  background-color: #be123c;
+  border-color: #be123c;
+  color: #ffffff;
+}
+
+/* Delete Confirmation Modal */
+.cust-delete-modal-box {
+  background-color: #ffffff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 440px;
+  padding: 28px 24px;
+  box-sizing: border-box;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  text-align: center;
+  animation: modalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cust-delete-modal-icon-wrap {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: #fff1f2;
+  color: #e11d48;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  border: 2px solid #fecdd3;
+}
+
+.cust-delete-modal-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #58402E;
+  margin: 0 0 10px;
+}
+
+.cust-delete-modal-desc {
+  font-size: 0.9rem;
+  color: #64564b;
+  line-height: 1.5;
+  margin: 0 0 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cust-delete-modal-email-note {
+  font-size: 0.85rem;
+  color: #887464;
+  margin-top: 4px;
+  display: block;
+}
+
+.cust-delete-modal-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.cust-delete-modal-cancel-btn {
+  flex: 1;
+  padding: 10px 18px;
+  border-radius: 8px;
+  background-color: #FAF8F5;
+  border: 1.5px solid #D8D0C3;
+  color: #58402E;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cust-delete-modal-cancel-btn:hover {
+  background-color: #EDE8DE;
+  border-color: #ACAD79;
+}
+
+.cust-delete-modal-confirm-btn {
+  flex: 1;
+  padding: 10px 18px;
+  border-radius: 8px;
+  background-color: #be123c;
+  border: 1.5px solid #9f1239;
+  color: #ffffff;
+  font-size: 0.88rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.cust-delete-modal-confirm-btn:hover {
+  background-color: #9f1239;
+  border-color: #881337;
+}
