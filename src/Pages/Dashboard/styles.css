@@ -140,6 +140,11 @@
 .dash-stat-arrow-icon {
   color: #ffffff;
   font-size: 0.85rem;
+  transition: transform 0.15s ease;
+}
+
+.dash-stat-card:hover .dash-stat-arrow-icon {
+  transform: translateX(3px);
 }
 
 /* Card Color Themes (All White Text & Icons with Palette Backgrounds) */

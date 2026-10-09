@@ -40,24 +40,25 @@ function Reservation() {
   const [createdReservation, setCreatedReservation] = useState(null)
 
   // Fetch actual data from Supabase
-  useEffect(() => {
-    async function loadData() {
-      const [pkgs, resvs, visits] = await Promise.all([
-        DataService.getDurationTypes(),
-        DataService.getReservations(),
-        DataService.getVisitations(),
-      ])
-      setPackages(pkgs || [])
-      setReservations(resvs || [])
-      setVisitations(visits || [])
-      if (pkgs && pkgs.length > 0) {
-        setSelectedPackage((prev) => {
-          if (!prev) return pkgs[0]
-          const match = pkgs.find((p) => p.duration_id === prev.duration_id)
-          return match || pkgs[0]
-        })
-      }
+  const loadData = async () => {
+    const [pkgs, resvs, visits] = await Promise.all([
+      DataService.getDurationTypes(),
+      DataService.getReservations({ force: true }),
+      DataService.getVisitations({ force: true }),
+    ])
+    setPackages(pkgs || [])
+    setReservations(resvs || [])
+    setVisitations(visits || [])
+    if (pkgs && pkgs.length > 0) {
+      setSelectedPackage((prev) => {
+        if (!prev) return pkgs[0]
+        const match = pkgs.find((p) => p.duration_id === prev.duration_id)
+        return match || pkgs[0]
+      })
     }
+  }
+
+  useEffect(() => {
     loadData()
   }, [])
 
@@ -159,11 +160,12 @@ function Reservation() {
     const endTimeStr = activePkg.duration_end || '17:00:00'
     const startIso = `${selectedDate}T${startTimeStr}`
     
+    const pad = (n) => String(n).padStart(2, '0')
     let endDateObj = new Date(`${selectedDate}T${endTimeStr}`)
     if (activePkg.duration_id === 2 || activePkg.duration_id === 3 || activePkg.duration_id === 4) {
       endDateObj.setDate(endDateObj.getDate() + 1)
     }
-    const endIso = endDateObj.toISOString().split('.')[0]
+    const endIso = `${endDateObj.getFullYear()}-${pad(endDateObj.getMonth() + 1)}-${pad(endDateObj.getDate())}T${pad(endDateObj.getHours())}:${pad(endDateObj.getMinutes())}:${pad(endDateObj.getSeconds())}`
 
     const totalCalculatedCost = priceCalculation.basePrice + priceCalculation.extensionCharge
     const extraCharges = priceCalculation.extraPaxCharge + priceCalculation.securityDeposit
@@ -198,6 +200,7 @@ function Reservation() {
 
     // Optimistically transition immediately!
     setCreatedReservation(optimisticReservation)
+    setReservations((prev) => [optimisticReservation, ...prev])
     setCurrentStep('receipt')
     if (paymentInfo?.paymentMethod === 'cash') {
       showToast('Cash reservation recorded! Please pay 50% deposit at the front desk today.')
@@ -225,6 +228,10 @@ function Reservation() {
         const savedReservation = await DataService.createReservation(reservationPayload)
         if (savedReservation) {
           setCreatedReservation(savedReservation)
+          setReservations((prev) => [
+            savedReservation,
+            ...prev.filter((r) => r.reservation_id !== optimisticReservation.reservation_id && r.reservation_id !== savedReservation.reservation_id),
+          ])
         }
       } catch (err) {
         console.warn('Background reservation sync note:', err)
@@ -238,6 +245,7 @@ function Reservation() {
     setCreatedReservation(null)
     setPaymentDetails(null)
     setCurrentStep('type')
+    loadData()
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
@@ -393,6 +401,7 @@ function Reservation() {
             onSelectDate={handleSelectDate}
             reservations={reservations}
             visitations={visitations}
+            currentUser={user}
             onBack={() => setCurrentStep('schedule')}
             onNext={handleConfirmDate}
           />

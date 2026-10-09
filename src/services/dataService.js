@@ -1,11 +1,45 @@
 import { supabase } from './supabase'
 import { EmailService } from './emailService'
 
+const _adminCache = {
+  reservations: null,
+  visitations: null,
+  customers: null,
+  inquiries: null,
+  reviews: null,
+  durationTypes: null,
+}
+
 export const DataService = {
+  invalidateCache(key = null) {
+    if (key && key in _adminCache) {
+      _adminCache[key] = null
+    } else {
+      Object.keys(_adminCache).forEach((k) => {
+        _adminCache[k] = null
+      })
+    }
+  },
+
+  async preloadAdminData() {
+    try {
+      await Promise.all([
+        this.getReservations({ force: true }),
+        this.getVisitations({ force: true }),
+        this.getCustomers({ force: true }),
+        this.getInquiries({ force: true }),
+        this.getReviews({ force: true }),
+        this.getDurationTypes({ force: true }),
+      ])
+    } catch (e) {
+      console.warn('Preload admin data note:', e)
+    }
+  },
+
   // Helper: Ensure customer exists in customer_accounts table
   async ensureCustomer({ customerId, customerName, phone = 9171234567 }) {
     try {
-      if (customerId && typeof customerId === 'number' && customerId < 100000000000) {
+      if (customerId) {
         const { data: existing } = await supabase
           .from('customer_accounts')
           .select('customer_id')
@@ -18,9 +52,9 @@ export const DataService = {
       }
 
       // Check by name or create a new customer
-      const nameParts = (customerName || 'Juan Dela Cruz').trim().split(' ')
-      const firstName = nameParts[0] || 'Juan'
-      const lastName = nameParts.slice(1).join(' ') || 'Dela Cruz'
+      const nameParts = (customerName || 'Customer Account').trim().split(' ')
+      const firstName = nameParts[0] || 'Customer'
+      const lastName = nameParts.slice(1).join(' ') || ''
 
       const { data: matchByName } = await supabase
         .from('customer_accounts')
@@ -51,25 +85,20 @@ export const DataService = {
         return inserted[0].customer_id
       }
 
-      // Fallback: fetch any existing customer or default to 1
-      const { data: anyCust } = await supabase
-        .from('customer_accounts')
-        .select('customer_id')
-        .limit(1)
-
-      if (anyCust && anyCust.length > 0) {
-        return anyCust[0].customer_id
-      }
+      if (customerId) return customerId
     } catch (err) {
       console.error('Error ensuring customer:', err)
     }
-    return 1
+    return customerId || 1
   },
 
   // ==========================================
   // 1. CUSTOMER ACCOUNTS
   // ==========================================
-  async getCustomers() {
+  async getCustomers(opts = {}) {
+    if (!opts.force && _adminCache.customers) {
+      return _adminCache.customers
+    }
     try {
       const { data, error } = await supabase
         .from('customer_accounts')
@@ -78,12 +107,13 @@ export const DataService = {
 
       if (error) {
         console.error('Error fetching customer_accounts:', error)
-        return []
+        return _adminCache.customers || []
       }
-      return data || []
+      _adminCache.customers = data || []
+      return _adminCache.customers
     } catch (err) {
       console.error('Customer fetch exception:', err)
-      return []
+      return _adminCache.customers || []
     }
   },
 
@@ -309,7 +339,10 @@ export const DataService = {
   // ==========================================
   // 3. RESORT INQUIRIES & CHATS
   // ==========================================
-  async getInquiries() {
+  async getInquiries(opts = {}) {
+    if (!opts.force && _adminCache.inquiries) {
+      return _adminCache.inquiries
+    }
     try {
       const { data, error } = await supabase
         .from('resort_inquiries')
@@ -321,18 +354,20 @@ export const DataService = {
 
       if (error) {
         console.error('Error fetching resort_inquiries from Supabase:', error)
-        return []
+        return _adminCache.inquiries || []
       }
 
-      return (data || []).map((i) => ({
+      const mapped = (data || []).map((i) => ({
         ...i,
         customer_name: i.customer
           ? `${i.customer.first_name} ${i.customer.last_name || ''}`.trim()
           : `Customer #${i.customer_id}`,
       }))
+      _adminCache.inquiries = mapped
+      return _adminCache.inquiries
     } catch (err) {
       console.error('Inquiries query exception:', err)
-      return []
+      return _adminCache.inquiries || []
     }
   },
 
@@ -579,46 +614,27 @@ export const DataService = {
     if (!file) return null
 
     try {
-      const processedBlob = await this.compressImage(file, 1000, 0.7)
-      const cleanFileName = `proof_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.jpg`
-      const filePath = `receipts/${cleanFileName}`
-
-      // 1. Try uploading to Supabase Storage bucket 'payment-proofs'
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('payment-proofs')
-        .upload(filePath, processedBlob, {
-          cacheControl: '3600',
-          upsert: true,
-          contentType: 'image/jpeg',
-        })
-
-      if (!uploadError && uploadData) {
-        const { data: publicUrlData } = supabase.storage
-          .from('payment-proofs')
-          .getPublicUrl(filePath)
-
-        if (publicUrlData?.publicUrl) {
-          return publicUrlData.publicUrl
-        }
-      }
-    } catch (storageErr) {
-      // Gracefully continue to base64 fallback
-    }
-
-    // 2. Reliable Fallback: Convert to Base64 Data URL so proof is NEVER lost
-    return new Promise((resolve) => {
-      try {
+      const processedBlob = await this.compressImage(file, 900, 0.75)
+      return new Promise((resolve) => {
+        const reader = new FileReader()
+        reader.onloadend = () => resolve(reader.result)
+        reader.onerror = () => resolve(null)
+        reader.readAsDataURL(processedBlob || file)
+      })
+    } catch (e) {
+      return new Promise((resolve) => {
         const reader = new FileReader()
         reader.onloadend = () => resolve(reader.result)
         reader.onerror = () => resolve(null)
         reader.readAsDataURL(file)
-      } catch (e) {
-        resolve(null)
-      }
-    })
+      })
+    }
   },
 
-  async getReservations() {
+  async getReservations(opts = {}) {
+    if (!opts.force && _adminCache.reservations) {
+      return _adminCache.reservations
+    }
     try {
       const { data, error } = await supabase
         .from('resort_reservations')
@@ -630,7 +646,7 @@ export const DataService = {
 
       if (error) {
         console.error('Error fetching resort_reservations:', error)
-        return []
+        return _adminCache.reservations || []
       }
 
       // Load any locally cached proofs, checkouts, and reviews
@@ -645,7 +661,7 @@ export const DataService = {
         registeredUsers = JSON.parse(localStorage.getItem('polchat_registered_users') || '[]')
       } catch (e) {}
 
-      return (data || []).map((r) => {
+      const mapped = (data || []).map((r) => {
         let extractedProof = r.payment_proof_url || cachedProofs[r.reservation_id] || null
         let extractedPayType = r.payment_type || null
         let extractedDown = r.downpayment_amount
@@ -742,9 +758,12 @@ export const DataService = {
           is_reviewed: isReviewed,
         }
       })
+
+      _adminCache.reservations = mapped
+      return _adminCache.reservations
     } catch (err) {
       console.error('Reservation query exception:', err)
-      return []
+      return _adminCache.reservations || []
     }
   },
 
@@ -762,8 +781,7 @@ export const DataService = {
       const paymentType = reservationData.payment_type || (proofUrl ? 'gcash' : 'cash')
       const targetCustomerEmail = (reservationData.customer_email || '').trim()
 
-      // Encode metadata into event_name to guarantee persistence across all browsers/devices
-      // even if Supabase table columns are not yet manually added
+      // Encode metadata into event_name without exceeding database column limits
       const baseEventName = (reservationData.event_name || 'Resort Stay')
         .split(' __PROOF__')[0]
         .split(' __PAY__')[0]
@@ -772,10 +790,11 @@ export const DataService = {
         .trim()
 
       let metaSuffix = `__PAY__${paymentType}__DOWN__${downpayment}__REM__${remaining}`
-      if (proofUrl) {
+      // Only include proof URL in metadata string if it is a short hosted URL (not large base64)
+      if (proofUrl && !proofUrl.startsWith('data:') && proofUrl.length < 150) {
         metaSuffix = `__PROOF__${proofUrl}${metaSuffix}`
       }
-      if (targetCustomerEmail) {
+      if (targetCustomerEmail && targetCustomerEmail.length < 80) {
         metaSuffix = `__EMAIL__${targetCustomerEmail}${metaSuffix}`
       }
 
@@ -842,29 +861,44 @@ export const DataService = {
 
       if (error) {
         console.error('Error creating resort_reservation in Supabase:', error)
-        return null
       }
 
-      const createdRow = data?.[0] || payload
-
-      // Save to local cache as extra backup
-      if (createdRow.reservation_id && proofUrl) {
-        try {
-          const cachedProofs = JSON.parse(localStorage.getItem('polchat_reservation_proofs') || '{}')
-          cachedProofs[createdRow.reservation_id] = proofUrl
-          localStorage.setItem('polchat_reservation_proofs', JSON.stringify(cachedProofs))
-        } catch (e) {}
+      const createdRow = data?.[0] || {
+        ...payload,
+        reservation_id: Date.now(),
       }
 
-      return {
+      const finalCreatedObject = {
         ...createdRow,
         event_name: baseEventName,
+        customer_name: reservationData.customer_name || reservationData.event_name || `Customer #${validCustomerId}`,
         customer_email: targetCustomerEmail,
         payment_proof_url: proofUrl,
         payment_type: paymentType,
         downpayment_amount: downpayment,
         remaining_balance: remaining,
+        reservation_status: reservationData.reservation_status || 'pending',
       }
+
+      // Invalidate caches so any page gets the updated reservation lists immediately
+      this.invalidateCache('reservations')
+      this.invalidateCache('dashboard')
+      this.invalidateCache('analytics')
+
+      // Save to local cache as immediate backup
+      try {
+        if (createdRow.reservation_id && proofUrl) {
+          const cachedProofs = JSON.parse(localStorage.getItem('polchat_reservation_proofs') || '{}')
+          cachedProofs[createdRow.reservation_id] = proofUrl
+          localStorage.setItem('polchat_reservation_proofs', JSON.stringify(cachedProofs))
+        }
+
+        const localList = JSON.parse(localStorage.getItem('polchat_local_reservations') || '[]')
+        localList.unshift(finalCreatedObject)
+        localStorage.setItem('polchat_local_reservations', JSON.stringify(localList.slice(0, 50)))
+      } catch (e) {}
+
+      return finalCreatedObject
     } catch (err) {
       console.error('Create reservation exception:', err)
       return null
@@ -873,9 +907,10 @@ export const DataService = {
 
   async updateReservationStatus(reservationId, newStatus, explicitEmail = null) {
     try {
+      const normalizedStatus = (newStatus || '').toLowerCase()
       const { data, error } = await supabase
         .from('resort_reservations')
-        .update({ reservation_status: newStatus })
+        .update({ reservation_status: normalizedStatus })
         .eq('reservation_id', reservationId)
         .select(`
           *,
@@ -887,14 +922,22 @@ export const DataService = {
       }
 
       // Automatically dispatch email notification to the customer for confirmation or cancellation
-      if (newStatus === 'confirmed' || newStatus === 'cancelled') {
-        const targetRes = data?.[0] || { reservation_id: reservationId, reservation_status: newStatus }
+      if (
+        normalizedStatus === 'confirmed' ||
+        normalizedStatus === 'accepted' ||
+        normalizedStatus === 'approved' ||
+        normalizedStatus === 'cancelled' ||
+        normalizedStatus === 'declined' ||
+        normalizedStatus === 'rejected'
+      ) {
+        const cachedRes = (_adminCache.reservations || []).find((r) => r.reservation_id === reservationId)
+        const targetRes = data?.[0] || cachedRes || { reservation_id: reservationId, reservation_status: normalizedStatus }
         const customerName = targetRes.customer
           ? `${targetRes.customer.first_name} ${targetRes.customer.last_name || ''}`.trim()
-          : (targetRes.event_name || 'Valued Guest')
+          : (targetRes.customer_name || targetRes.event_name || 'Valued Guest')
 
         // Resolve customer email reliably
-        let resolvedEmail = explicitEmail || targetRes.customer_email || null
+        let resolvedEmail = explicitEmail || targetRes.customer_email || cachedRes?.customer_email || null
 
         if (!resolvedEmail && targetRes.event_name && targetRes.event_name.includes('__EMAIL__')) {
           const match = targetRes.event_name.match(/__EMAIL__(.*?)__(?:PROOF|PAY|DOWN|REM|CHECKOUT|$)/)
@@ -910,7 +953,7 @@ export const DataService = {
               if (targetRes.customer_id && Number(u.id) === Number(targetRes.customer_id)) return true
               const uFullName = (u.name || `${u.first_name || ''} ${u.last_name || ''}`).trim().toLowerCase()
               const rName = (customerName || '').trim().toLowerCase()
-              return uFullName && rName && (uFullName === rName || rName.includes(uFullName))
+              return uFullName && rName && (uFullName === rName || rName.includes(uFullName) || uFullName.includes(rName))
             })
             if (matchUser?.email) {
               resolvedEmail = matchUser.email
@@ -924,9 +967,15 @@ export const DataService = {
             customer_name: customerName,
             customer_email: resolvedEmail,
           },
-          newStatus,
+          newStatus: normalizedStatus === 'accepted' || normalizedStatus === 'approved' ? 'confirmed' : normalizedStatus === 'declined' || normalizedStatus === 'rejected' ? 'cancelled' : normalizedStatus,
           customerEmail: resolvedEmail,
         })
+      }
+
+      if (_adminCache.reservations) {
+        _adminCache.reservations = _adminCache.reservations.map((r) =>
+          r.reservation_id === reservationId ? { ...r, reservation_status: normalizedStatus } : r
+        )
       }
     } catch (err) {
       console.error('Update reservation status exception:', err)
@@ -1037,7 +1086,10 @@ export const DataService = {
   // ==========================================
   // 5. RESORT VISITATIONS (OCULAR VISITS)
   // ==========================================
-  async getVisitations() {
+  async getVisitations(opts = {}) {
+    if (!opts.force && _adminCache.visitations) {
+      return _adminCache.visitations
+    }
     try {
       const { data, error } = await supabase
         .from('resort_visitations')
@@ -1049,10 +1101,10 @@ export const DataService = {
 
       if (error) {
         console.error('Error fetching resort_visitations:', error)
-        return []
+        return _adminCache.visitations || []
       }
 
-      return (data || []).map((v) => ({
+      const mapped = (data || []).map((v) => ({
         ...v,
         customer_name: v.customer
           ? `${v.customer.first_name} ${v.customer.last_name || ''}`.trim()
@@ -1063,9 +1115,11 @@ export const DataService = {
             ? 'Morning (9:00 AM - 11:00 AM)'
             : 'Afternoon (2:00 PM - 4:00 PM)',
       }))
+      _adminCache.visitations = mapped
+      return _adminCache.visitations
     } catch (err) {
       console.error('Visitations query exception:', err)
-      return []
+      return _adminCache.visitations || []
     }
   },
 
@@ -1093,7 +1147,11 @@ export const DataService = {
         console.error('Error creating visitation in Supabase:', error)
         return null
       }
-      return data?.[0] || payload
+      const created = data?.[0] || payload
+      if (_adminCache.visitations) {
+        _adminCache.visitations = [created, ..._adminCache.visitations]
+      }
+      return created
     } catch (err) {
       console.error('Create visitation exception:', err)
       return null
@@ -1110,6 +1168,11 @@ export const DataService = {
       if (error) {
         console.error('Error updating visitation status:', error)
       }
+      if (_adminCache.visitations) {
+        _adminCache.visitations = _adminCache.visitations.map((v) =>
+          v.visitation_id === visitationId ? { ...v, visitation_status: newStatus } : v
+        )
+      }
     } catch (err) {
       console.error('Update visitation status exception:', err)
     }
@@ -1118,7 +1181,10 @@ export const DataService = {
   // ==========================================
   // 6. CUSTOMER REVIEWS
   // ==========================================
-  async getReviews() {
+  async getReviews(opts = {}) {
+    if (!opts.force && _adminCache.reviews) {
+      return _adminCache.reviews
+    }
     try {
       const { data, error } = await supabase
         .from('customer_reviews')
@@ -1130,10 +1196,10 @@ export const DataService = {
 
       if (error) {
         console.error('Error fetching customer_reviews from Supabase:', error)
-        return []
+        return _adminCache.reviews || []
       }
 
-      return (data || []).map((r) => {
+      const mapped = (data || []).map((r) => {
         const commentText = r.review_comment || r.comment || r.feedback || r.review_text || ''
         return {
           ...r,
@@ -1144,9 +1210,11 @@ export const DataService = {
             : (r.customer_name || `Customer #${r.customer_id}`),
         }
       })
+      _adminCache.reviews = mapped
+      return _adminCache.reviews
     } catch (err) {
       console.error('Reviews query exception:', err)
-      return []
+      return _adminCache.reviews || []
     }
   },
 

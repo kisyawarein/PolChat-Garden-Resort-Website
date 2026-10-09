@@ -33,9 +33,85 @@ function OcularModal({
     return `${year}-${m}-${d}`
   }
 
+  // Helper to determine if a reservation/visitation belongs to the logged-in customer
+  const isMyBooking = (item, currentUser) => {
+    if (!currentUser || !item) return false
+    if (item.customer_id && currentUser.id && Number(item.customer_id) === Number(currentUser.id)) return true
+
+    const itemEmail = (item.customer_email || '').trim().toLowerCase()
+    const userEmail = (currentUser.email || '').trim().toLowerCase()
+    if (itemEmail && userEmail && itemEmail === userEmail) return true
+
+    const userFullName = (currentUser.name || `${currentUser.first_name || ''} ${currentUser.last_name || ''}`).trim().toLowerCase()
+    const itemCustName = (item.customer_name || (item.customer ? `${item.customer.first_name} ${item.customer.last_name || ''}` : '')).trim().toLowerCase()
+    if (userFullName && itemCustName && (userFullName === itemCustName || itemCustName.includes(userFullName) || userFullName.includes(itemCustName))) return true
+
+    const userUsername = (currentUser.username || '').trim().toLowerCase()
+    if (userUsername && itemCustName && (userUsername === itemCustName || itemCustName.includes(userUsername))) return true
+
+    const evName = (item.event_name || '').toLowerCase()
+    if (evName && userEmail && evName.includes(userEmail)) return true
+    if (evName && userFullName && evName.includes(userFullName)) return true
+    if (evName && userUsername && evName.includes(userUsername)) return true
+
+    return false
+  }
+
+  // Parse start/end dates into reliable Date objects respecting package hours
+  const parseDateTimeRange = (startStr, endStr, durationId) => {
+    if (!startStr) return null
+
+    let startDate, endDate
+    const strS = String(startStr).trim()
+    const strE = endStr ? String(endStr).trim() : null
+
+    const durNum = Number(durationId)
+    const defaultStartTime = durNum === 2 || durNum === 4 ? '20:00:00' : durNum === 3 ? '08:00:00' : '09:00:00'
+    const defaultEndTime = durNum === 2 || durNum === 3 ? '06:00:00' : durNum === 4 ? '18:00:00' : '17:00:00'
+    const defaultHours = durNum === 2 ? 10 : durNum === 3 || durNum === 4 ? 22 : 8
+
+    // Case A: Simple date only (e.g. "2026-10-21")
+    if (/^\d{4}-\d{2}-\d{2}$/.test(strS)) {
+      startDate = new Date(`${strS}T${defaultStartTime}`)
+      if (strE && /^\d{4}-\d{2}-\d{2}$/.test(strE)) {
+        endDate = new Date(`${strE}T${defaultEndTime}`)
+        if (durNum === 2 || durNum === 3 || durNum === 4 || endDate <= startDate) {
+          endDate = new Date(startDate.getTime() + defaultHours * 60 * 60 * 1000)
+        }
+      } else {
+        endDate = new Date(startDate.getTime() + defaultHours * 60 * 60 * 1000)
+      }
+    } else {
+      // Case B: Full timestamp / ISO format
+      if (strS.includes('Z') || (strS.includes('+') && strS.length > 19)) {
+        startDate = new Date(strS)
+      } else {
+        const cleanS = strS.replace(' ', 'T')
+        startDate = new Date(cleanS)
+      }
+
+      if (strE) {
+        if (strE.includes('Z') || (strE.includes('+') && strE.length > 19)) {
+          endDate = new Date(strE)
+        } else {
+          const cleanE = strE.replace(' ', 'T')
+          endDate = new Date(cleanE)
+        }
+      }
+    }
+
+    if (!startDate || isNaN(startDate.getTime())) return null
+
+    if (!endDate || isNaN(endDate.getTime()) || endDate <= startDate) {
+      endDate = new Date(startDate.getTime() + defaultHours * 60 * 60 * 1000)
+    }
+
+    return { start: startDate, end: endDate }
+  }
+
   // Check if a specific date and time slot has any overlap conflict
   const checkSlotConflict = (dateStr, targetSlot) => {
-    if (!dateStr) return false
+    if (!dateStr) return null
 
     const startHour = targetSlot === 'morning' ? '09:00:00' : '14:00:00'
     const endHour = targetSlot === 'morning' ? '11:00:00' : '16:00:00'
@@ -43,9 +119,12 @@ function OcularModal({
     const proposedStart = new Date(`${dateStr}T${startHour}`)
     const proposedEnd = new Date(`${dateStr}T${endHour}`)
 
+    let hasMyPending = false
+
     // 1. Check against active ocular visitations
     for (const v of visitations || []) {
-      if (v.visitation_status === 'cancelled') continue
+      const vStatus = (v.visitation_status || '').toLowerCase()
+      if (vStatus === 'cancelled' || vStatus === 'declined') continue
       if (!v.visitation_start_date) continue
 
       let vStart, vEnd
@@ -53,8 +132,7 @@ function OcularModal({
         const cleanStart = v.visitation_start_date.replace(' ', 'T')
         vStart = new Date(cleanStart)
         if (v.visitation_end_date) {
-          const cleanEnd = v.visitation_end_date.replace(' ', 'T')
-          vEnd = new Date(cleanEnd)
+          vEnd = new Date(v.visitation_end_date.replace(' ', 'T'))
         } else {
           vEnd = new Date(vStart.getTime() + 2 * 60 * 60 * 1000)
         }
@@ -66,26 +144,35 @@ function OcularModal({
         vEnd = new Date(`${v.visitation_start_date}T${isMorning ? '11:00:00' : '16:00:00'}`)
       }
 
-      // Interval overlap check: StartA < EndB && StartB < EndA
-      if (proposedStart < vEnd && vStart < proposedEnd) {
-        return true
+      if (vStart && vEnd && proposedStart < vEnd && vStart < proposedEnd) {
+        const isMine = isMyBooking(v, user)
+        if (vStatus === 'confirmed' || vStatus === 'approved') return 'occupied'
+        if (vStatus === 'pending') {
+          if (isMine) hasMyPending = true
+        }
       }
     }
 
     // 2. Check against active resort reservations
     for (const r of reservations || []) {
-      if (r.reservation_status === 'cancelled') continue
-      if (!r.start_date || !r.end_date) continue
+      const rStatus = (r.reservation_status || '').toLowerCase()
+      if (rStatus === 'cancelled' || rStatus === 'declined') continue
+      if (!r.start_date) continue
 
-      const rStart = new Date(r.start_date.replace(' ', 'T'))
-      const rEnd = new Date(r.end_date.replace(' ', 'T'))
+      const range = parseDateTimeRange(r.start_date, r.end_date, r.duration_id)
+      if (!range) continue
 
-      if (proposedStart < rEnd && rStart < proposedEnd) {
-        return true
+      if (proposedStart < range.end && range.start < proposedEnd) {
+        const isMine = isMyBooking(r, user)
+        if (rStatus === 'confirmed' || rStatus === 'approved' || rStatus === 'completed') return 'occupied'
+        if (rStatus === 'pending' || rStatus === '') {
+          if (isMine) hasMyPending = true
+        }
       }
     }
 
-    return false
+    if (hasMyPending) return 'pending'
+    return null
   }
 
   // Switch slot and re-validate selected date
@@ -131,8 +218,9 @@ function OcularModal({
       return
     }
 
-    if (checkSlotConflict(visitationDate, slot)) {
-      setErrorMsg(`The selected ${slot} slot is already booked on this date. Please choose another date or time slot.`)
+    const conflict = checkSlotConflict(visitationDate, slot)
+    if (conflict) {
+      setErrorMsg(`The selected ${slot} slot has a ${conflict} booking/reservation on this date. Please choose another date or time slot.`)
       return
     }
 
@@ -179,24 +267,30 @@ function OcularModal({
       const isPast = dateStr < todayYMD
       const isToday = dateStr === todayYMD
       const isSelected = visitationDate === dateStr
-      const isBooked = checkSlotConflict(dateStr, slot)
+      const slotConflict = checkSlotConflict(dateStr, slot)
+      const isBooked = slotConflict === 'confirmed'
+      const isPending = slotConflict === 'pending'
+      const isBlocked = isPast || isBooked || isPending
 
       let cellClass = 'ocular-cal-day-btn'
       if (isPast) cellClass += ' ocular-cal-past'
       if (isToday) cellClass += ' ocular-cal-today'
       if (isSelected) cellClass += ' ocular-cal-selected'
       if (isBooked) cellClass += ' ocular-cal-booked'
+      if (isPending) cellClass += ' ocular-cal-pending'
 
       cells.push(
         <button
           key={dateStr}
           type="button"
-          disabled={isPast || isBooked}
+          disabled={isBlocked}
           className={cellClass}
           onClick={() => handleSelectDate(dateStr)}
           title={
             isBooked
               ? `Booked for ${slot === 'morning' ? 'Morning Slot (9am-11am)' : 'Afternoon Slot (2pm-4pm)'}`
+              : isPending
+              ? `Pending for ${slot === 'morning' ? 'Morning Slot (9am-11am)' : 'Afternoon Slot (2pm-4pm)'}`
               : isPast
               ? 'Past Date'
               : 'Available'
@@ -370,8 +464,12 @@ function OcularModal({
                     <span>Selected</span>
                   </div>
                   <div className="ocular-legend-item">
+                    <span className="ocular-legend-dot ocular-dot-pending" />
+                    <span>Pending</span>
+                  </div>
+                  <div className="ocular-legend-item">
                     <span className="ocular-legend-dot ocular-dot-booked" />
-                    <span>Booked</span>
+                    <span>Occupied</span>
                   </div>
                 </div>
               </div>

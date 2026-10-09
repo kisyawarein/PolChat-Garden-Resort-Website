@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => {
 
   const handleEmailRequest = (server) => {
     server.middlewares.use(async (req, res, next) => {
-      if (req.url === '/api/send-otp' && req.method === 'POST') {
+      if ((req.url === '/api/send-otp' || req.url === '/api/send-email') && req.method === 'POST') {
         let rawBody = ''
         req.on('data', (chunk) => {
           rawBody += chunk
@@ -16,12 +16,16 @@ export default defineConfig(({ mode }) => {
         req.on('end', async () => {
           try {
             const data = JSON.parse(rawBody || '{}')
-            const { email, otpCode } = data
+            const toEmail = (data.email || data.to || '').trim()
+            const emailSubject =
+              data.subject || (data.otpCode ? `Your OTP Is: ${data.otpCode}` : 'PolChat Garden Resort Notification')
+            const emailBody = data.body || data.text || (data.otpCode ? `Your OTP Is: ${data.otpCode}` : '')
 
             console.log(`\n========================================`)
-            console.log(`✉️ [PolChat OTP Delivery]`)
-            console.log(`   To: ${email}`)
-            console.log(`   Your OTP Is: ${otpCode}`)
+            console.log(`✉️ [PolChat Email Delivery]`)
+            console.log(`   To: ${toEmail}`)
+            console.log(`   Subject: ${emailSubject}`)
+            console.log(`   Content Preview: ${emailBody.slice(0, 120)}...`)
             console.log(`========================================\n`)
 
             const emailUser =
@@ -37,7 +41,7 @@ export default defineConfig(({ mode }) => {
               process.env.EMAIL_PASS ||
               process.env.GMAIL_PASS
 
-            if (emailUser && emailPass) {
+            if (emailUser && emailPass && toEmail) {
               try {
                 const cleanUser = emailUser.trim()
                 const cleanPass = emailPass.trim().replace(/[\s_-]/g, '')
@@ -52,11 +56,11 @@ export default defineConfig(({ mode }) => {
 
                 await transporter.sendMail({
                   from: `"PolChat Garden Resort" <${cleanUser}>`,
-                  to: email.trim(),
-                  subject: `Your OTP Is: ${otpCode}`,
-                  text: `Your OTP Is: ${otpCode}`,
+                  to: toEmail,
+                  subject: emailSubject,
+                  text: emailBody,
                 })
-                console.log(`✓ Email successfully delivered to ${email} via Gmail SMTP!`)
+                console.log(`✓ Email successfully delivered to ${toEmail} via Gmail SMTP!`)
               } catch (mailErr) {
                 console.warn('[Nodemailer] SMTP note:', mailErr.message)
               }
@@ -64,7 +68,7 @@ export default defineConfig(({ mode }) => {
 
             res.setHeader('Content-Type', 'application/json')
             res.statusCode = 200
-            res.end(JSON.stringify({ success: true, message: 'OTP sent' }))
+            res.end(JSON.stringify({ success: true, message: 'Email processed successfully' }))
           } catch (err) {
             res.setHeader('Content-Type', 'application/json')
             res.statusCode = 500

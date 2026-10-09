@@ -101,14 +101,9 @@
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  cursor: default;
   display: flex;
   flex-direction: column;
-}
-
-.dash-stat-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.14);
 }
 
 .dash-stat-top {
@@ -157,11 +152,6 @@
   font-weight: 700;
   color: #ffffff;
   border-top: 1px solid rgba(255, 255, 255, 0.18);
-  transition: background-color 0.15s ease;
-}
-
-.dash-stat-card:hover .dash-stat-bottom {
-  background-color: rgba(0, 0, 0, 0.12);
 }
 
 .dash-stat-link-text {

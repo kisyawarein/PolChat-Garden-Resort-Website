@@ -60,7 +60,6 @@ function AnalyticsKPIs({
         </div>
         <div className="dash-stat-bottom">
           <span className="dash-stat-link-text">Verified Payments</span>
-          <span className="dash-stat-arrow-icon">➔</span>
         </div>
       </div>
 
@@ -83,7 +82,6 @@ function AnalyticsKPIs({
         </div>
         <div className="dash-stat-bottom">
           <span className="dash-stat-link-text">Stays & Oculars</span>
-          <span className="dash-stat-arrow-icon">➔</span>
         </div>
       </div>
 
@@ -104,7 +102,6 @@ function AnalyticsKPIs({
         </div>
         <div className="dash-stat-bottom">
           <span className="dash-stat-link-text">Per Reservation</span>
-          <span className="dash-stat-arrow-icon">➔</span>
         </div>
       </div>
 
@@ -125,7 +122,6 @@ function AnalyticsKPIs({
         </div>
         <div className="dash-stat-bottom">
           <span className="dash-stat-link-text">{repeatBookers} Repeat Guests</span>
-          <span className="dash-stat-arrow-icon">➔</span>
         </div>
       </div>
 
@@ -144,7 +140,6 @@ function AnalyticsKPIs({
         </div>
         <div className="dash-stat-bottom">
           <span className="dash-stat-link-text">{reviews.length} Verified Reviews</span>
-          <span className="dash-stat-arrow-icon">➔</span>
         </div>
       </div>
 
@@ -164,7 +159,6 @@ function AnalyticsKPIs({
         </div>
         <div className="dash-stat-bottom">
           <span className="dash-stat-link-text">Approved vs Requested</span>
-          <span className="dash-stat-arrow-icon">➔</span>
         </div>
       </div>
     </div>

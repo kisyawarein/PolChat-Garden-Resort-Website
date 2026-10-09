@@ -40,7 +40,6 @@ function CustomerSummaryCards({ customers = [], reservations = [], inquiries = [
         </div>
         <div className="dash-stat-bottom">
           <span className="dash-stat-link-text">Registered Directory</span>
-          <span className="dash-stat-arrow-icon">➔</span>
         </div>
       </div>
 
@@ -62,7 +61,6 @@ function CustomerSummaryCards({ customers = [], reservations = [], inquiries = [
           <span className="dash-stat-link-text">
             {totalCustomers > 0 ? Math.round((activeBookersCount / totalCustomers) * 100) : 0}% Conversion Rate
           </span>
-          <span className="dash-stat-arrow-icon">➔</span>
         </div>
       </div>
 
@@ -85,7 +83,6 @@ function CustomerSummaryCards({ customers = [], reservations = [], inquiries = [
           <span className="dash-stat-link-text">
             {activeBookersCount > 0 ? Math.round((repeatBookersCount / activeBookersCount) * 100) : 0}% Loyalty Rate
           </span>
-          <span className="dash-stat-arrow-icon">➔</span>
         </div>
       </div>
 
@@ -105,7 +102,6 @@ function CustomerSummaryCards({ customers = [], reservations = [], inquiries = [
         </div>
         <div className="dash-stat-bottom">
           <span className="dash-stat-link-text">Prospect Contacts</span>
-          <span className="dash-stat-arrow-icon">➔</span>
         </div>
       </div>
     </div>

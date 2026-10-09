@@ -23,7 +23,6 @@ function InquirySummaryCards({ inquiries = [] }) {
         </div>
         <div className="dash-stat-bottom">
           <span className="dash-stat-link-text">Support Tickets</span>
-          <span className="dash-stat-arrow-icon">➔</span>
         </div>
       </div>
 
@@ -44,7 +43,6 @@ function InquirySummaryCards({ inquiries = [] }) {
         </div>
         <div className="dash-stat-bottom">
           <span className="dash-stat-link-text">Needs First Response</span>
-          <span className="dash-stat-arrow-icon">➔</span>
         </div>
       </div>
 
@@ -64,7 +62,6 @@ function InquirySummaryCards({ inquiries = [] }) {
         </div>
         <div className="dash-stat-bottom">
           <span className="dash-stat-link-text">Staff Assigned</span>
-          <span className="dash-stat-arrow-icon">➔</span>
         </div>
       </div>
 
@@ -84,7 +81,6 @@ function InquirySummaryCards({ inquiries = [] }) {
         </div>
         <div className="dash-stat-bottom">
           <span className="dash-stat-link-text">Completed Inquiries</span>
-          <span className="dash-stat-arrow-icon">➔</span>
         </div>
       </div>
     </div>

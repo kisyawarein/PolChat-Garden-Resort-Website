@@ -6,13 +6,94 @@ function DateCalendar({
   onSelectDate,
   reservations = [],
   visitations = [],
+  currentUser = null,
   onBack,
   onNext,
 }) {
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth()) // 0-11
 
-  // Format YYYY-MM-DD
+  // Helper to determine if a reservation/visitation belongs to the logged-in customer
+  const isMyBooking = (item, user) => {
+    if (!user || !item) return false
+    if (item.customer_id && user.id && Number(item.customer_id) === Number(user.id)) return true
+
+    const itemEmail = (item.customer_email || '').trim().toLowerCase()
+    const userEmail = (user.email || '').trim().toLowerCase()
+    if (itemEmail && userEmail && itemEmail === userEmail) return true
+
+    const userFullName = (user.name || `${user.first_name || ''} ${user.last_name || ''}`).trim().toLowerCase()
+    const itemCustName = (item.customer_name || (item.customer ? `${item.customer.first_name} ${item.customer.last_name || ''}` : '')).trim().toLowerCase()
+    if (userFullName && itemCustName && (userFullName === itemCustName || itemCustName.includes(userFullName) || userFullName.includes(itemCustName))) return true
+
+    const userUsername = (user.username || '').trim().toLowerCase()
+    if (userUsername && itemCustName && (userUsername === itemCustName || itemCustName.includes(userUsername))) return true
+
+    const evName = (item.event_name || '').toLowerCase()
+    if (evName && userEmail && evName.includes(userEmail)) return true
+    if (evName && userFullName && evName.includes(userFullName)) return true
+    if (evName && userUsername && evName.includes(userUsername)) return true
+
+    return false
+  }
+
+  // Parse start/end dates into reliable Date objects respecting package hours
+  const parseDateTimeRange = (startStr, endStr, durationId) => {
+    if (!startStr) return null
+
+    let startDate, endDate
+    const strS = String(startStr).trim()
+    const strE = endStr ? String(endStr).trim() : null
+
+    const durNum = Number(durationId)
+    // Day Tour: 8 hours (09:00 - 17:00)
+    // Overnight: 10 hours (20:00 - 06:00 next day)
+    // 22 Hours Day: 22 hours (08:00 - 06:00 next day)
+    // 22 Hours Night: 22 hours (20:00 - 18:00 next day)
+    const defaultStartTime = durNum === 2 || durNum === 4 ? '20:00:00' : durNum === 3 ? '08:00:00' : '09:00:00'
+    const defaultEndTime = durNum === 2 || durNum === 3 ? '06:00:00' : durNum === 4 ? '18:00:00' : '17:00:00'
+    const defaultHours = durNum === 2 ? 10 : durNum === 3 || durNum === 4 ? 22 : 8
+
+    // Case A: Simple date only (e.g. "2026-10-21")
+    if (/^\d{4}-\d{2}-\d{2}$/.test(strS)) {
+      startDate = new Date(`${strS}T${defaultStartTime}`)
+      if (strE && /^\d{4}-\d{2}-\d{2}$/.test(strE)) {
+        endDate = new Date(`${strE}T${defaultEndTime}`)
+        if (durNum === 2 || durNum === 3 || durNum === 4 || endDate <= startDate) {
+          endDate = new Date(startDate.getTime() + defaultHours * 60 * 60 * 1000)
+        }
+      } else {
+        endDate = new Date(startDate.getTime() + defaultHours * 60 * 60 * 1000)
+      }
+    } else {
+      // Case B: Full timestamp / ISO format (e.g. "2026-10-21T09:00:00" or "2026-10-21 09:00:00")
+      if (strS.includes('Z') || (strS.includes('+') && strS.length > 19)) {
+        startDate = new Date(strS)
+      } else {
+        const cleanS = strS.replace(' ', 'T')
+        startDate = new Date(cleanS)
+      }
+
+      if (strE) {
+        if (strE.includes('Z') || (strE.includes('+') && strE.length > 19)) {
+          endDate = new Date(strE)
+        } else {
+          const cleanE = strE.replace(' ', 'T')
+          endDate = new Date(cleanE)
+        }
+      }
+    }
+
+    if (!startDate || isNaN(startDate.getTime())) return null
+
+    if (!endDate || isNaN(endDate.getTime()) || endDate <= startDate) {
+      endDate = new Date(startDate.getTime() + defaultHours * 60 * 60 * 1000)
+    }
+
+    return { start: startDate, end: endDate }
+  }
+
+  // Format YMD: YYYY-MM-DD
   const formatYMD = (year, month, day) => {
     const m = String(month + 1).padStart(2, '0')
     const d = String(day).padStart(2, '0')
@@ -49,47 +130,85 @@ function DateCalendar({
     }
   }
 
-  // Check whether the proposed package on dateStr has any time conflict
-  const checkTimeConflict = (dateStr) => {
+  // Check whether the proposed package on dateStr has any conflict
+  // Returns: 'occupied' (confirmed conflict from anyone), 'pending' (pending conflict from ME only), or 'available'
+  const getDateAvailability = (dateStr) => {
+    if (!dateStr) return 'available'
+
     const pkg = selectedPackage || { duration_id: 1, duration_start: '09:00:00', duration_end: '17:00:00' }
-    const startStr = pkg.duration_start || '09:00:00'
-    const endStr = pkg.duration_end || '17:00:00'
+    const durId = Number(pkg.duration_id || 1)
+    const startStr = pkg.duration_start || (durId === 2 || durId === 4 ? '20:00:00' : durId === 3 ? '08:00:00' : '09:00:00')
+    const endStr = pkg.duration_end || (durId === 2 || durId === 3 ? '06:00:00' : durId === 4 ? '18:00:00' : '17:00:00')
 
     const proposedStart = new Date(`${dateStr}T${startStr}`)
-    const proposedEnd = new Date(`${dateStr}T${endStr}`)
-    if (pkg.duration_id === 2 || pkg.duration_id === 3 || pkg.duration_id === 4) {
-      proposedEnd.setDate(proposedEnd.getDate() + 1)
+    let proposedEnd = new Date(`${dateStr}T${endStr}`)
+    if (proposedEnd <= proposedStart || durId === 2 || durId === 3 || durId === 4) {
+      proposedEnd = new Date(proposedEnd.getTime() + 24 * 60 * 60 * 1000)
     }
 
-    // Check reservations (non-cancelled)
-    for (const r of reservations) {
-      if (r.reservation_status === 'cancelled') continue
-      if (!r.start_date || !r.end_date) continue
+    let hasMyPending = false
 
-      const rStart = new Date(r.start_date)
-      const rEnd = new Date(r.end_date)
+    // 1. Check reservations (non-cancelled)
+    for (const r of reservations || []) {
+      const status = (r.reservation_status || '').toLowerCase()
+      if (status === 'cancelled' || status === 'declined') continue
+      if (!r.start_date) continue
 
-      // Time overlap rule: StartA < EndB && StartB < EndA
-      if (proposedStart < rEnd && rStart < proposedEnd) {
-        return true
+      const range = parseDateTimeRange(r.start_date, r.end_date, r.duration_id)
+      if (!range) continue
+
+      // Precise time overlap: proposedStart < r.end && r.start < proposedEnd
+      if (proposedStart < range.end && range.start < proposedEnd) {
+        const isMine = isMyBooking(r, currentUser)
+        if (status === 'confirmed' || status === 'approved' || status === 'completed') {
+          return 'occupied'
+        }
+        if (status === 'pending' || status === '') {
+          if (isMine) {
+            hasMyPending = true
+          }
+        }
       }
     }
 
-    // Check visitations (ocular visits) - non-cancelled
-    for (const v of visitations) {
-      if (v.visitation_status === 'cancelled') continue
+    // 2. Check visitations (ocular visits) - non-cancelled
+    for (const v of visitations || []) {
+      const vStatus = (v.visitation_status || '').toLowerCase()
+      if (vStatus === 'cancelled' || vStatus === 'declined') continue
       if (!v.visitation_start_date) continue
 
-      const vDateOnly = v.visitation_start_date.split('T')[0]
-      const vStart = new Date(`${vDateOnly}T09:00:00`)
-      const vEnd = new Date(`${vDateOnly}T11:00:00`)
+      let vStart, vEnd
+      if (v.visitation_start_date.includes('T') || v.visitation_start_date.includes(' ')) {
+        const cleanStart = v.visitation_start_date.replace(' ', 'T')
+        vStart = new Date(cleanStart)
+        if (v.visitation_end_date) {
+          vEnd = new Date(v.visitation_end_date.replace(' ', 'T'))
+        } else {
+          vEnd = new Date(vStart.getTime() + 2 * 60 * 60 * 1000)
+        }
+      } else {
+        const isMorning =
+          (v.slot_type && v.slot_type.toLowerCase().includes('morning')) ||
+          v.visitation_start_date.includes('09:')
+        vStart = new Date(`${v.visitation_start_date}T${isMorning ? '09:00:00' : '14:00:00'}`)
+        vEnd = new Date(`${v.visitation_start_date}T${isMorning ? '11:00:00' : '16:00:00'}`)
+      }
 
-      if (proposedStart < vEnd && vStart < proposedEnd) {
-        return true
+      if (vStart && vEnd && proposedStart < vEnd && vStart < proposedEnd) {
+        const isMine = isMyBooking(v, currentUser)
+        if (vStatus === 'confirmed' || vStatus === 'approved') {
+          return 'occupied'
+        }
+        if (vStatus === 'pending') {
+          if (isMine) {
+            hasMyPending = true
+          }
+        }
       }
     }
 
-    return false
+    if (hasMyPending) return 'pending'
+    return 'available'
   }
 
   // Render Calendar Grid Cells
@@ -107,28 +226,45 @@ function DateCalendar({
       const isPast = dateStr < todayYMD
       const isToday = dateStr === todayYMD
       const isSelected = selectedDate === dateStr
-      const isBooked = checkTimeConflict(dateStr)
+      const availability = getDateAvailability(dateStr)
+      const isOccupied = availability === 'occupied'
+      const isPending = availability === 'pending'
+      const isBlocked = isPast || isOccupied || isPending
 
       let cellClass = 'resv-cal-day-cell'
       if (isPast) cellClass += ' resv-cal-day-past'
       if (isToday) cellClass += ' resv-cal-day-today'
       if (isSelected) cellClass += ' resv-cal-day-selected'
-      if (isBooked) cellClass += ' resv-cal-day-booked'
+      if (isOccupied) cellClass += ' resv-cal-day-booked'
+      if (isPending) cellClass += ' resv-cal-day-pending'
 
       cells.push(
         <button
           key={dateStr}
           type="button"
-          disabled={isPast || isBooked}
+          disabled={isBlocked}
           className={cellClass}
           onClick={() => onSelectDate(dateStr)}
+          title={
+            isOccupied
+              ? 'Occupied (Confirmed Reservation on this time slot)'
+              : isPending
+              ? 'Pending (You have a pending reservation on this time slot)'
+              : isPast
+              ? 'Past Date'
+              : 'Available'
+          }
         >
           <span className="resv-cal-day-number">{day}</span>
 
           <div className="resv-cal-day-indicators">
-            {isBooked ? (
+            {isOccupied ? (
               <span className="resv-cal-pill resv-cal-pill-booked">
-                Booked
+                Occupied
+              </span>
+            ) : isPending ? (
+              <span className="resv-cal-pill resv-cal-pill-pending">
+                Pending
               </span>
             ) : !isPast ? (
               <span className="resv-cal-pill resv-cal-pill-available">
@@ -200,8 +336,12 @@ function DateCalendar({
             <span className="resv-legend-text">Selected</span>
           </div>
           <div className="resv-legend-item">
+            <span className="resv-legend-dot resv-legend-dot-pending"></span>
+            <span className="resv-legend-text">Pending</span>
+          </div>
+          <div className="resv-legend-item">
             <span className="resv-legend-dot resv-legend-dot-booked"></span>
-            <span className="resv-legend-text">Booked / Time Conflict</span>
+            <span className="resv-legend-text">Occupied</span>
           </div>
         </div>
       </div>

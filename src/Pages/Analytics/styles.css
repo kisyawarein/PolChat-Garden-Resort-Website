@@ -247,6 +247,143 @@
   border-color: #58402E;
 }
 
+/* Top KPI Stat Grid using dash-stat-card (Static, no hover, no arrow) */
+.dash-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 14px;
+  margin-bottom: 26px;
+}
+
+@media (max-width: 1200px) {
+  .dash-stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 650px) {
+  .dash-stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .dash-stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.dash-stat-card {
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  cursor: default;
+  display: flex;
+  flex-direction: column;
+}
+
+.dash-stat-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 13px 15px;
+  color: #ffffff;
+}
+
+.dash-stat-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #ffffff;
+  opacity: 0.95;
+}
+
+.dash-stat-text-wrap {
+  text-align: right;
+  color: #ffffff;
+}
+
+.dash-stat-number {
+  font-size: 1.65rem;
+  font-weight: 800;
+  line-height: 1.1;
+  color: #ffffff;
+  margin-bottom: 2px;
+}
+
+.dash-stat-label {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #ffffff;
+  white-space: nowrap;
+  opacity: 0.95;
+}
+
+.dash-stat-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 14px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #ffffff;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.dash-stat-link-text {
+  color: #ffffff;
+  letter-spacing: 0.2px;
+}
+
+.theme-forest {
+  background: linear-gradient(135deg, #43593B 0%, #32432C 100%);
+}
+.theme-forest .dash-stat-bottom {
+  background-color: rgba(0, 0, 0, 0.14);
+}
+
+.theme-green {
+  background: linear-gradient(135deg, #7CCE17 0%, #60A50E 100%);
+}
+.theme-green .dash-stat-bottom {
+  background-color: rgba(0, 0, 0, 0.14);
+}
+
+.theme-gold {
+  background: linear-gradient(135deg, #E5BA45 0%, #C89B2B 100%);
+}
+.theme-gold .dash-stat-bottom {
+  background-color: rgba(0, 0, 0, 0.14);
+}
+
+.theme-sage {
+  background: linear-gradient(135deg, #8E915C 0%, #737546 100%);
+}
+.theme-sage .dash-stat-bottom {
+  background-color: rgba(0, 0, 0, 0.14);
+}
+
+.theme-earth {
+  background: linear-gradient(135deg, #58402E 0%, #433022 100%);
+}
+.theme-earth .dash-stat-bottom {
+  background-color: rgba(0, 0, 0, 0.14);
+}
+
+.theme-deep {
+  background: linear-gradient(135deg, #2E3840 0%, #1D2328 100%);
+}
+.theme-deep .dash-stat-bottom {
+  background-color: rgba(0, 0, 0, 0.14);
+}
+
+.theme-red {
+  background: linear-gradient(135deg, #B83A3A 0%, #962828 100%);
+}
+.theme-red .dash-stat-bottom {
+  background-color: rgba(0, 0, 0, 0.14);
+}
+
 /* Top KPI Stat Grid */
 .analytics-kpi-grid {
   display: grid;

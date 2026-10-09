@@ -173,19 +173,14 @@
   }
 }
 
-/* Base Stat Card (Identical to Dashboard / Home page) */
+/* Base Stat Card */
 .dash-stat-card {
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-  transition: transform 0.18s ease, box-shadow 0.18s ease;
+  cursor: default;
   display: flex;
   flex-direction: column;
-}
-
-.dash-stat-card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.14);
 }
 
 .dash-stat-top {
@@ -234,11 +229,6 @@
   font-weight: 700;
   color: #ffffff;
   border-top: 1px solid rgba(255, 255, 255, 0.18);
-  transition: background-color 0.15s ease;
-}
-
-.dash-stat-card:hover .dash-stat-bottom {
-  background-color: rgba(0, 0, 0, 0.12);
 }
 
 .dash-stat-link-text {
@@ -1815,36 +1805,56 @@
   border-radius: 16px;
   width: 100%;
   max-width: 580px;
-  max-height: 90vh;
-  overflow-y: auto;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+  max-height: 85vh;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.22);
   display: flex;
   flex-direction: column;
   border: 1.5px solid #D2DEC9;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.cal-day-details-dialog {
+  max-width: 640px;
 }
 
 .modal-card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 18px 24px;
-  border-bottom: 1px solid #EDF2E8;
+  padding: 16px 20px;
+  border-bottom: 1.5px solid #EDF2E8;
   background-color: #FAFBF8;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .modal-card-title {
   margin: 0;
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 800;
   color: #43593B;
 }
 
 .modal-close-x {
-  background: transparent;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #EDF2E8;
   border: none;
-  font-size: 1.1rem;
-  color: #83977a;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #43593B;
   cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+  padding: 0;
+}
+
+.modal-close-x:hover {
+  background-color: #58402E;
+  color: #ffffff;
 }
 
 .modal-card-body {
@@ -1852,6 +1862,124 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
+  overflow-y: auto;
+  flex: 1;
+  box-sizing: border-box;
+}
+
+/* Calendar Day Details Sched Styling */
+.modal-sched-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.modal-sched-heading {
+  margin: 0;
+  font-size: 0.88rem;
+  font-weight: 800;
+  color: #43593B;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.modal-sched-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-sched-item {
+  background-color: #FAFBF8;
+  border: 1.5px solid #D2DEC9;
+  border-radius: 12px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  box-sizing: border-box;
+}
+
+.modal-sched-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  border-bottom: 1px dashed #D2DEC9;
+  padding-bottom: 8px;
+}
+
+.modal-sched-item-header strong {
+  font-size: 0.92rem;
+  font-weight: 800;
+  color: #43593B;
+}
+
+.modal-sched-item-body {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 8px 12px;
+  font-size: 0.82rem;
+  color: #58402E;
+}
+
+.modal-sched-item-body div strong {
+  color: #43593B;
+}
+
+.modal-sched-item-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.booking-btn-approve {
+  background-color: #7CCE17;
+  color: #213317;
+  font-weight: 700;
+  font-size: 0.78rem;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.booking-btn-approve:hover {
+  background-color: #6bb313;
+  color: #ffffff;
+}
+
+.booking-btn-receipt {
+  background-color: #EDF2E8;
+  color: #43593B;
+  font-weight: 700;
+  font-size: 0.78rem;
+  border: 1px solid #D2DEC9;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.booking-btn-receipt:hover {
+  background-color: #43593B;
+  color: #ffffff;
+}
+
+.modal-card-footer {
+  padding: 14px 20px;
+  border-top: 1.5px solid #EDF2E8;
+  background-color: #FAFBF8;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-shrink: 0;
+  box-sizing: border-box;
 }
 
 .modal-info-grid {

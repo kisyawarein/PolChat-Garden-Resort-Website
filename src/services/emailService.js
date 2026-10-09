@@ -58,7 +58,6 @@ export const EmailService = {
   async sendReservationStatusEmail({ reservation, newStatus, customerEmail }) {
     if (!reservation) return null
 
-    const statusUpper = (newStatus || '').toUpperCase()
     let targetEmail = (customerEmail || reservation.customer_email || '').trim()
 
     if (!targetEmail) {
@@ -96,7 +95,7 @@ export const EmailService = {
       targetEmail = 'polchat2k20@gmail.com'
     }
 
-    const guestName = reservation.customer_name || reservation.event_name || 'Guest'
+    const guestName = reservation.customer_name || reservation.event_name || 'Valued Guest'
     const resId = reservation.reservation_id || 'N/A'
     const dateStr = reservation.start_date
       ? new Date(reservation.start_date).toLocaleDateString('en-US', {
@@ -110,16 +109,34 @@ export const EmailService = {
     let subject = ''
     let body = ''
 
-    if (newStatus === 'confirmed') {
+    if (newStatus === 'confirmed' || newStatus === 'approved' || newStatus === 'accepted') {
       subject = `Reservation Confirmed - PolChat Garden Resort [RES-#${resId}]`
       body = `Dear ${guestName},\n\nWe are delighted to confirm your reservation at PolChat Garden Resort!\n\n--- BOOKING DETAILS ---\nReservation No: RES-#${resId}\nScheduled Date: ${dateStr}\nGuests: ${reservation.guest_count || 1} Pax\nStatus: CONFIRMED ✓\n\nResort Address: PolChat Garden, 346 Monaco Street Antipolo Calabarzon\nFor inquiries or directions, contact us at 0953 495 4389 or reply to polchat2k20@gmail.com.\n\nWe look forward to welcoming you to our garden oasis!\n\nPolChat Garden Resort Team`
-    } else if (newStatus === 'cancelled') {
+    } else if (newStatus === 'cancelled' || newStatus === 'declined' || newStatus === 'rejected') {
       subject = `Reservation Cancelled - PolChat Garden Resort [RES-#${resId}]`
       body = `Dear ${guestName},\n\nYour reservation RES-#${resId} scheduled for ${dateStr} has been cancelled.\n\nIf this cancellation was in error or if you wish to reschedule your visit, please reach out to our team directly at polchat2k20@gmail.com or call 0953 495 4389.\n\nThank you,\nPolChat Garden Resort Management`
     } else {
       return null
     }
 
+    // 1. Dispatch real email via /api/send-email (matching OTP mailer mechanism)
+    try {
+      fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: targetEmail,
+          subject,
+          body,
+        }),
+      }).catch((err) => {
+        console.warn('Status email network dispatch note:', err)
+      })
+    } catch (netErr) {
+      console.warn('Status email dispatch note:', netErr)
+    }
+
+    // 2. Log and dispatch local UI toast
     return this.logAndDispatch({
       type: `reservation_${newStatus}`,
       to: targetEmail,
@@ -150,6 +167,20 @@ export const EmailService = {
     const inquiryId = inquiry.inquiry_id || 'N/A'
     const subject = `PolChat Support: New Reply on Inquiry #${inquiryId} (${inquiry.inquiry_label || 'Support'})`
     const body = `Dear ${inquiry.customer_name || 'Guest'},\n\n${adminName} from PolChat Garden Resort has responded to your inquiry #${inquiryId}:\n\n"${replyMessage}"\n\nYou can view full conversation history and reply anytime by visiting the Resort Support portal on our website.\n\nPolChat Garden Resort Support Team\nEmail: polchat2k20@gmail.com\nAddress: PolChat Garden, 346 Monaco Street Antipolo Calabarzon`
+
+    try {
+      fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: targetEmail,
+          subject,
+          body,
+        }),
+      }).catch((err) => {
+        console.warn('Inquiry email network dispatch note:', err)
+      })
+    } catch (e) {}
 
     return this.logAndDispatch({
       type: 'inquiry_reply',

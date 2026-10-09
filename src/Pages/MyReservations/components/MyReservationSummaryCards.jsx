@@ -24,7 +24,6 @@ function MyReservationSummaryCards({ reservations = [] }) {
         </div>
         <div className="dash-stat-bottom">
           <span className="dash-stat-link-text">Approved Bookings</span>
-          <span className="dash-stat-arrow-icon">➔</span>
         </div>
       </div>
 
@@ -44,7 +43,6 @@ function MyReservationSummaryCards({ reservations = [] }) {
         </div>
         <div className="dash-stat-bottom">
           <span className="dash-stat-link-text">Under Staff Review</span>
-          <span className="dash-stat-arrow-icon">➔</span>
         </div>
       </div>
 
@@ -65,7 +63,6 @@ function MyReservationSummaryCards({ reservations = [] }) {
         </div>
         <div className="dash-stat-bottom">
           <span className="dash-stat-link-text">Booking History</span>
-          <span className="dash-stat-arrow-icon">➔</span>
         </div>
       </div>
 
@@ -86,7 +83,6 @@ function MyReservationSummaryCards({ reservations = [] }) {
         </div>
         <div className="dash-stat-bottom">
           <span className="dash-stat-link-text">Archived Records</span>
-          <span className="dash-stat-arrow-icon">➔</span>
         </div>
       </div>
     </div>

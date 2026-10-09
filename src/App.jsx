@@ -21,6 +21,7 @@ import CustomerReviews from './Pages/CustomerReviews/CustomerReviews'
 import Analytics from './Pages/Analytics/Analytics'
 import PricesPolicies from './Pages/PricesPolicies/PricesPolicies'
 import AdminGallery from './Pages/AdminGallery/AdminGallery'
+import { DataService } from './services/dataService'
 import EmailNotificationToast from './components/EmailNotificationToast/EmailNotificationToast'
 import './App.css'
 
@@ -39,6 +40,13 @@ function AppContent() {
     return 'home'
   })
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+
+  // Preload all admin data once when entering admin side
+  useEffect(() => {
+    if (isAdmin) {
+      DataService.preloadAdminData()
+    }
+  }, [isAdmin])
 
   // Redirect admin to dashboard if they are currently on a guest page
   useEffect(() => {

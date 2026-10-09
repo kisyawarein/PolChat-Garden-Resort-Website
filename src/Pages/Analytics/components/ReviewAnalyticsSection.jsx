@@ -1,13 +1,13 @@
 import React from 'react'
 
 function ReviewAnalyticsSection({ reviews = [] }) {
-  const totalReviews = reviews.length > 0 ? reviews.length : 48
+  const totalReviews = reviews.length
 
-  const star5 = reviews.filter((r) => r.review_stars === 5).length || 38
-  const star4 = reviews.filter((r) => r.review_stars === 4).length || 7
-  const star3 = reviews.filter((r) => r.review_stars === 3).length || 2
-  const star2 = reviews.filter((r) => r.review_stars === 2).length || 1
-  const star1 = reviews.filter((r) => r.review_stars === 1).length || 0
+  const star5 = reviews.filter((r) => Number(r.review_stars) === 5).length
+  const star4 = reviews.filter((r) => Number(r.review_stars) === 4).length
+  const star3 = reviews.filter((r) => Number(r.review_stars) === 3).length
+  const star2 = reviews.filter((r) => Number(r.review_stars) === 2).length
+  const star1 = reviews.filter((r) => Number(r.review_stars) === 1).length
 
   const starCounts = [
     { stars: 5, count: star5, color: '#7CCE17' },
@@ -18,9 +18,20 @@ function ReviewAnalyticsSection({ reviews = [] }) {
   ]
 
   const averageRating =
-    reviews.length > 0
-      ? (reviews.reduce((acc, r) => acc + (r.review_stars || 0), 0) / reviews.length).toFixed(1)
-      : '4.9'
+    totalReviews > 0
+      ? (reviews.reduce((acc, r) => acc + (Number(r.review_stars) || 0), 0) / totalReviews).toFixed(1)
+      : '0.0'
+
+  const positiveReviewsCount = star5 + star4
+  const positivePercentage = totalReviews > 0 ? Math.round((positiveReviewsCount / totalReviews) * 100) : 0
+  const sentimentTag =
+    totalReviews === 0
+      ? 'No reviews in selected timeframe'
+      : positivePercentage >= 80
+      ? `Excellent (${positivePercentage}% Positive Feedback)`
+      : positivePercentage >= 50
+      ? `Good (${positivePercentage}% Positive Feedback)`
+      : `Needs Attention (${positivePercentage}% Positive Feedback)`
 
   return (
     <div className="analytics-section-card">
@@ -37,7 +48,7 @@ function ReviewAnalyticsSection({ reviews = [] }) {
           </div>
           <div className="analytics-stars-breakdown">
             {starCounts.map((s) => {
-              const pct = Math.round((s.count / totalReviews) * 100)
+              const pct = totalReviews > 0 ? Math.round((s.count / totalReviews) * 100) : 0
               return (
                 <div key={s.stars} className="analytics-star-row">
                   <span className="analytics-star-label">{'★'.repeat(s.stars)}</span>
@@ -58,10 +69,10 @@ function ReviewAnalyticsSection({ reviews = [] }) {
           </div>
           <div className="analytics-sentiment-box">
             <div className="analytics-sentiment-score">{averageRating}</div>
-            <div className="analytics-sentiment-stars">{'★'.repeat(5)}</div>
-            <div className="analytics-sentiment-tag">Excellent (98% Positive Feedback)</div>
+            <div className="analytics-sentiment-stars">{'★'.repeat(Math.max(1, Math.round(Number(averageRating) || 5)))}</div>
+            <div className="analytics-sentiment-tag">{sentimentTag}</div>
             <p className="analytics-sentiment-desc">
-              Based on {totalReviews} verified guest reviews. Day Tour and 22-Hour packages have the highest recommendation rate.
+              Based on {totalReviews} verified guest reviews in this timeframe. Day Tour, Overnight, and 22-Hour packages evaluated.
             </p>
           </div>
         </div>

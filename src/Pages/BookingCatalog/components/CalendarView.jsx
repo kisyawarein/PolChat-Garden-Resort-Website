@@ -264,7 +264,7 @@ function CalendarView({
       {/* Day Details Modal */}
       {selectedDayDetails && (
         <div className="modal-backdrop" onClick={() => setSelectedDayDetails(null)}>
-          <div className="modal-dialog-card" onClick={(e) => e.stopPropagation()}>
+          <div className="modal-dialog-card cal-day-details-dialog" onClick={(e) => e.stopPropagation()}>
             <div className="modal-card-header">
               <h3 className="modal-card-title">
                 Schedule for {selectedDayDetails.dateStr}

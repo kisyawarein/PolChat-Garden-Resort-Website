@@ -36,7 +36,6 @@ function SummaryCards({ reservations = [], visitations = [] }) {
         </div>
         <div className="dash-stat-bottom">
           <span className="dash-stat-link-text">Confirmed Stays</span>
-          <span className="dash-stat-arrow-icon">➔</span>
         </div>
       </div>
 
@@ -56,7 +55,6 @@ function SummaryCards({ reservations = [], visitations = [] }) {
         </div>
         <div className="dash-stat-bottom">
           <span className="dash-stat-link-text">Action Needed</span>
-          <span className="dash-stat-arrow-icon">➔</span>
         </div>
       </div>
 
@@ -76,7 +74,6 @@ function SummaryCards({ reservations = [], visitations = [] }) {
         </div>
         <div className="dash-stat-bottom">
           <span className="dash-stat-link-text">Approved Oculars</span>
-          <span className="dash-stat-arrow-icon">➔</span>
         </div>
       </div>
 
@@ -98,7 +95,6 @@ function SummaryCards({ reservations = [], visitations = [] }) {
         </div>
         <div className="dash-stat-bottom">
           <span className="dash-stat-link-text">Awaiting Review</span>
-          <span className="dash-stat-arrow-icon">➔</span>
         </div>
       </div>
 
@@ -119,7 +115,6 @@ function SummaryCards({ reservations = [], visitations = [] }) {
         </div>
         <div className="dash-stat-bottom">
           <span className="dash-stat-link-text">Cancelled / Declined</span>
-          <span className="dash-stat-arrow-icon">➔</span>
         </div>
       </div>
     </div>

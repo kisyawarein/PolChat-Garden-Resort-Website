@@ -28,7 +28,6 @@ function ReviewSummaryCards({ reviews = [] }) {
         </div>
         <div className="dash-stat-bottom">
           <span className="dash-stat-link-text">Customer Satisfaction</span>
-          <span className="dash-stat-arrow-icon">➔</span>
         </div>
       </div>
 
@@ -49,7 +48,6 @@ function ReviewSummaryCards({ reviews = [] }) {
           <span className="dash-stat-link-text">
             {totalReviews > 0 ? Math.round((fiveStarReviews / totalReviews) * 100) : 0}% Perfect Score
           </span>
-          <span className="dash-stat-arrow-icon">➔</span>
         </div>
       </div>
 
@@ -70,7 +68,6 @@ function ReviewSummaryCards({ reviews = [] }) {
         </div>
         <div className="dash-stat-bottom">
           <span className="dash-stat-link-text">Needs Review</span>
-          <span className="dash-stat-arrow-icon">➔</span>
         </div>
       </div>
 
@@ -89,7 +86,6 @@ function ReviewSummaryCards({ reviews = [] }) {
         </div>
         <div className="dash-stat-bottom">
           <span className="dash-stat-link-text">Feedback Directory</span>
-          <span className="dash-stat-arrow-icon">➔</span>
         </div>
       </div>
     </div>

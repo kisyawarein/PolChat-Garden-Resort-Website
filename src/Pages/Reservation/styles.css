@@ -969,6 +969,20 @@
   background: #eef9e3 !important;
 }
 
+.resv-cal-day-booked {
+  background: #fff5f5;
+  border-color: #fed7d7;
+  cursor: not-allowed;
+  opacity: 0.85;
+}
+
+.resv-cal-day-pending {
+  background: #fffcf0;
+  border-color: #F2D17E;
+  cursor: not-allowed;
+  opacity: 0.88;
+}
+
 .resv-cal-day-past {
   background: #f7f6f4;
   opacity: 0.45;
@@ -1005,6 +1019,12 @@
 .resv-cal-pill-available {
   background: #eef7e9;
   color: #43593B;
+}
+
+.resv-cal-pill-pending {
+  background: #FCF3DB;
+  color: #855c0a;
+  border: 1px solid #F2D17E;
 }
 
 .resv-cal-pill-booked {
@@ -1046,6 +1066,11 @@
 
 .resv-legend-dot-selected {
   background: #43593B;
+}
+
+.resv-legend-dot-pending {
+  background: #F2D17E;
+  box-shadow: 0 0 0 1px #d6b45a;
 }
 
 .resv-legend-dot-booked {
@@ -2419,6 +2444,17 @@
   color: #991B1B !important;
 }
 
+.ocular-cal-pending {
+  background-color: #FEF3C7 !important;
+  border-color: #FCD34D !important;
+  cursor: not-allowed !important;
+  opacity: 0.85;
+}
+
+.ocular-cal-pending .ocular-cal-day-num {
+  color: #92400E !important;
+}
+
 .ocular-cal-past {
   background-color: #F3F4F6 !important;
   border-color: #E5E7EB !important;
@@ -2464,6 +2500,11 @@
 .ocular-dot-selected {
   background-color: #43593B;
   border: 1px solid #43593B;
+}
+
+.ocular-dot-pending {
+  background-color: #FCD34D;
+  border: 1px solid #F59E0B;
 }
 
 .ocular-dot-booked {
