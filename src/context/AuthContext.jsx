@@ -167,8 +167,32 @@ export function AuthProvider({ children }) {
   const signup = async ({ firstName, lastName, birthday, email, password }) => {
     const cleanFirst = (firstName || '').trim()
     const cleanLast = (lastName || '').trim()
-    const cleanEmail = (email || '').trim()
+    const cleanEmail = (email || '').trim().toLowerCase()
     const fullName = `${cleanFirst} ${cleanLast}`.trim() || 'Customer Guest'
+
+    // Check existing customers in Supabase to guarantee uniqueness of Name and Email
+    try {
+      const existingCustomers = await DataService.getCustomers({ force: true })
+      const duplicate = (existingCustomers || []).find((c) => {
+        const cFirst = (c.first_name || '').trim().toLowerCase()
+        const cLast = (c.last_name || '').trim().toLowerCase()
+        const cEmail = (c.email || '').trim().toLowerCase()
+        const cFull = `${cFirst} ${cLast}`.trim()
+
+        const isSameName = cFirst && cleanFirst && cFirst === cleanFirst.toLowerCase() && cLast === cleanLast.toLowerCase()
+        const isSameFullName = cFull && cFull === fullName.toLowerCase()
+        const isSameEmail = cEmail && cleanEmail && cEmail === cleanEmail
+
+        return isSameName || isSameFullName || isSameEmail
+      })
+
+      if (duplicate) {
+        return {
+          success: false,
+          error: 'An account with this Name or Email address already exists. Please choose a different name/email or sign in.',
+        }
+      }
+    } catch (e) {}
 
     // Create directly in Supabase customer_accounts
     const created = await DataService.addCustomer({
@@ -178,6 +202,10 @@ export function AuthProvider({ children }) {
       password: password,
       phone_number: 9171234567,
     })
+
+    if (!created) {
+      return { success: false, error: 'Failed to create account. Please try again.' }
+    }
 
     const customerId = created ? created.customer_id : Math.floor(100 + Math.random() * 900)
 

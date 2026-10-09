@@ -34,9 +34,39 @@ function AuthModal({ onAdminLoggedIn }) {
   // Status & Feedback states
   const [errorMsg, setErrorMsg] = useState('')
   const [forgotPasswordNotice, setForgotPasswordNotice] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [isCheckingName, setIsCheckingName] = useState(false)
 
   // Input refs for 6 OTP boxes
   const otpInputRefs = useRef([])
+
+  // Reset all signup form inputs and OTP state
+  const resetSignupForm = () => {
+    setFirstName('')
+    setLastName('')
+    setBirthday('')
+    setEmail('')
+    setSignupPassword('')
+    setIsOtpStep(false)
+    setOtpDigits(['', '', '', '', '', ''])
+    setGeneratedOtp('')
+    setResendCooldown(0)
+    setErrorMsg('')
+    setIsSubmitting(false)
+    setIsCheckingName(false)
+  }
+
+  // Whenever modal opens or mode changes, ensure clean slate
+  useEffect(() => {
+    if (isAuthModalOpen) {
+      setErrorMsg('')
+      setForgotPasswordNotice(false)
+      setIsOtpStep(false)
+      setOtpDigits(['', '', '', '', '', ''])
+      setIsSubmitting(false)
+      setIsCheckingName(false)
+    }
+  }, [isAuthModalOpen, authModalMode])
 
   // Resend cooldown timer
   useEffect(() => {
@@ -51,11 +81,15 @@ function AuthModal({ onAdminLoggedIn }) {
 
   if (!isAuthModalOpen) return null
 
+  const handleClose = () => {
+    resetSignupForm()
+    setNameOrEmail('')
+    setPassword('')
+    closeAuthModal()
+  }
+
   const handleSwitchMode = (mode) => {
-    setErrorMsg('')
-    setForgotPasswordNotice(false)
-    setIsOtpStep(false)
-    setOtpDigits(['', '', '', '', '', ''])
+    resetSignupForm()
     setAuthModalMode(mode)
   }
 
@@ -69,32 +103,45 @@ function AuthModal({ onAdminLoggedIn }) {
       return
     }
 
+    setIsSubmitting(true)
+
     const res = await login({
       identifier: nameOrEmail,
       password: password,
     })
+
+    setIsSubmitting(false)
 
     if (!res || !res.success) {
       setErrorMsg(res?.error || 'Account does not exist in the database. Please check your credentials or create an account.')
       return
     }
 
+    resetSignupForm()
+    setNameOrEmail('')
+    setPassword('')
+
     if (res?.user?.role === 'admin' && onAdminLoggedIn) {
       onAdminLoggedIn()
     }
   }
 
-  // Step 1: Send OTP to Email
-  const handleRequestOtp = (e) => {
+  // Step 1: Send OTP to Email (with strict database uniqueness verification)
+  const handleRequestOtp = async (e) => {
     e.preventDefault()
     setErrorMsg('')
 
-    if (!firstName.trim() || !lastName.trim() || !email.trim() || !signupPassword.trim()) {
+    const cleanFirst = firstName.trim()
+    const cleanLast = lastName.trim()
+    const cleanEmail = email.trim().toLowerCase()
+    const fullName = `${cleanFirst} ${cleanLast}`.trim()
+
+    if (!cleanFirst || !cleanLast || !cleanEmail || !signupPassword.trim()) {
       setErrorMsg('Please fill in all required fields.')
       return
     }
 
-    if (!email.includes('@') || !email.includes('.')) {
+    if (!cleanEmail.includes('@') || !cleanEmail.includes('.')) {
       setErrorMsg('Please enter a valid email address.')
       return
     }
@@ -104,6 +151,33 @@ function AuthModal({ onAdminLoggedIn }) {
       return
     }
 
+    // Check database to prevent duplicate First Name / Last Name or Email
+    setIsCheckingName(true)
+    try {
+      const customers = await DataService.getCustomers({ force: true })
+      const duplicate = (customers || []).find((c) => {
+        const cFirst = (c.first_name || '').trim().toLowerCase()
+        const cLast = (c.last_name || '').trim().toLowerCase()
+        const cEmail = (c.email || '').trim().toLowerCase()
+        const cFull = `${cFirst} ${cLast}`.trim()
+
+        const isSameName = cFirst === cleanFirst.toLowerCase() && cLast === cleanLast.toLowerCase()
+        const isSameFullName = cFull === fullName.toLowerCase()
+        const isSameEmail = cEmail && cleanEmail && cEmail === cleanEmail
+
+        return isSameName || isSameFullName || isSameEmail
+      })
+
+      if (duplicate) {
+        setIsCheckingName(false)
+        setErrorMsg('An account with this Name or Email address already exists. Please choose a different name/email or sign in.')
+        return
+      }
+    } catch (err) {
+      console.warn('Customer existence check note:', err)
+    }
+    setIsCheckingName(false)
+
     const code = Math.floor(100000 + Math.random() * 900000).toString()
     setGeneratedOtp(code)
     setOtpDigits(['', '', '', '', '', ''])
@@ -112,7 +186,7 @@ function AuthModal({ onAdminLoggedIn }) {
     fetch('/api/send-otp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email: email.trim(), otpCode: code }),
+      body: JSON.stringify({ email: cleanEmail, otpCode: code }),
     }).catch((err) => {
       console.warn('OTP dispatch note:', err)
     })
@@ -184,8 +258,9 @@ function AuthModal({ onAdminLoggedIn }) {
   }
 
   // Step 2: Verify OTP & Complete Registration
-  const handleVerifyOtpAndSignup = (e) => {
+  const handleVerifyOtpAndSignup = async (e) => {
     e.preventDefault()
+    if (isSubmitting) return
     setErrorMsg('')
 
     const enteredCode = otpDigits.join('').trim()
@@ -205,18 +280,34 @@ function AuthModal({ onAdminLoggedIn }) {
       return
     }
 
-    // Create customer record in Supabase customer_accounts & log in immediately
-    signup({
-      firstName: firstName.trim(),
-      lastName: lastName.trim(),
-      birthday: birthday,
-      email: email.trim(),
-      password: signupPassword,
-    }).then((res) => {
+    setIsSubmitting(true)
+
+    try {
+      // Create customer record in Supabase customer_accounts & log in immediately
+      const res = await signup({
+        firstName: firstName.trim(),
+        lastName: lastName.trim(),
+        birthday: birthday,
+        email: email.trim(),
+        password: signupPassword,
+      })
+
+      if (!res || !res.success) {
+        setIsSubmitting(false)
+        setErrorMsg(res?.error || 'Registration failed. An account with this name or email may already exist.')
+        return
+      }
+
+      // Reset all states completely upon successful signup
+      resetSignupForm()
+
       if (res?.user?.role === 'admin' && onAdminLoggedIn) {
         onAdminLoggedIn()
       }
-    })
+    } catch (err) {
+      setIsSubmitting(false)
+      setErrorMsg('An error occurred during account registration. Please try again.')
+    }
   }
 
   const handleQuickFillAdmin = () => {
@@ -225,7 +316,7 @@ function AuthModal({ onAdminLoggedIn }) {
   }
 
   return (
-    <div className="auth-modal-backdrop" onClick={closeAuthModal}>
+    <div className="auth-modal-backdrop" onClick={handleClose}>
       <div
         className="auth-modal-dialog"
         onClick={(e) => e.stopPropagation()}
@@ -235,7 +326,7 @@ function AuthModal({ onAdminLoggedIn }) {
         <button
           type="button"
           className="auth-close-btn"
-          onClick={closeAuthModal}
+          onClick={handleClose}
           aria-label="Close"
         >
           ✕
@@ -313,8 +404,8 @@ function AuthModal({ onAdminLoggedIn }) {
                     </button>
                   </div>
 
-                  <button type="submit" className="auth-submit-btn">
-                    Sign In
+                  <button type="submit" className="auth-submit-btn" disabled={isSubmitting}>
+                    {isSubmitting ? 'Signing In...' : 'Sign In'}
                   </button>
                 </form>
 
@@ -403,9 +494,9 @@ function AuthModal({ onAdminLoggedIn }) {
                   <button
                     type="submit"
                     className="auth-submit-btn"
-                    disabled={otpDigits.some((d) => !d)}
+                    disabled={otpDigits.some((d) => !d) || isSubmitting}
                   >
-                    Verify & Complete Registration ✓
+                    {isSubmitting ? 'Creating Account...' : 'Verify & Complete Registration ✓'}
                   </button>
                 </form>
               </div>
@@ -480,8 +571,12 @@ function AuthModal({ onAdminLoggedIn }) {
                     />
                   </div>
 
-                  <button type="submit" className="auth-submit-btn">
-                    Send Verification Code to Email →
+                  <button
+                    type="submit"
+                    className="auth-submit-btn"
+                    disabled={isCheckingName}
+                  >
+                    {isCheckingName ? 'Verifying Account Details...' : 'Send Verification Code to Email →'}
                   </button>
                 </form>
 
