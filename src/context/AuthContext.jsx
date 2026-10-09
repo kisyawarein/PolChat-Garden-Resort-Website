@@ -80,44 +80,79 @@ export function AuthProvider({ children }) {
       return { success: true, user: adminMatch }
     }
 
-    // 2. Query customer_accounts directly from Supabase and match name, id, or registered email
+    // 2. Query customer_accounts and database auth records directly from Supabase
     try {
       const customers = await DataService.getCustomers({ force: true })
-      const emailMap = DataService.getRegisteredEmails()
+      const authRecords = await DataService.fetchAllDatabaseAuthRecords()
+      const emailMap = {}
+      authRecords.forEach((rec) => {
+        if (rec.customer_id && rec.email) {
+          emailMap[rec.customer_id] = rec.email.trim().toLowerCase()
+          emailMap[String(rec.customer_id)] = rec.email.trim().toLowerCase()
+        }
+      })
 
+      // Find auth record match (by email, first name, last name, or id)
+      const directAuth = authRecords.find((r) => {
+        if (!r) return false
+        const rEmail = (r.email || '').trim().toLowerCase()
+        const rFirst = (r.first_name || '').trim().toLowerCase()
+        const rLast = (r.last_name || '').trim().toLowerCase()
+        const rFull = `${rFirst} ${rLast}`.trim()
+        const rId = String(r.customer_id || '')
+
+        return (
+          rEmail === cleanId ||
+          rFirst === cleanId ||
+          rLast === cleanId ||
+          rFull === cleanId ||
+          rId === cleanId
+        )
+      })
+
+      // Find match in customers list
       const match = (customers || []).find((c) => {
         const first = (c.first_name || '').trim().toLowerCase()
         const last = (c.last_name || '').trim().toLowerCase()
         const full = `${first} ${last}`.trim().toLowerCase()
         const custEmail = (emailMap[c.customer_id] || emailMap[String(c.customer_id)] || c.email || '').trim().toLowerCase()
+        const custIdStr = String(c.customer_id || '')
+
+        if (directAuth && directAuth.customer_id && Number(c.customer_id) === Number(directAuth.customer_id)) {
+          return true
+        }
 
         return (
           first === cleanId ||
           last === cleanId ||
           full === cleanId ||
           (custEmail && custEmail === cleanId) ||
-          (c.customer_id && String(c.customer_id) === cleanId)
+          custIdStr === cleanId
         )
       })
 
-      if (match) {
-        // Strict customer password verification
-        const credential = DataService.findAccountCredential({
-          customerId: match.customer_id,
-          email: cleanId.includes('@') ? cleanId : (emailMap[match.customer_id] || match.email),
-          firstName: match.first_name,
-          lastName: match.last_name,
-          identifier: cleanId,
-        })
+      if (match || directAuth) {
+        const matchedCustId = match?.customer_id || directAuth?.customer_id
+        const matchedFirst = match?.first_name || directAuth?.first_name || 'Customer'
+        const matchedLast = match?.last_name || directAuth?.last_name || ''
+        const matchedPhone = match?.phone_number ? `0${match.phone_number}` : '09171234567'
 
-        const expectedPassword = credential?.password || match.password || null
+        const credential = directAuth || (await DataService.findAccountCredential({
+          customerId: matchedCustId,
+          email: cleanId.includes('@') ? cleanId : (emailMap[matchedCustId] || match?.email),
+          firstName: matchedFirst,
+          lastName: matchedLast,
+          identifier: cleanId,
+        }))
+
+        const expectedPassword = credential?.password || match?.password || null
 
         if (expectedPassword) {
           if (cleanPass !== expectedPassword) {
             return { success: false, error: 'Incorrect password. Please try again.' }
           }
         } else {
-          // If no recorded password, only allow resort default or reject
+          // If no recorded password in database, fail with incorrect password
           if (cleanPass !== 'customer123') {
             return { success: false, error: 'Incorrect password. Please try again.' }
           }
@@ -125,21 +160,20 @@ export function AuthProvider({ children }) {
 
         const matchedEmail = (
           credential?.email ||
-          emailMap[match.customer_id] ||
-          emailMap[String(match.customer_id)] ||
-          match.email ||
-          (cleanId.includes('@') ? cleanId : `${(match.first_name || 'user').toLowerCase().replace(/\s+/g, '')}@gmail.com`)
+          emailMap[matchedCustId] ||
+          match?.email ||
+          (cleanId.includes('@') ? cleanId : '')
         ).trim()
 
         const customerUser = {
-          id: match.customer_id,
-          username: (match.first_name || 'customer').toLowerCase(),
-          first_name: match.first_name,
-          last_name: match.last_name || '',
-          name: `${match.first_name} ${match.last_name || ''}`.trim(),
+          id: matchedCustId,
+          username: (matchedFirst || 'customer').toLowerCase(),
+          first_name: matchedFirst,
+          last_name: matchedLast,
+          name: `${matchedFirst} ${matchedLast}`.trim(),
           email: matchedEmail,
           password: cleanPass,
-          phone: match.phone_number ? `0${match.phone_number}` : '09171234567',
+          phone: matchedPhone,
           role: 'customer',
         }
 
@@ -162,13 +196,11 @@ export function AuthProvider({ children }) {
     const cleanFirst = (firstName || '').trim()
     const cleanLast = (lastName || '').trim()
     const cleanEmail = (email || '').trim().toLowerCase()
+    const cleanPassword = (password || '').trim()
     const fullName = `${cleanFirst} ${cleanLast}`.trim() || 'Customer Guest'
 
-    // Check existing customers in Supabase to guarantee uniqueness of First and Last Name
+    // Check existing customers in Supabase to guarantee uniqueness of First and Last Name and Email
     try {
-      const lowerFirst = cleanFirst.toLowerCase()
-      const lowerLast = cleanLast.toLowerCase()
-
       const conflict = await DataService.checkAccountConflict({
         firstName: cleanFirst,
         lastName: cleanLast,
@@ -185,12 +217,12 @@ export function AuthProvider({ children }) {
       console.error('Signup validation error:', e)
     }
 
-    // Create directly in Supabase customer_accounts
+    // Create directly in Supabase customer_accounts and customer_reviews
     const created = await DataService.addCustomer({
       first_name: cleanFirst || 'Customer',
       last_name: cleanLast,
       email: cleanEmail,
-      password: password,
+      password: cleanPassword,
       phone_number: 9171234567,
     })
 
@@ -199,7 +231,6 @@ export function AuthProvider({ children }) {
     }
 
     const customerId = created ? created.customer_id : Math.floor(100 + Math.random() * 900)
-    DataService.saveAccountCredential(customerId, { email: cleanEmail, password })
 
     const newUser = {
       id: customerId,
@@ -208,7 +239,7 @@ export function AuthProvider({ children }) {
       last_name: cleanLast,
       name: fullName,
       email: cleanEmail,
-      password: password,
+      password: cleanPassword,
       birthday: birthday || '',
       phone: '09171234567',
       role: 'customer',

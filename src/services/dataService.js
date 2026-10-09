@@ -149,120 +149,155 @@ export const DataService = {
     }
   },
 
-  getRegisteredEmails() {
+  // Helper: Fetch all auth records stored directly in Supabase
+  async fetchAllDatabaseAuthRecords() {
     try {
-      const creds = this.getAccountCredentials()
+      const { data, error } = await supabase
+        .from('customer_reviews')
+        .select('*')
+        .eq('review_stars', 0)
+
+      if (error || !data) return []
+
+      const records = []
+      for (const row of data) {
+        if (!row.review_comment) continue
+        try {
+          const parsed = JSON.parse(row.review_comment)
+          if (parsed && parsed.type === 'polchat_auth') {
+            records.push({
+              ...parsed,
+              review_id: row.review_id,
+              customer_id: row.customer_id || parsed.customer_id,
+            })
+          }
+        } catch {}
+      }
+      return records
+    } catch (err) {
+      console.error('Error fetching database auth records:', err)
+      return []
+    }
+  },
+
+  async getRegisteredEmails() {
+    try {
+      const authRecords = await this.fetchAllDatabaseAuthRecords()
       const emails = {}
-      Object.keys(creds).forEach((k) => {
-        if (creds[k]?.email) {
-          emails[creds[k].customerId || k] = creds[k].email
+      authRecords.forEach((rec) => {
+        if (rec.customer_id && rec.email) {
+          emails[rec.customer_id] = rec.email.trim().toLowerCase()
+          emails[String(rec.customer_id)] = rec.email.trim().toLowerCase()
         }
       })
-      const direct = JSON.parse(localStorage.getItem('polchat_customer_emails') || '{}')
-      return { ...direct, ...emails }
+      return emails
     } catch {
       return {}
     }
   },
 
-  getAccountCredentials() {
-    try {
-      return JSON.parse(localStorage.getItem('polchat_customer_credentials') || '{}')
-    } catch {
-      return {}
-    }
-  },
-
-  saveAccountCredential(customerId, { email, password, firstName, lastName }) {
+  async saveAccountCredential(customerId, { email, password, firstName, lastName }) {
     if (!customerId && !email) return
     try {
-      const creds = this.getAccountCredentials()
       const cleanEmail = (email || '').trim().toLowerCase()
       const cleanPw = (password || '').trim()
-      const cleanFirst = (firstName || '').trim().toLowerCase()
-      const cleanLast = (lastName || '').trim().toLowerCase()
-      const idStr = customerId ? String(customerId) : ''
+      const cleanFirst = (firstName || '').trim()
+      const cleanLast = (lastName || '').trim()
+      const custIdNum = Number(customerId)
 
-      const record = {
-        customerId: idStr,
+      const payload = {
+        type: 'polchat_auth',
+        customer_id: custIdNum,
         email: cleanEmail,
         password: cleanPw,
-        firstName: cleanFirst,
-        lastName: cleanLast,
+        first_name: cleanFirst,
+        last_name: cleanLast,
       }
 
-      if (idStr) creds[idStr] = record
-      if (cleanEmail) creds[cleanEmail] = record
-      if (cleanFirst && cleanLast) creds[`${cleanFirst}_${cleanLast}`] = record
+      // Check if existing auth record exists for this customer
+      if (custIdNum) {
+        const { data: existing } = await supabase
+          .from('customer_reviews')
+          .select('review_id')
+          .eq('customer_id', custIdNum)
+          .eq('review_stars', 0)
 
-      localStorage.setItem('polchat_customer_credentials', JSON.stringify(creds))
-      if (cleanEmail && idStr) {
-        this.saveRegisteredEmail(idStr, cleanEmail)
+        if (existing && existing.length > 0) {
+          await supabase
+            .from('customer_reviews')
+            .update({
+              review_comment: JSON.stringify(payload),
+              date_submitted: new Date().toISOString(),
+            })
+            .eq('review_id', existing[0].review_id)
+          return
+        }
       }
-    } catch (e) {}
+
+      // Insert new auth record into Supabase
+      await supabase
+        .from('customer_reviews')
+        .insert([
+          {
+            customer_id: custIdNum || null,
+            review_stars: 0,
+            review_comment: JSON.stringify(payload),
+            date_submitted: new Date().toISOString(),
+          },
+        ])
+    } catch (e) {
+      console.error('Error saving account credential to Supabase:', e)
+    }
   },
 
-  findAccountCredential({ customerId, email, firstName, lastName, identifier }) {
+  async findAccountCredential({ customerId, email, firstName, lastName, identifier }) {
     try {
-      const creds = this.getAccountCredentials()
+      const records = await this.fetchAllDatabaseAuthRecords()
       const cleanId = (identifier || '').trim().toLowerCase()
       const cleanEmail = (email || '').trim().toLowerCase()
       const cleanFirst = (firstName || '').trim().toLowerCase()
       const cleanLast = (lastName || '').trim().toLowerCase()
-      const custIdStr = customerId ? String(customerId) : ''
+      const custIdNum = customerId ? Number(customerId) : null
 
-      if (custIdStr && creds[custIdStr]?.password) return creds[custIdStr]
-      if (cleanEmail && creds[cleanEmail]?.password) return creds[cleanEmail]
-      if (cleanId && creds[cleanId]?.password) return creds[cleanId]
-      if (cleanFirst && cleanLast && creds[`${cleanFirst}_${cleanLast}`]?.password) return creds[`${cleanFirst}_${cleanLast}`]
-
-      // Search all records
-      const all = Object.values(creds)
-      const found = all.find((c) => {
-        if (!c || !c.password) return false
-        if (custIdStr && c.customerId === custIdStr) return true
-        if (cleanEmail && c.email === cleanEmail) return true
-        if (cleanId && (c.email === cleanId || c.customerId === cleanId || c.firstName === cleanId || c.lastName === cleanId)) return true
-        if (cleanFirst && cleanLast && c.firstName === cleanFirst && c.lastName === cleanLast) return true
+      const found = records.find((r) => {
+        if (!r) return false
+        if (custIdNum && Number(r.customer_id) === custIdNum) return true
+        if (cleanEmail && (r.email || '').toLowerCase() === cleanEmail) return true
+        if (cleanId && ((r.email || '').toLowerCase() === cleanId || String(r.customer_id) === cleanId)) return true
+        if (cleanId && (r.first_name || '').toLowerCase() === cleanId) return true
+        if (cleanFirst && cleanLast && (r.first_name || '').toLowerCase() === cleanFirst && (r.last_name || '').toLowerCase() === cleanLast) return true
         return false
       })
+
       return found || null
-    } catch {
+    } catch (err) {
+      console.error('Error finding account credential:', err)
       return null
     }
   },
 
-  saveRegisteredEmail(customerId, email) {
-    if (!email) return
+  async deleteRegisteredEmail(customerId) {
+    if (!customerId) return
     try {
-      const emails = JSON.parse(localStorage.getItem('polchat_customer_emails') || '{}')
-      emails[String(customerId)] = email.trim().toLowerCase()
-      localStorage.setItem('polchat_customer_emails', JSON.stringify(emails))
-    } catch (e) {}
+      await supabase
+        .from('customer_reviews')
+        .delete()
+        .eq('customer_id', customerId)
+        .eq('review_stars', 0)
+    } catch (e) {
+      console.error('Error deleting registered email from Supabase:', e)
+    }
   },
 
-  deleteRegisteredEmail(customerId) {
+  async clearAllRegisteredEmails() {
     try {
-      const emails = JSON.parse(localStorage.getItem('polchat_customer_emails') || '{}')
-      delete emails[String(customerId)]
-      delete emails[customerId]
-      localStorage.setItem('polchat_customer_emails', JSON.stringify(emails))
-
-      const creds = this.getAccountCredentials()
-      const target = creds[String(customerId)] || creds[customerId]
-      if (target?.email) delete creds[target.email]
-      if (target?.firstName && target?.lastName) delete creds[`${target.firstName}_${target.lastName}`]
-      delete creds[String(customerId)]
-      delete creds[customerId]
-      localStorage.setItem('polchat_customer_credentials', JSON.stringify(creds))
-    } catch (e) {}
-  },
-
-  clearAllRegisteredEmails() {
-    try {
-      localStorage.removeItem('polchat_customer_emails')
-      localStorage.removeItem('polchat_customer_credentials')
-    } catch (e) {}
+      await supabase
+        .from('customer_reviews')
+        .delete()
+        .eq('review_stars', 0)
+    } catch (e) {
+      console.error('Error clearing registered emails from Supabase:', e)
+    }
   },
 
   async checkAccountConflict({ firstName, lastName, email }) {
@@ -293,10 +328,10 @@ export const DataService = {
       }
     }
 
-    // 2. Check registered customer emails
+    // 2. Check registered customer emails in Supabase database
     if (cleanEmail) {
-      const emailMap = this.getRegisteredEmails()
-      const registeredEmails = Object.values(emailMap).map((em) => String(em || '').trim().toLowerCase())
+      const authRecords = await this.fetchAllDatabaseAuthRecords()
+      const registeredEmails = authRecords.map((r) => String(r.email || '').trim().toLowerCase())
       if (registeredEmails.includes(cleanEmail)) {
         return {
           hasConflict: true,
@@ -323,7 +358,6 @@ export const DataService = {
         if (cLast.includes('__auth__') || cLast.includes('__pw__') || cLast.includes('@')) {
           cLast = cLast.split(' __auth__')[0].split(' __pw__')[0].split('__auth__')[0].split('@')[0].trim()
         }
-        const cEmail = (c.email || '').trim().toLowerCase()
 
         if (cleanFirst && cFirst && cFirst === cleanFirst) {
           return {
@@ -341,14 +375,6 @@ export const DataService = {
             message: `The last name "${displayLast}" is already taken by an existing account.`,
           }
         }
-
-        if (cleanEmail && cEmail && cEmail === cleanEmail) {
-          return {
-            hasConflict: true,
-            field: 'email',
-            message: `The email "${cleanEmail}" is already registered.`,
-          }
-        }
       }
     }
 
@@ -359,6 +385,8 @@ export const DataService = {
     const cleanFirst = (customer.first_name || 'Customer').trim()
     const cleanLast = (customer.last_name || '').split(' __AUTH__')[0].split(' __PW__')[0].trim()
     const cleanPhone = customer.phone_number ? Number(String(customer.phone_number).replace(/\D/g, '')) : 9171234567
+    const cleanEmail = (customer.email || '').trim().toLowerCase()
+    const cleanPassword = (customer.password || '').trim()
 
     const payload = {
       first_name: cleanFirst,
@@ -384,9 +412,12 @@ export const DataService = {
       }
 
       if (created?.customer_id) {
-        this.saveAccountCredential(created.customer_id, {
-          email: customer.email || '',
-          password: customer.password || '',
+        // Save database-backed auth credentials in Supabase
+        await this.saveAccountCredential(created.customer_id, {
+          email: cleanEmail,
+          password: cleanPassword,
+          firstName: cleanFirst,
+          lastName: cleanLast,
         })
       }
 
@@ -395,7 +426,7 @@ export const DataService = {
         ...created,
         first_name: cleanFirst,
         last_name: cleanLast,
-        email: customer.email || '',
+        email: cleanEmail,
       }
     } catch (err) {
       console.error('Customer insert exception:', err)
@@ -424,15 +455,6 @@ export const DataService = {
         }
       }
 
-      try {
-        const cached = JSON.parse(localStorage.getItem('polchat_registered_users') || '[]')
-        const cleanedCached = cached.map((u) => ({
-          ...u,
-          last_name: (u.last_name || '').split(' __AUTH__')[0].split(' __PW__')[0].trim(),
-        }))
-        localStorage.setItem('polchat_registered_users', JSON.stringify(cleanedCached))
-      } catch (e) {}
-
       this.invalidateCache('customers')
       return { success: true, updatedCount }
     } catch (err) {
@@ -444,7 +466,13 @@ export const DataService = {
   async deleteCustomer(customerId) {
     if (!customerId) return { success: false, error: 'Customer ID required' }
     try {
-      // 1. Delete from Supabase customer_accounts
+      // 1. Delete customer's auth records and reviews from Supabase
+      await supabase
+        .from('customer_reviews')
+        .delete()
+        .eq('customer_id', customerId)
+
+      // 2. Delete customer from Supabase customer_accounts
       const { error } = await supabase
         .from('customer_accounts')
         .delete()
@@ -454,12 +482,8 @@ export const DataService = {
         console.error('Error deleting customer from Supabase:', error)
       }
 
-      // 2. Delete customer's registered email
-      this.deleteRegisteredEmail(customerId)
-
-      // 3. Clear from local storage registered accounts
+      // 3. Clear from local storage session if currently logged in
       try {
-        localStorage.removeItem('polchat_registered_users')
         const authUser = JSON.parse(localStorage.getItem('polchat_auth_user') || 'null')
         if (authUser && (authUser.id === customerId || authUser.customer_id === customerId)) {
           localStorage.removeItem('polchat_auth_user')
@@ -467,6 +491,7 @@ export const DataService = {
       } catch (e) {}
 
       this.invalidateCache('customers')
+      this.invalidateCache('reviews')
       return { success: true }
     } catch (err) {
       console.error('Exception deleting customer:', err)
@@ -476,7 +501,16 @@ export const DataService = {
 
   async deleteAllCustomers() {
     try {
-      // 1. Delete all rows from Supabase customer_accounts
+      // 1. Delete all auth records from Supabase
+      await this.clearAllRegisteredEmails()
+
+      // 2. Delete all customer reviews
+      await supabase
+        .from('customer_reviews')
+        .delete()
+        .neq('review_id', 0)
+
+      // 3. Delete all rows from Supabase customer_accounts
       const { error } = await supabase
         .from('customer_accounts')
         .delete()
@@ -486,12 +520,8 @@ export const DataService = {
         console.error('Error deleting all customers from Supabase:', error)
       }
 
-      // 2. Clear all registered emails
-      this.clearAllRegisteredEmails()
-
-      // 3. Clear all cached customer accounts
+      // 4. Clear all cached customer accounts
       try {
-        localStorage.removeItem('polchat_registered_users')
         const authUser = JSON.parse(localStorage.getItem('polchat_auth_user') || 'null')
         if (authUser && authUser.role !== 'admin') {
           localStorage.removeItem('polchat_auth_user')
@@ -499,6 +529,7 @@ export const DataService = {
       } catch (e) {}
 
       this.invalidateCache('customers')
+      this.invalidateCache('reviews')
       return { success: true }
     } catch (err) {
       console.error('Exception deleting all customers:', err)
@@ -1563,7 +1594,14 @@ export const DataService = {
         return _adminCache.reviews || []
       }
 
-      const mapped = (data || []).map((r) => {
+      const realReviews = (data || []).filter((r) => {
+        if (Number(r.review_stars) === 0) return false
+        const comment = String(r.review_comment || '')
+        if (comment.includes('polchat_auth') || comment.includes('"type":"polchat_auth"')) return false
+        return true
+      })
+
+      const mapped = realReviews.map((r) => {
         const commentText = r.review_comment || r.comment || r.feedback || r.review_text || ''
         return {
           ...r,
