@@ -170,23 +170,23 @@ function Home() {
         />
         <div className="home-hero-overlay" />
         <div className="home-hero-content">
-          <h1 className="home-hero-title">INFORMATION: CENTER</h1>
+          <h1 className="home-hero-title">WELCOME TO POLCHAT!</h1>
           <div className="home-hero-info-row">
-            <span className="home-hero-info-item">INFORMATION</span>
-            <span className="home-hero-info-item">INFORMATION</span>
-            <span className="home-hero-info-item">INFORMATION</span>
+            <span className="home-hero-info-item"> A brief escape to reconnect, refresh, and recharge your energy.</span>
+            {/* <span className="home-hero-info-item">INFORMATION</span> 
+            <span className="home-hero-info-item">INFORMATION</span> */}
           </div>
         </div>
       </section>
 
       {/* Section 2 */}
-      <section className="home-section-2">
+      {/*<section className="home-section-2">
         <div className="home-section-2-container">
           <div className="home-section-2-content">
             <span className="home-section-2-text">INFORMATION</span>
           </div>
         </div>
-      </section>
+      </section>*/}
 
       {/* Section 3 */}
       <section className="home-section-3">
@@ -198,21 +198,22 @@ function Home() {
 
           {/* Bottom Left Content */}
           <div className="home-section-3-content">
-            <h2 className="home-section-3-title">POLCHAT</h2>
+            <h2 className="home-section-3-title"> Your Perfect Getaway Awaits</h2>
 
             <div className="home-section-3-info-grid">
               <div className="home-section-3-info-column">
+                <span className="home-section-3-info-text">It is designed to give you a refreshing experience.
+This is for family outings, barkada bonding, birthday celebrations, and simply taking a break.</span>
+              {/*  <span className="home-section-3-info-text">INFORMATION</span> */}
+              </div>
+          {/*    <div className="home-section-3-info-column">
                 <span className="home-section-3-info-text">INFORMATION</span>
                 <span className="home-section-3-info-text">INFORMATION</span>
               </div>
               <div className="home-section-3-info-column">
                 <span className="home-section-3-info-text">INFORMATION</span>
                 <span className="home-section-3-info-text">INFORMATION</span>
-              </div>
-              <div className="home-section-3-info-column">
-                <span className="home-section-3-info-text">INFORMATION</span>
-                <span className="home-section-3-info-text">INFORMATION</span>
-              </div>
+              </div> */}
             </div>
 
             <a href="#information" className="home-section-3-link">
@@ -226,20 +227,20 @@ function Home() {
       <section className="home-section-4">
         {/* Top Centered Header & Information */}
         <div className="home-section-4-header">
-          <h2 className="home-section-4-title">POLCHAT</h2>
+          <h2 className="home-section-4-title">HIGHLIGHTS OF POLCHAT</h2>
           <div className="home-section-4-info-grid">
             <div className="home-section-4-info-column">
               <span className="home-section-4-info-text">INFORMATION</span>
+              {/*<span className="home-section-4-info-text">INFORMATION</span>*/}
+            </div>
+          {/*}  <div className="home-section-4-info-column">
+              <span className="home-section-4-info-text">INFORMATION</span>
               <span className="home-section-4-info-text">INFORMATION</span>
             </div>
             <div className="home-section-4-info-column">
               <span className="home-section-4-info-text">INFORMATION</span>
               <span className="home-section-4-info-text">INFORMATION</span>
-            </div>
-            <div className="home-section-4-info-column">
-              <span className="home-section-4-info-text">INFORMATION</span>
-              <span className="home-section-4-info-text">INFORMATION</span>
-            </div>
+            </div>*/}
           </div>
         </div>
 
@@ -296,20 +297,20 @@ function Home() {
               <span className="home-section-5-picture-label">PICTURE</span>
             </div>
             <div className="home-section-5-content">
-              <h2 className="home-section-5-title">INFORMATION:</h2>
+              <h2 className="home-section-5-title">Nature & Serenity:</h2>
               <div className="home-section-5-info-grid">
                 <div className="home-section-5-info-column">
+                  <span className="home-section-5-info-text">Escape the noise. Our lush green gardens and refreshing pools offer the perfect peaceful environment to unwind with family and friends.</span>
+                  {/*<span className="home-section-5-info-text">INFORMATION</span>*/}
+                </div>
+            {/*     <div className="home-section-5-info-column">
                   <span className="home-section-5-info-text">INFORMATION</span>
                   <span className="home-section-5-info-text">INFORMATION</span>
                 </div>
                 <div className="home-section-5-info-column">
                   <span className="home-section-5-info-text">INFORMATION</span>
                   <span className="home-section-5-info-text">INFORMATION</span>
-                </div>
-                <div className="home-section-5-info-column">
-                  <span className="home-section-5-info-text">INFORMATION</span>
-                  <span className="home-section-5-info-text">INFORMATION</span>
-                </div>
+                </div> */}
               </div>
               <a href="#information" className="home-section-5-link">
                 INFORMATION LINK
@@ -320,20 +321,20 @@ function Home() {
           {/* Row 2: Info on Left, Picture on Right */}
           <div className="home-section-5-row home-section-5-row-2">
             <div className="home-section-5-content">
-              <h2 className="home-section-5-title">INFORMATION:</h2>
+              <h2 className="home-section-5-title">Private Events & Day Tours</h2>
               <div className="home-section-5-info-grid">
                 <div className="home-section-5-info-column">
+                  <span className="home-section-5-info-text">Explore our amenities, view available facilities, and prepare for a relaxing stay. Plan your day trip or private celebration with us. </span>
+                {/*  <span className="home-section-5-info-text">INFORMATION</span> */}
+                </div> 
+               {/* <div className="home-section-5-info-column">
                   <span className="home-section-5-info-text">INFORMATION</span>
                   <span className="home-section-5-info-text">INFORMATION</span>
-                </div>
-                <div className="home-section-5-info-column">
+                </div> */}
+               {/*  <div className="home-section-5-info-column">
                   <span className="home-section-5-info-text">INFORMATION</span>
                   <span className="home-section-5-info-text">INFORMATION</span>
-                </div>
-                <div className="home-section-5-info-column">
-                  <span className="home-section-5-info-text">INFORMATION</span>
-                  <span className="home-section-5-info-text">INFORMATION</span>
-                </div>
+                </div> */}
               </div>
               <a href="#information" className="home-section-5-link">
                 INFORMATION LINK
