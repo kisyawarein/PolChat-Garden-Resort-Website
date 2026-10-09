@@ -267,7 +267,12 @@
 }
 
 .sidebar-item-icon {
-  font-size: 1.1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
 }
 
 .sidebar-item-label {

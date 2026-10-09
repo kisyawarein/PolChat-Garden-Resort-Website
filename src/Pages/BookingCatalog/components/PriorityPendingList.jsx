@@ -275,8 +275,25 @@ function PriorityPendingList({
                   <h4 className="modal-charges-title">Financial Breakdown</h4>
                   <div className="modal-financial-row">
                     <span>Payment Mode:</span>
-                    <strong style={{ color: selectedDetailsItem.paymentType === 'cash' ? '#58402E' : '#386B06' }}>
-                      {selectedDetailsItem.paymentType === 'cash' ? '💵 Cash on Desk (Due Today)' : '📱 GCash Online'}
+                    <strong style={{ color: selectedDetailsItem.paymentType === 'cash' ? '#58402E' : '#386B06', display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                      {selectedDetailsItem.paymentType === 'cash' ? (
+                        <>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="2" y="6" width="20" height="12" rx="2" />
+                            <circle cx="12" cy="12" r="2" />
+                            <path d="M6 12h.01M18 12h.01" />
+                          </svg>
+                          <span>Cash on Desk (Due Today)</span>
+                        </>
+                      ) : (
+                        <>
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                            <rect x="5" y="2" width="14" height="20" rx="2" ry="2" />
+                            <line x1="12" y1="18" x2="12.01" y2="18" />
+                          </svg>
+                          <span>GCash Online</span>
+                        </>
+                      )}
                     </strong>
                   </div>
                   <div className="modal-financial-row">
@@ -296,8 +313,13 @@ function PriorityPendingList({
                     </strong>
                   </div>
                   {selectedDetailsItem.paymentType === 'cash' && (
-                    <div style={{ marginTop: '8px', padding: '8px 10px', backgroundColor: '#FFFBEB', border: '1px solid #F2D17E', borderRadius: '6px', fontSize: '0.78rem', color: '#78350F' }}>
-                      ℹ️ <strong>Cash Reservation:</strong> Guest is instructed to pay 50% downpayment in cash today. No payment receipt photo is required.
+                    <div style={{ marginTop: '8px', padding: '8px 10px', backgroundColor: '#FFFBEB', border: '1px solid #F2D17E', borderRadius: '6px', fontSize: '0.78rem', color: '#78350F', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <line x1="12" y1="16" x2="12" y2="12" />
+                        <line x1="12" y1="8" x2="12.01" y2="8" />
+                      </svg>
+                      <span><strong>Cash Reservation:</strong> Guest is instructed to pay 50% downpayment in cash today. No payment receipt photo is required.</span>
                     </div>
                   )}
                 </div>
@@ -327,8 +349,12 @@ function PriorityPendingList({
                 type="button"
                 className="modal-close-x"
                 onClick={() => setSelectedPhotoItem(null)}
+                aria-label="Close modal"
               >
-                ✕
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
               </button>
             </div>
 
@@ -399,8 +425,12 @@ function PriorityPendingList({
                 type="button"
                 className="modal-close-x"
                 onClick={() => setDeclineModalItem(null)}
+                aria-label="Close modal"
               >
-                ✕
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
               </button>
             </div>
 

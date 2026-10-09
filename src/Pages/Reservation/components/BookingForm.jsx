@@ -366,7 +366,7 @@ function BookingForm({
                 </svg>
               </span>
               <span className="resv-guarantee-text">
-                Your ₱2,000 security deposit is 100% refundable upon checkout with no property damages.
+                Your ₱{Number(priceCalculation.securityDeposit || selectedPackage?.sec_dep || 2000).toLocaleString()} security deposit is 100% refundable upon checkout with no property damages.
               </span>
             </div>
 

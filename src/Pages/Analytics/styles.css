@@ -191,16 +191,25 @@
   font-family: inherit;
 }
 
-.analytics-apply-date-btn {
-  margin-top: 4px;
-  padding: 5px 8px;
-  background-color: #43593B;
-  color: #ffffff;
-  border: none;
-  border-radius: 4px;
-  font-size: 0.74rem;
+.analytics-btn-export {
+  background-color: #58402E;
+  color: #F2D17E;
+  border: 1.5px solid #433022;
+  padding: 8px 16px;
+  font-size: 0.84rem;
   font-weight: 700;
+  border-radius: 6px;
   cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  transition: all 0.2s ease;
+}
+
+.analytics-btn-export:hover {
+  background-color: #43593B;
+  border-color: #35492E;
+  color: #ffffff;
 }
 
 /* Category Tabs */
@@ -223,6 +232,9 @@
   cursor: pointer;
   transition: all 0.15s ease;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
 }
 
 .analytics-tab-btn:hover {

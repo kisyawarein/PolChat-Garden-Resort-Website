@@ -139,10 +139,9 @@ export const DataService = {
       if (!error && data && data.length > 0) {
         const merged = data.map((d) => {
           const cachedPkg = localOverrides[d.duration_id] || {}
-          const defaultMax = d.duration_id === 2 ? 25 : 35
           return {
             ...d,
-            max_pax: d.max_pax !== undefined && d.max_pax !== null ? Number(d.max_pax) : (cachedPkg.max_pax !== undefined ? Number(cachedPkg.max_pax) : defaultMax),
+            max_pax: d.max_pax !== undefined && d.max_pax !== null ? Number(d.max_pax) : (cachedPkg.max_pax !== undefined ? Number(cachedPkg.max_pax) : 0),
             sec_dep: d.sec_dep !== undefined && d.sec_dep !== null ? Number(d.sec_dep) : (cachedPkg.sec_dep !== undefined ? Number(cachedPkg.sec_dep) : 2000),
           }
         })
@@ -271,6 +270,34 @@ export const DataService = {
       const current = await this.getResortPolicies()
       const merged = { ...current, ...newPolicies }
       localStorage.setItem('polchat_resort_policies', JSON.stringify(merged))
+
+      // When security deposit is changed globally, update all duration_types in Supabase database & local cache
+      if (newPolicies.security_deposit !== undefined) {
+        const newSecDep = Number(newPolicies.security_deposit)
+        try {
+          const { error: dtError } = await supabase
+            .from('duration_types')
+            .update({ sec_dep: newSecDep })
+            .neq('duration_id', 0)
+
+          if (dtError) {
+            console.warn('Note updating duration_types sec_dep in Supabase:', dtError.message)
+          }
+        } catch (dbErr) {
+          console.error('Failed to update duration_types sec_dep in Supabase:', dbErr)
+        }
+
+        // Synchronize locally cached packages
+        try {
+          const cached = localStorage.getItem('polchat_duration_types')
+          if (cached) {
+            const parsed = JSON.parse(cached)
+            const updated = parsed.map((p) => ({ ...p, sec_dep: newSecDep }))
+            localStorage.setItem('polchat_duration_types', JSON.stringify(updated))
+          }
+        } catch (e) {}
+      }
+
       return merged
     } catch (err) {
       console.error('Failed to update resort policies:', err)

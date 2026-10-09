@@ -15,7 +15,6 @@ export default function PackageRatesEditor({ packages, onSavePackage, isSaving }
       duration_event_rate: pkg.duration_event_rate,
       duration_start: pkg.duration_start || '09:00:00',
       duration_end: pkg.duration_end || '17:00:00',
-      sec_dep: pkg.sec_dep || 2000,
     })
     setFeedbackMsg('')
   }
@@ -41,7 +40,6 @@ export default function PackageRatesEditor({ packages, onSavePackage, isSaving }
       duration_event_rate: Number(formData.duration_event_rate),
       duration_start: formData.duration_start,
       duration_end: formData.duration_end,
-      sec_dep: Number(formData.sec_dep),
     }
 
     const success = await onSavePackage(durationId, numericPayload)
@@ -162,18 +160,6 @@ export default function PackageRatesEditor({ packages, onSavePackage, isSaving }
                       className="pp-input"
                       value={formData.duration_event_rate}
                       onChange={(e) => handleInputChange('duration_event_rate', e.target.value)}
-                      min="0"
-                      step="500"
-                    />
-                  </div>
-
-                  <div className="pp-field-group">
-                    <label className="pp-label">Security Deposit (₱)</label>
-                    <input
-                      type="number"
-                      className="pp-input"
-                      value={formData.sec_dep}
-                      onChange={(e) => handleInputChange('sec_dep', e.target.value)}
                       min="0"
                       step="500"
                     />
