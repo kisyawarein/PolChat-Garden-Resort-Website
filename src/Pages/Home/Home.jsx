@@ -1,9 +1,45 @@
 import { useState } from 'react'
 import heroVideo from '../../../resources/Homepage_Video.mp4'
+import { getWebsiteImageUrl } from '../../services/imageService'
 import './styles.css'
 
-const TOTAL_ITEMS = 14
+const HOME_IMAGES = [
+  { fileName: 'day-hallway_two.png', alt: 'Covered garden resort hallway' },
+  { fileName: 'day_hallway.png', alt: 'Resort hallway surrounded by greenery' },
+  { fileName: 'day_pool_kubo.png', alt: 'Swimming pool beside a traditional kubo' },
+  { fileName: 'day_pool_plant.png', alt: 'Resort swimming pool and tropical plants' },
+  { fileName: 'entertainmentarea.png', alt: 'Resort entertainment area' },
+  { fileName: 'flowerpots.png', alt: 'Flower pots in the resort garden' },
+  { fileName: 'landscape_bathtub.png', alt: 'Outdoor bathtub among the resort landscape' },
+  { fileName: 'grilling_station.png', alt: 'Outdoor grilling station' },
+  { fileName: 'landscape_stairs.png', alt: 'Garden stairs through the landscape' },
+  { fileName: 'landscape_wooden.png', alt: 'Wooden garden landscape' },
+  { fileName: 'portrait-treehouse.png', alt: 'Tree house among the resort greenery' },
+]
+const getHomeImageUrl = (image) => getWebsiteImageUrl(`homepage/${image.fileName}`)
+
+const TOTAL_ITEMS = HOME_IMAGES.length
 const SLOT_SIZES = ['small', 'large', 'small', 'large', 'small', 'large', 'small']
+const TRIANGLE_ROWS = [
+  [
+    { type: 'half-top-left', points: '6,6 94,6 6,167' },
+    { type: 'up', points: '100,6 6,167 194,167' },
+    { type: 'down', points: '6,6 194,6 100,167' },
+    { type: 'up', points: '100,6 6,167 194,167' },
+    { type: 'down', points: '6,6 194,6 100,167' },
+    { type: 'up', points: '100,6 6,167 194,167' },
+    { type: 'half-top-right', points: '6,6 94,6 94,167' },
+  ],
+  [
+    { type: 'half-bottom-left', points: '6,6 6,167 94,167' },
+    { type: 'down', points: '6,6 194,6 100,167' },
+    { type: 'up', points: '100,6 6,167 194,167' },
+    { type: 'down', points: '6,6 194,6 100,167' },
+    { type: 'up', points: '100,6 6,167 194,167' },
+    { type: 'down', points: '6,6 194,6 100,167' },
+    { type: 'half-bottom-right', points: '94,6 6,167 94,167' },
+  ],
+]
 
 function Home() {
   const [startIndex, setStartIndex] = useState(0)
@@ -193,7 +229,12 @@ function Home() {
         <div className="home-section-3-container">
           {/* Top Picture Placeholder Area */}
           <div className="home-section-3-picture-box">
-            <span className="home-section-3-picture-label">PICTURE</span>
+            <img
+              className="home-section-image"
+              src={getHomeImageUrl(HOME_IMAGES[8])}
+              alt={HOME_IMAGES[8].alt}
+              loading="lazy"
+            />
           </div>
 
           {/* Bottom Left Content */}
@@ -247,6 +288,7 @@ This is for family outings, barkada bonding, birthday celebrations, and simply t
         {/* Picture Row with Single-Item Shift & Edge Fading */}
         <div className="home-section-4-picture-row">
           {visibleCards.map((card) => {
+            const image = HOME_IMAGES[Number(card.id.slice(5)) - 1]
             const sizeClass =
               card.size === 'small'
                 ? 'home-section-4-picture-card-small'
@@ -281,7 +323,12 @@ This is for family outings, barkada bonding, birthday celebrations, and simply t
                     : undefined
                 }
               >
-                <span className="home-section-4-picture-label">PICTURE</span>
+                <img
+                  className="home-section-image"
+                  src={getHomeImageUrl(image)}
+                  alt={image.alt}
+                  loading="lazy"
+                />
               </div>
             )
           })}
@@ -294,7 +341,12 @@ This is for family outings, barkada bonding, birthday celebrations, and simply t
           {/* Row 1: Picture on Left, Info on Right */}
           <div className="home-section-5-row home-section-5-row-1">
             <div className="home-section-5-picture-box">
-              <span className="home-section-5-picture-label">PICTURE</span>
+              <img
+                className="home-section-image"
+                src={getHomeImageUrl(HOME_IMAGES[6])}
+                alt={HOME_IMAGES[6].alt}
+                loading="lazy"
+              />
             </div>
             <div className="home-section-5-content">
               <h2 className="home-section-5-title">Nature & Serenity:</h2>
@@ -341,7 +393,12 @@ This is for family outings, barkada bonding, birthday celebrations, and simply t
               </a>
             </div>
             <div className="home-section-5-picture-box">
-              <span className="home-section-5-picture-label">PICTURE</span>
+              <img
+                className="home-section-image"
+                src={getHomeImageUrl(HOME_IMAGES[2])}
+                alt={HOME_IMAGES[2].alt}
+                loading="lazy"
+              />
             </div>
           </div>
         </div>
@@ -351,87 +408,47 @@ This is for family outings, barkada bonding, birthday celebrations, and simply t
       <section className="home-section-6">
         <div className="home-section-6-header">
           <h2 className="home-section-6-title">HIGHLIGHTS</h2>
-          <p className="home-section-6-subtitle">INFORMATION</p>
+          <p className="home-section-6-subtitle">
+            Pools, garden paths, gathering spaces, and peaceful corners to unwind.
+          </p>
         </div>
 
         <div className="home-section-6-mosaic">
-          {/* Top Row: Half-Left, Up, Down, Up, Down, Up, Half-Right */}
-          <div className="home-section-6-triangle-row home-section-6-triangle-row-top">
-            <div className="home-section-6-triangle-half home-section-6-triangle-half-top-left">
-              <svg viewBox="0 0 100 173" className="home-section-6-triangle-svg">
-                <polygon points="6,6 94,6 6,167" className="home-section-6-polygon" />
-              </svg>
-            </div>
-            <div className="home-section-6-triangle-item home-section-6-triangle-up home-section-6-triangle-nested">
-              <svg viewBox="0 0 200 173" className="home-section-6-triangle-svg">
-                <polygon points="100,6 6,167 194,167" className="home-section-6-polygon" />
-              </svg>
-            </div>
-            <div className="home-section-6-triangle-item home-section-6-triangle-down home-section-6-triangle-nested">
-              <svg viewBox="0 0 200 173" className="home-section-6-triangle-svg">
-                <polygon points="6,6 194,6 100,167" className="home-section-6-polygon" />
-              </svg>
-            </div>
-            <div className="home-section-6-triangle-item home-section-6-triangle-up home-section-6-triangle-nested">
-              <svg viewBox="0 0 200 173" className="home-section-6-triangle-svg">
-                <polygon points="100,6 6,167 194,167" className="home-section-6-polygon" />
-              </svg>
-            </div>
-            <div className="home-section-6-triangle-item home-section-6-triangle-down home-section-6-triangle-nested">
-              <svg viewBox="0 0 200 173" className="home-section-6-triangle-svg">
-                <polygon points="6,6 194,6 100,167" className="home-section-6-polygon" />
-              </svg>
-            </div>
-            <div className="home-section-6-triangle-item home-section-6-triangle-up home-section-6-triangle-nested">
-              <svg viewBox="0 0 200 173" className="home-section-6-triangle-svg">
-                <polygon points="100,6 6,167 194,167" className="home-section-6-polygon" />
-              </svg>
-            </div>
-            <div className="home-section-6-triangle-half home-section-6-triangle-half-top-right home-section-6-triangle-nested">
-              <svg viewBox="0 0 100 173" className="home-section-6-triangle-svg">
-                <polygon points="6,6 94,6 94,167" className="home-section-6-polygon" />
-              </svg>
-            </div>
-          </div>
+          {TRIANGLE_ROWS.map((row, rowIndex) => (
+            <div
+              key={`triangle-row-${rowIndex}`}
+              className={`home-section-6-triangle-row ${rowIndex === 1 ? 'home-section-6-triangle-row-bottom' : ''}`.trim()}
+            >
+              {row.map((triangle, triangleIndex) => {
+                const image = HOME_IMAGES[(rowIndex * row.length + triangleIndex) % HOME_IMAGES.length]
+                const isHalf = triangle.type.startsWith('half')
+                const isNested = triangleIndex > 0
+                const triangleClass = [
+                  `home-section-6-triangle-${isHalf ? 'half' : 'item'}`,
+                  `home-section-6-triangle-${triangle.type}`,
+                  isNested && 'home-section-6-triangle-nested',
+                ].filter(Boolean).join(' ')
 
-          {/* Bottom Row: Half-Left, Down, Up, Down, Up, Down, Half-Right */}
-          <div className="home-section-6-triangle-row home-section-6-triangle-row-bottom">
-            <div className="home-section-6-triangle-half home-section-6-triangle-half-bottom-left">
-              <svg viewBox="0 0 100 173" className="home-section-6-triangle-svg">
-                <polygon points="6,6 6,167 94,167" className="home-section-6-polygon" />
-              </svg>
+                return (
+                  <div key={triangle.type} className={triangleClass}>
+                    <img
+                      className="home-section-6-triangle-image"
+                      src={getHomeImageUrl(image)}
+                      alt={image.alt}
+                      loading="lazy"
+                    />
+                    <svg
+                      viewBox={isHalf ? '0 0 100 173' : '0 0 200 173'}
+                      className="home-section-6-triangle-svg"
+                      aria-hidden="true"
+                    >
+                      <polygon points={triangle.points} className="home-section-6-polygon" />
+                    </svg>
+                  </div>
+                )
+              })}
             </div>
-            <div className="home-section-6-triangle-item home-section-6-triangle-down home-section-6-triangle-nested">
-              <svg viewBox="0 0 200 173" className="home-section-6-triangle-svg">
-                <polygon points="6,6 194,6 100,167" className="home-section-6-polygon" />
-              </svg>
-            </div>
-            <div className="home-section-6-triangle-item home-section-6-triangle-up home-section-6-triangle-nested">
-              <svg viewBox="0 0 200 173" className="home-section-6-triangle-svg">
-                <polygon points="100,6 6,167 194,167" className="home-section-6-polygon" />
-              </svg>
-            </div>
-            <div className="home-section-6-triangle-item home-section-6-triangle-down home-section-6-triangle-nested">
-              <svg viewBox="0 0 200 173" className="home-section-6-triangle-svg">
-                <polygon points="6,6 194,6 100,167" className="home-section-6-polygon" />
-              </svg>
-            </div>
-            <div className="home-section-6-triangle-item home-section-6-triangle-up home-section-6-triangle-nested">
-              <svg viewBox="0 0 200 173" className="home-section-6-triangle-svg">
-                <polygon points="100,6 6,167 194,167" className="home-section-6-polygon" />
-              </svg>
-            </div>
-            <div className="home-section-6-triangle-item home-section-6-triangle-down home-section-6-triangle-nested">
-              <svg viewBox="0 0 200 173" className="home-section-6-triangle-svg">
-                <polygon points="6,6 194,6 100,167" className="home-section-6-polygon" />
-              </svg>
-            </div>
-            <div className="home-section-6-triangle-half home-section-6-triangle-half-bottom-right home-section-6-triangle-nested">
-              <svg viewBox="0 0 100 173" className="home-section-6-triangle-svg">
-                <polygon points="94,6 6,167 94,167" className="home-section-6-polygon" />
-              </svg>
-            </div>
-          </div>
+          ))}
         </div>
       </section>
 
@@ -439,27 +456,34 @@ This is for family outings, barkada bonding, birthday celebrations, and simply t
       <section className="home-section-7">
         {/* Top Centered Header with 3-column information grid identical to Section 4 */}
         <div className="home-section-7-header">
-          <h2 className="home-section-7-title">POLCHAT</h2>
+          <h2 className="home-section-7-title">POLCHAT IS WAITING FOR YOU!</h2>
+        </div>
           <div className="home-section-7-info-grid">
             <div className="home-section-7-info-column">
-              <span className="home-section-7-info-text">INFORMATION</span>
+          
+              <span className="home-section-7-info-text">PolChat Garden Resort is a family-owned getaway made for relaxing and spending time together. Enjoy the swimming pool, lush garden, and cozy spaces around the resort. It’s a lovely place for family outings, birthdays, and gatherings with friends. Choose a day visit or ask us about overnight stays and private events. Our team is happy to help you find a package that suits your plans. Contact us to check rates, available dates, and booking details. We look forward to welcoming you to PolChat!</span>
+            {/*  <span className="home-section-7-info-text">INFORMATION</span> */}
+            </div>
+            <div className="home-section-7-info-column">
+            {/*  <span className="home-section-7-info-text">INFORMATION</span>
               <span className="home-section-7-info-text">INFORMATION</span>
             </div>
             <div className="home-section-7-info-column">
               <span className="home-section-7-info-text">INFORMATION</span>
               <span className="home-section-7-info-text">INFORMATION</span>
-            </div>
-            <div className="home-section-7-info-column">
-              <span className="home-section-7-info-text">INFORMATION</span>
-              <span className="home-section-7-info-text">INFORMATION</span>
-            </div>
+            </div> */}
           </div>
         </div>
 
         {/* Container inside like Section 3 */}
         <div className="home-section-7-container">
           <div className="home-section-7-picture-box">
-            <span className="home-section-7-picture-label">PICTURE</span>
+            <img
+              className="home-section-image"
+              src={getHomeImageUrl(HOME_IMAGES[10])}
+              alt={HOME_IMAGES[10].alt}
+              loading="lazy"
+            />
           </div>
         </div>
       </section>

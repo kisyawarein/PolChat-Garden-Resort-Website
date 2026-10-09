@@ -10,7 +10,7 @@
 .about-section-1 {
   position: relative;
   width: 100%;
-  min-height: 550px;
+  min-height: 850px;
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -29,6 +29,14 @@
   align-items: center;
   justify-content: center;
   z-index: 1;
+  overflow: hidden;
+}
+
+.about-page-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .about-section-1-picture-label {
@@ -141,11 +149,11 @@
 
 .about-section-3-picture-box {
   width: 100%;
-  height: 100%;
+  height: 450px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 60px 24px;
+  overflow: hidden;
 }
 
 .about-section-3-picture-label {
@@ -198,6 +206,7 @@
   justify-content: center;
   flex-shrink: 0;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .about-section-4-picture-label {
@@ -280,11 +289,11 @@
 
 .about-section-5-picture-box {
   width: 100%;
-  height: 100%;
+  height: 450px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 60px 24px;
+  overflow: hidden;
 }
 
 .about-section-5-picture-label {
@@ -329,6 +338,7 @@
   justify-content: center;
   flex-shrink: 0;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .about-section-6-picture-label {

@@ -1,4 +1,5 @@
 import eventsVideo from '../../../resources/EventsRates_Video.mp4'
+import { getWebsiteImageUrl } from '../../services/imageService'
 import './styles.css'
 
 const RESERVATION_TYPES = [
@@ -7,18 +8,21 @@ const RESERVATION_TYPES = [
     title: 'Day',
     time: '8:00 AM – 5:00 PM',
     label: 'DAY PASS',
+    image: 'homepage/day_pool_plant.png',
   },
   {
     id: 'reservation-22hours',
     title: '22 hours',
     time: '2:00 PM – 12:00 PM (Next Day)',
     label: '22-HR OVERNIGHT',
+    image: 'homepage/portrait-treehouse.png',
   },
   {
     id: 'reservation-night',
     title: 'Night',
     time: '6:00 PM – 6:00 AM',
     label: 'NIGHT STAY',
+    image: 'homepage/landscape_wooden.png',
   },
 ]
 
@@ -37,7 +41,7 @@ function EventsRates() {
         />
         <div className="events-rates-hero-overlay" />
         <div className="events-rates-hero-content">
-          <h1 className="events-rates-hero-title">INFORMATION: CENTER</h1>
+          <h1 className="events-rates-hero-title">EVENTS & RATES</h1>
         </div>
       </section>
 
@@ -48,7 +52,12 @@ function EventsRates() {
             {RESERVATION_TYPES.map((type) => (
               <div key={type.id} className="events-rates-reservation-card">
                 <div className="events-rates-tall-picture-box">
-                  <span className="events-rates-picture-label">{type.label}</span>
+                    <img
+                      className="events-rates-image"
+                      src={getWebsiteImageUrl(type.image)}
+                      alt={`${type.title} resort package`}
+                      loading="lazy"
+                    />
                 </div>
                 <div className="events-rates-card-info">
                   <h2 className="events-rates-card-title">{type.title}</h2>
@@ -66,7 +75,12 @@ function EventsRates() {
           {/* Row 1: Image Left, Content Right */}
           <div className="events-rates-section-3-row">
             <div className="events-rates-section-3-picture-box">
-              <span className="events-rates-section-3-picture-label">RATES & PACKAGES</span>
+              <img
+                className="events-rates-image"
+                src={getWebsiteImageUrl('homepage/day_pool_kubo.png')}
+                alt="Pool and kubo at PolChat Garden Resort"
+                loading="lazy"
+              />
             </div>
             <div className="events-rates-section-3-content">
               <h2 className="events-rates-section-3-title">STANDARD RATES</h2>
@@ -113,7 +127,12 @@ function EventsRates() {
               </a>
             </div>
             <div className="events-rates-section-3-picture-box">
-              <span className="events-rates-section-3-picture-label">EXCLUSIVE VENUE</span>
+              <img
+                className="events-rates-image"
+                src={getWebsiteImageUrl('homepage/entertainmentarea.png')}
+                alt="Resort entertainment area for private events"
+                loading="lazy"
+              />
             </div>
           </div>
         </div>
@@ -131,14 +150,24 @@ function EventsRates() {
             <div className="events-rates-section-4-col-large">
               <h3 className="events-rates-section-4-sample-title">SAMPLE</h3>
               <div className="events-rates-section-4-pic-large">
-                <span className="events-rates-section-4-pic-label">PICTURE</span>
+                <img
+                  className="events-rates-image"
+                  src={getWebsiteImageUrl('homepage/grilling_station.png')}
+                  alt="Outdoor grilling area for resort events"
+                  loading="lazy"
+                />
               </div>
             </div>
 
             {/* Right Column: Medium picture above paragraph */}
             <div className="events-rates-section-4-col-medium">
               <div className="events-rates-section-4-pic-medium">
-                <span className="events-rates-section-4-pic-label">PICTURE</span>
+                <img
+                  className="events-rates-image"
+                  src={getWebsiteImageUrl('homepage/flowerpots.png')}
+                  alt="Garden flowers at the resort"
+                  loading="lazy"
+                />
               </div>
               <p className="events-rates-section-4-paragraph">
                 Feel the magic and mystery distinct to each destination with
@@ -157,7 +186,12 @@ function EventsRates() {
             {/* Left Column: Medium picture above paragraph */}
             <div className="events-rates-section-4-col-medium">
               <div className="events-rates-section-4-pic-medium">
-                <span className="events-rates-section-4-pic-label">PICTURE</span>
+                <img
+                  className="events-rates-image"
+                  src={getWebsiteImageUrl('homepage/landscape_stairs.png')}
+                  alt="Garden path at the resort"
+                  loading="lazy"
+                />
               </div>
               <p className="events-rates-section-4-paragraph">
                 Feel the magic and mystery distinct to each destination with
@@ -174,7 +208,12 @@ function EventsRates() {
             <div className="events-rates-section-4-col-large">
               <h3 className="events-rates-section-4-sample-title">SAMPLE</h3>
               <div className="events-rates-section-4-pic-large">
-                <span className="events-rates-section-4-pic-label">PICTURE</span>
+                <img
+                  className="events-rates-image"
+                  src={getWebsiteImageUrl('homepage/day-hallway_two.png')}
+                  alt="Covered walkway at the resort"
+                  loading="lazy"
+                />
               </div>
             </div>
           </div>

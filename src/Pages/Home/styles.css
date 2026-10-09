@@ -147,10 +147,19 @@
 
 .home-section-3-picture-box {
   width: 100%;
-  min-height: 220px;
+  height: clamp(220px, 30vw, 360px);
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.home-section-image {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 
 .home-section-3-picture-label {
@@ -443,6 +452,7 @@
   justify-content: center;
   flex-shrink: 0;
   box-sizing: border-box;
+  overflow: hidden;
 }
 
 .home-section-5-picture-label {
@@ -547,7 +557,7 @@
   color: var(--color-bark, #58402E);
   margin: 0;
   letter-spacing: 0.06em;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .home-section-6-mosaic {
@@ -572,6 +582,7 @@
 }
 
 .home-section-6-triangle-item {
+  position: relative;
   width: 500px;
   height: 422px;
   display: flex;
@@ -581,6 +592,7 @@
 }
 
 .home-section-6-triangle-half {
+  position: relative;
   width: 250px;
   height: 422px;
   display: flex;
@@ -591,20 +603,55 @@
 
 /* Controls the diagonal gap between triangles */
 .home-section-6-triangle-nested {
-  margin-left: -186px;
+  margin-left: -206px;
 }
 
 .home-section-6-triangle-svg {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   overflow: visible;
+  pointer-events: none;
 }
 
 .home-section-6-polygon {
-  fill: #eadfae;
+  fill: transparent;
   stroke: var(--color-forest, #43593B);
   stroke-width: 2.5px;
   stroke-linejoin: round;
+}
+
+.home-section-6-triangle-image {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.home-section-6-triangle-up .home-section-6-triangle-image {
+  clip-path: polygon(50% 3.5%, 3% 96.5%, 97% 96.5%);
+}
+
+.home-section-6-triangle-down .home-section-6-triangle-image {
+  clip-path: polygon(3% 3.5%, 97% 3.5%, 50% 96.5%);
+}
+
+.home-section-6-triangle-half-top-left .home-section-6-triangle-image {
+  clip-path: polygon(6% 3.5%, 94% 3.5%, 6% 96.5%);
+}
+
+.home-section-6-triangle-half-top-right .home-section-6-triangle-image {
+  clip-path: polygon(6% 3.5%, 94% 3.5%, 94% 96.5%);
+}
+
+.home-section-6-triangle-half-bottom-left .home-section-6-triangle-image {
+  clip-path: polygon(6% 3.5%, 6% 96.5%, 94% 96.5%);
+}
+
+.home-section-6-triangle-half-bottom-right .home-section-6-triangle-image {
+  clip-path: polygon(94% 3.5%, 6% 96.5%, 94% 96.5%);
 }
 
 /* Section 7: Bottom Banner/Container */
@@ -677,10 +724,11 @@
 
 .home-section-7-picture-box {
   width: 100%;
-  min-height: 380px;
+  height: clamp(260px, 38vw, 520px);
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
 .home-section-7-picture-label {

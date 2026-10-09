@@ -1,3 +1,4 @@
+import { getWebsiteImageUrl } from '../../services/imageService'
 import './styles.css'
 
 function About() {
@@ -6,7 +7,12 @@ function About() {
       {/* Section 1: Hero Picture Background with "Our Story" & Title at Bottom Middle */}
       <section className="about-section-1">
         <div className="about-section-1-picture-bg">
-          <span className="about-section-1-picture-label">PICTURE</span>
+          <img
+            className="about-page-image"
+            src={getWebsiteImageUrl('homepage/landscape_bathtub.png')}
+            alt="Outdoor bathtub among the resort landscape"
+            fetchPriority="high"
+          />
         </div>
         <div className="about-section-1-overlay" />
         <div className="about-section-1-content">
@@ -41,7 +47,12 @@ function About() {
       {/* Section 3: Whole Section Background Picture */}
       <section className="about-section-3">
         <div className="about-section-3-picture-box">
-          <span className="about-section-3-picture-label">PICTURE</span>
+          <img
+            className="about-page-image"
+            src={getWebsiteImageUrl('homepage/day_pool_plant.png')}
+            alt="Resort pool surrounded by tropical plants"
+            loading="lazy"
+          />
         </div>
       </section>
 
@@ -51,50 +62,60 @@ function About() {
           {/* Row 1: Info on Left, Picture on Right */}
           <div className="about-section-4-row about-section-4-row-1">
             <div className="about-section-4-content">
-              <h2 className="about-section-4-title">INFORMATION:</h2>
+              <h2 className="about-section-4-title">DAY TOUR</h2>
               <div className="about-section-4-info-grid">
                 <div className="about-section-4-info-column">
+                  <span className="about-section-4-info-text">Our Day Tour is a relaxing way to enjoy PolChat Garden Resort. Spend the day swimming, exploring the garden, and enjoying the resort facilities. It is a great choice for family outings, birthdays, and time with friends. Guests are welcome to bring food and drinks. Grilling and dining areas are available for guests to use. Please check the current rates and available dates before your visit. Contact us to plan and reserve your Day Tour.</span>
+                {/*  <span className="about-section-4-info-text">INFORMATION</span> */}
+                </div>
+             {/*   <div className="about-section-4-info-column">
                   <span className="about-section-4-info-text">INFORMATION</span>
                   <span className="about-section-4-info-text">INFORMATION</span>
                 </div>
                 <div className="about-section-4-info-column">
                   <span className="about-section-4-info-text">INFORMATION</span>
                   <span className="about-section-4-info-text">INFORMATION</span>
-                </div>
-                <div className="about-section-4-info-column">
-                  <span className="about-section-4-info-text">INFORMATION</span>
-                  <span className="about-section-4-info-text">INFORMATION</span>
-                </div>
+                </div> */}
               </div>
               <a href="#information" className="about-section-4-link">
                 INFORMATION LINK
               </a>
             </div>
             <div className="about-section-4-picture-box">
-              <span className="about-section-4-picture-label">PICTURE</span>
+              <img
+                className="about-page-image"
+                src={getWebsiteImageUrl('homepage/day_hallway.png')}
+                alt="A garden walkway at the resort"
+                loading="lazy"
+              />
             </div>
           </div>
 
           {/* Row 2: Picture on Left, Info on Right */}
           <div className="about-section-4-row about-section-4-row-2">
             <div className="about-section-4-picture-box">
-              <span className="about-section-4-picture-label">PICTURE</span>
+              <img
+                className="about-page-image"
+                src={getWebsiteImageUrl('homepage/day_pool_kubo.png')}
+                alt="Resort pool beside the traditional kubo"
+                loading="lazy"
+              />
             </div>
             <div className="about-section-4-content">
-              <h2 className="about-section-4-title">INFORMATION:</h2>
+              <h2 className="about-section-4-title">NIGHT TOUR</h2>
               <div className="about-section-4-info-grid">
                 <div className="about-section-4-info-column">
+                  <span className="about-section-4-info-text">Our Night Tour is a relaxing way to enjoy PolChat Garden Resort after sunset. It is a nice choice for families and friends who want to spend time together. You can unwind in the resort’s garden and gathering spaces. Ask us which facilities are included in your chosen package. Guests may bring food and drinks, and grilling areas are available. Please check the current night-tour rates and schedule before your visit. Contact us to confirm availability and make a reservation.</span>
+                {/*  <span className="about-section-4-info-text">INFORMATION</span> */}
+                </div>
+             {/*   <div className="about-section-4-info-column">
                   <span className="about-section-4-info-text">INFORMATION</span>
                   <span className="about-section-4-info-text">INFORMATION</span>
                 </div>
                 <div className="about-section-4-info-column">
                   <span className="about-section-4-info-text">INFORMATION</span>
                   <span className="about-section-4-info-text">INFORMATION</span>
-                </div>
-                <div className="about-section-4-info-column">
-                  <span className="about-section-4-info-text">INFORMATION</span>
-                  <span className="about-section-4-info-text">INFORMATION</span>
-                </div>
+                </div> */}
               </div>
               <a href="#information" className="about-section-4-link">
                 INFORMATION LINK
@@ -107,7 +128,12 @@ function About() {
       {/* Section 5: Whole Section Background Picture */}
       <section className="about-section-5">
         <div className="about-section-5-picture-box">
-          <span className="about-section-5-picture-label">PICTURE</span>
+          <img
+            className="about-page-image"
+            src={getWebsiteImageUrl('homepage/landscape_stairs.png')}
+            alt="Stone steps through the resort garden"
+            loading="lazy"
+          />
         </div>
       </section>
 
@@ -116,7 +142,12 @@ function About() {
         <div className="about-section-6-container">
           {/* Left: Large Picture */}
           <div className="about-section-6-picture-box">
-            <span className="about-section-6-picture-label">PICTURE</span>
+            <img
+              className="about-page-image"
+              src={getWebsiteImageUrl('homepage/landscape_wooden.png')}
+              alt="Wooden structures among the resort greenery"
+              loading="lazy"
+            />
           </div>
 
           {/* Right: Contact Information & Social Media Buttons */}

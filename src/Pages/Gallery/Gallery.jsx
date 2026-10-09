@@ -1,7 +1,21 @@
 import { useState, useEffect } from 'react'
-import galleryImage from '../../../resources/Gallery_Image.jpg'
 import { DataService } from '../../services/dataService'
+import { getWebsiteImageUrl } from '../../services/imageService'
 import './styles.css'
+
+const GALLERY_FALLBACK_IMAGES = [
+  'day-hallway_two.png',
+  'day_hallway.png',
+  'day_pool_kubo.png',
+  'day_pool_plant.png',
+  'entertainmentarea.png',
+  'flowerpots.png',
+  'landscape_bathtub.png',
+  'grilling_station.png',
+  'landscape_stairs.png',
+  'landscape_wooden.png',
+  'portrait-treehouse.png',
+]
 
 const GALLERY_ROW_LAYOUTS = [
   { rowId: 1, columns: 1, heightClass: 'gallery-row-height-large', slotIds: [1] },
@@ -43,7 +57,7 @@ function Gallery() {
       <section className="gallery-section-1">
         <img
           className="gallery-hero-image"
-          src={galleryImage}
+          src={getWebsiteImageUrl('homepage/landscape_wooden.png')}
           alt="PolChat Garden Resort Gallery"
         />
         <div className="gallery-hero-overlay" />
@@ -87,6 +101,7 @@ function Gallery() {
                   }
 
                   const hasPhoto = Boolean(item.image_url)
+                  const fallbackImage = GALLERY_FALLBACK_IMAGES[(slotId - 1) % GALLERY_FALLBACK_IMAGES.length]
 
                   return (
                     <div
@@ -122,13 +137,21 @@ function Gallery() {
                           </div>
                         </>
                       ) : (
-                        <div className="gallery-default-inner">
-                          <span className="gallery-picture-label">{item.label}</span>
-                          <span className="gallery-picture-title">{item.title}</span>
-                          {item.category && (
-                            <span className="gallery-picture-tag">{item.category}</span>
-                          )}
-                        </div>
+                        <>
+                          <img
+                            src={getWebsiteImageUrl(`homepage/${fallbackImage}`)}
+                            alt={`${item.title} at PolChat Garden Resort`}
+                            className="gallery-default-image"
+                            loading="lazy"
+                          />
+                          <div className="gallery-default-inner">
+                            <span className="gallery-picture-label">{item.label}</span>
+                            <span className="gallery-picture-title">{item.title}</span>
+                            {item.category && (
+                              <span className="gallery-picture-tag">{item.category}</span>
+                            )}
+                          </div>
+                        </>
                       )}
                     </div>
                   )

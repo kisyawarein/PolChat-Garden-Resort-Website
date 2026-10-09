@@ -1,4 +1,5 @@
 import facilitiesVideo from '../../../resources/Facilities_Video.mp4'
+import { getWebsiteImageUrl } from '../../services/imageService'
 import './styles.css'
 
 const FACILITIES_LIST = [
@@ -6,31 +7,37 @@ const FACILITIES_LIST = [
     id: 'facility-pavilion',
     name: 'Pavilion',
     subtitle: 'Spacious open-air event venue for grand celebrations and gatherings',
+    image: 'homepage/entertainmentarea.png',
   },
   {
     id: 'facility-veranda',
     name: 'Veranda',
     subtitle: 'Scenic covered deck overlooking lush greenery and refreshing breezes',
+    image: 'homepage/day-hallway_two.png',
   },
   {
     id: 'facility-cabin-room',
     name: 'Cabin Room',
     subtitle: 'Cozy and air-conditioned private retreat for relaxing overnight stays',
+    image: 'homepage/landscape_wooden.png',
   },
   {
     id: 'facility-tree-house',
     name: 'Tree House',
     subtitle: 'Unique elevated sanctuary nestled amidst shaded branches and nature',
+    image: 'homepage/portrait-treehouse.png',
   },
   {
     id: 'facility-bahay-kubo',
     name: 'Bahay Kubo',
     subtitle: 'Authentic traditional Filipino bamboo hut offering native comfort',
+    image: 'homepage/day_pool_kubo.png',
   },
   {
     id: 'facility-garden',
     name: 'Garden',
     subtitle: 'Expansive landscaped botanical grounds with vibrant flora and pathways',
+    image: 'homepage/flowerpots.png',
   },
 ]
 
@@ -90,13 +97,28 @@ function Facilities() {
           {/* 3 picture containers in a single row */}
           <div className="facilities-section-2-pictures-row">
             <div className="facilities-section-2-picture-card">
-              <span className="facilities-section-2-picture-label">PICTURE 1</span>
+              <img
+                className="facilities-image"
+                src={getWebsiteImageUrl('homepage/landscape_stairs.png')}
+                alt="Garden stairs among the resort greenery"
+                loading="lazy"
+              />
             </div>
             <div className="facilities-section-2-picture-card">
-              <span className="facilities-section-2-picture-label">PICTURE 2</span>
+              <img
+                className="facilities-image"
+                src={getWebsiteImageUrl('homepage/day_pool_plant.png')}
+                alt="Swimming pool surrounded by plants"
+                loading="lazy"
+              />
             </div>
             <div className="facilities-section-2-picture-card">
-              <span className="facilities-section-2-picture-label">PICTURE 3</span>
+              <img
+                className="facilities-image"
+                src={getWebsiteImageUrl('homepage/landscape_bathtub.png')}
+                alt="Outdoor bathtub among the resort landscape"
+                loading="lazy"
+              />
             </div>
           </div>
 
@@ -126,7 +148,12 @@ function Facilities() {
       {/* Section 3: Background Picture Section */}
       <section className="facilities-section-3">
         <div className="facilities-section-3-picture-box">
-          <span className="facilities-section-3-picture-label">PICTURE</span>
+          <img
+            className="facilities-image"
+            src={getWebsiteImageUrl('homepage/landscape_wooden.png')}
+            alt="Wooden resort structures nestled in the garden"
+            loading="lazy"
+          />
         </div>
       </section>
 
@@ -148,9 +175,12 @@ function Facilities() {
 
               {/* Large Picture Box */}
               <div className="facilities-section-4-picture-box">
-                <span className="facilities-section-4-picture-label">
-                  {facility.name.toUpperCase()} PICTURE
-                </span>
+                <img
+                  className="facilities-image"
+                  src={getWebsiteImageUrl(facility.image)}
+                  alt={`${facility.name} at PolChat Garden Resort`}
+                  loading="lazy"
+                />
               </div>
             </div>
           ))}
