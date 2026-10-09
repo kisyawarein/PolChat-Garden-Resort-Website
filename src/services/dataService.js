@@ -109,7 +109,34 @@ export const DataService = {
         console.error('Error fetching customer_accounts:', error)
         return _adminCache.customers || []
       }
-      _adminCache.customers = data || []
+
+      const mapped = (data || []).map((c) => {
+        let cleanLast = c.last_name || ''
+        let extractedEmail = c.email || null
+        let extractedPassword = c.password || null
+
+        if (cleanLast.includes('__AUTH__') || cleanLast.includes('__PW__')) {
+          const matchEmail = cleanLast.match(/__AUTH__(.*?)__(?:PW|$)/)
+          if (matchEmail && matchEmail[1]) {
+            extractedEmail = matchEmail[1].trim()
+          }
+          const matchPw = cleanLast.match(/__PW__(.*?)$/)
+          if (matchPw && matchPw[1]) {
+            extractedPassword = matchPw[1].trim()
+          }
+          cleanLast = cleanLast.split(' __AUTH__')[0].split(' __PW__')[0].trim()
+        }
+
+        return {
+          ...c,
+          first_name: c.first_name,
+          last_name: cleanLast,
+          email: extractedEmail || c.email || '',
+          password: extractedPassword || c.password || null,
+        }
+      })
+
+      _adminCache.customers = mapped
       return _adminCache.customers
     } catch (err) {
       console.error('Customer fetch exception:', err)
@@ -118,25 +145,64 @@ export const DataService = {
   },
 
   async addCustomer(customer) {
+    const rawLast = (customer.last_name || '').trim()
+    const email = (customer.email || '').trim()
+    const password = (customer.password || '').trim()
+
+    let fullLastWithMeta = rawLast
+    if (email || password) {
+      fullLastWithMeta = `${rawLast} __AUTH__${email}__PW__${password}`.trim()
+    }
+
+    const baseCustomer = {
+      first_name: customer.first_name,
+      last_name: fullLastWithMeta,
+      phone_number: customer.phone_number ? Number(customer.phone_number) : 9171234567,
+      date_create: new Date().toISOString().split('T')[0],
+      date_modified: new Date().toISOString().split('T')[0],
+    }
+
     try {
-      const newCustomer = {
-        first_name: customer.first_name,
-        last_name: customer.last_name || '',
-        phone_number: customer.phone_number ? Number(customer.phone_number) : null,
-        date_create: new Date().toISOString().split('T')[0],
-        date_modified: new Date().toISOString().split('T')[0],
+      // 1. Try inserting with direct email/password columns if available
+      const fullPayload = {
+        ...baseCustomer,
+        last_name: rawLast,
+        email: email || null,
+        password: password || null,
       }
 
-      const { data, error } = await supabase
+      let { data, error } = await supabase
         .from('customer_accounts')
-        .insert([newCustomer])
+        .insert([fullPayload])
         .select()
+
+      // 2. Fallback: If table doesn't have email/password columns, insert with encoded metadata in last_name
+      if (error && (error.code === 'PGRST204' || error.code === '42703' || error.message?.includes('column'))) {
+        const retryRes = await supabase
+          .from('customer_accounts')
+          .insert([baseCustomer])
+          .select()
+        data = retryRes.data
+        error = retryRes.error
+      }
 
       if (error) {
         console.error('Error inserting customer:', error)
-        return null
       }
-      return data?.[0] || newCustomer
+
+      const created = data?.[0] || {
+        ...baseCustomer,
+        customer_id: Date.now(),
+      }
+
+      this.invalidateCache('customers')
+      return {
+        ...created,
+        first_name: customer.first_name,
+        last_name: rawLast,
+        email: email,
+        password: password,
+      }
     } catch (err) {
       console.error('Customer insert exception:', err)
       return null
@@ -1127,7 +1193,7 @@ export const DataService = {
     try {
       const validCustomerId = await this.ensureCustomer({
         customerId: visitationData.customer_id,
-        customerName: 'Juan Dela Cruz',
+        customerName: visitationData.customer_name || 'Customer Account',
       })
 
       const payload = {

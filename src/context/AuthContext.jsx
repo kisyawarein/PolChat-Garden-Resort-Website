@@ -3,8 +3,8 @@ import { DataService } from '../services/dataService'
 
 const AuthContext = createContext(null)
 
-// Standard configured user accounts
-const DEFAULT_USERS = [
+// Admin management accounts
+const ADMIN_USERS = [
   {
     id: 999,
     username: 'admin',
@@ -28,42 +28,6 @@ const DEFAULT_USERS = [
     birthday: '1988-05-20',
     phone: '09534954389',
     role: 'admin',
-  },
-  {
-    id: 42,
-    username: 'customer',
-    first_name: 'Raishawn',
-    last_name: 'Alejandro',
-    name: 'Raishawn Alejandro',
-    email: 'raishawn@gmail.com',
-    password: 'customer123',
-    birthday: '1995-06-12',
-    phone: '09534954389',
-    role: 'customer',
-  },
-  {
-    id: 42,
-    username: 'raishawn',
-    first_name: 'Raishawn',
-    last_name: 'Alejandro',
-    name: 'Raishawn Alejandro',
-    email: 'raishawn@gmail.com',
-    password: 'customer123',
-    birthday: '1995-06-12',
-    phone: '09534954389',
-    role: 'customer',
-  },
-  {
-    id: 3,
-    username: 'keisha',
-    first_name: 'Keisha',
-    last_name: 'Medina',
-    name: 'Keisha Medina',
-    email: 'keisha@gmail.com',
-    password: 'customer123',
-    birthday: '1996-03-24',
-    phone: '09488318687',
-    role: 'customer',
   },
 ]
 
@@ -97,33 +61,26 @@ export function AuthProvider({ children }) {
     }
 
     // 1. Admin login verification (by username, role name, or admin email)
-    if (
-      cleanId === 'admin' ||
-      cleanId === 'polchat_admin' ||
-      cleanId === 'polchat2k20@gmail.com' ||
-      cleanId === 'admin management' ||
-      cleanId === 'management'
-    ) {
-      if (cleanPass !== 'admin123') {
+    const adminMatch = ADMIN_USERS.find(
+      (a) =>
+        a.username.toLowerCase() === cleanId ||
+        a.email.toLowerCase() === cleanId ||
+        a.name.toLowerCase() === cleanId ||
+        cleanId === 'admin' ||
+        cleanId === 'management' ||
+        cleanId === 'polchat_admin'
+    )
+
+    if (adminMatch) {
+      if (cleanPass !== adminMatch.password) {
         return { success: false, error: 'Incorrect password for admin account.' }
       }
-      const adminUser = {
-        id: 999,
-        username: 'admin',
-        first_name: 'Admin',
-        last_name: 'Management',
-        name: 'Admin Management',
-        email: 'polchat2k20@gmail.com',
-        birthday: '1990-01-01',
-        phone: '09534954389',
-        role: 'admin',
-      }
-      setUser(adminUser)
+      setUser(adminMatch)
       setIsAuthModalOpen(false)
-      return { success: true, user: adminUser }
+      return { success: true, user: adminMatch }
     }
 
-    // 2. Check registered accounts from local storage
+    // 2. Check registered accounts from local browser storage cache
     let localMatch = null
     try {
       const savedAccounts = JSON.parse(localStorage.getItem('polchat_registered_users') || '[]')
@@ -145,27 +102,9 @@ export function AuthProvider({ children }) {
       }
     } catch (e) {}
 
-    // 3. Check default seeded accounts (First Name, Last Name, Full Name, or Email)
-    const defaultMatch = DEFAULT_USERS.find(
-      (u) =>
-        (u.email && u.email.toLowerCase() === cleanId) ||
-        (u.first_name && u.first_name.toLowerCase() === cleanId) ||
-        (u.last_name && u.last_name.toLowerCase() === cleanId) ||
-        (u.name && u.name.toLowerCase() === cleanId) ||
-        (u.username && u.username.toLowerCase() === cleanId)
-    )
-    if (defaultMatch) {
-      if (defaultMatch.password !== cleanPass) {
-        return { success: false, error: 'Incorrect password. Please try again.' }
-      }
-      setUser(defaultMatch)
-      setIsAuthModalOpen(false)
-      return { success: true, user: defaultMatch }
-    }
-
     // 4. Query customer_accounts from Supabase
     try {
-      const customers = await DataService.getCustomers()
+      const customers = await DataService.getCustomers({ force: true })
       const match = (customers || []).find((c) => {
         const first = (c.first_name || '').trim().toLowerCase()
         const last = (c.last_name || '').trim().toLowerCase()
@@ -181,10 +120,16 @@ export function AuthProvider({ children }) {
       })
 
       if (match) {
-        // Require standard customer password for Supabase database customer rows
-        if (cleanPass !== 'customer123') {
+        // Check password against stored password in database, or fallback to customer123
+        const expectedPassword = match.password || null
+        const isPasswordValid = expectedPassword
+          ? cleanPass === expectedPassword
+          : cleanPass === 'customer123' || (localMatch && localMatch.password === cleanPass)
+
+        if (!isPasswordValid) {
           return { success: false, error: 'Incorrect password. Please try again.' }
         }
+
         const customerUser = {
           id: match.customer_id,
           username: (match.first_name || 'customer').toLowerCase(),
@@ -192,9 +137,18 @@ export function AuthProvider({ children }) {
           last_name: match.last_name || '',
           name: `${match.first_name} ${match.last_name || ''}`.trim(),
           email: match.email || `${(match.first_name || 'user').toLowerCase().replace(/\s+/g, '')}@gmail.com`,
+          password: cleanPass,
           phone: match.phone_number ? `0${match.phone_number}` : '09171234567',
           role: 'customer',
         }
+
+        // Cache into local browser registry for instant future loads
+        try {
+          const savedAccounts = JSON.parse(localStorage.getItem('polchat_registered_users') || '[]')
+          const updated = [customerUser, ...savedAccounts.filter((u) => u.id !== customerUser.id)]
+          localStorage.setItem('polchat_registered_users', JSON.stringify(updated))
+        } catch (e) {}
+
         setUser(customerUser)
         setIsAuthModalOpen(false)
         return { success: true, user: customerUser }
@@ -220,6 +174,8 @@ export function AuthProvider({ children }) {
     const created = await DataService.addCustomer({
       first_name: cleanFirst || 'Customer',
       last_name: cleanLast,
+      email: cleanEmail,
+      password: password,
       phone_number: 9171234567,
     })
 
