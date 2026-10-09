@@ -107,10 +107,33 @@ function DateCalendar({
 
   const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
 
+  // Get Philippine Standard Time (Asia/Manila, UTC+8)
+  const getPhilippineNow = () => {
+    const now = new Date()
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Manila',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    })
+    const parts = formatter.formatToParts(now)
+    const map = {}
+    parts.forEach((p) => {
+      map[p.type] = p.value
+    })
+    const ymd = `${map.year}-${map.month}-${map.day}`
+    const hms = `${map.hour}:${map.minute}:${map.second}`
+    const nowPH = new Date(`${ymd}T${hms}`)
+    return { ymd, hms, nowPH }
+  }
+
   // Month calculations
   const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay()
   const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate()
-  const todayYMD = new Date().toISOString().split('T')[0]
 
   const handlePrevMonth = () => {
     if (currentMonth === 0) {
@@ -214,6 +237,11 @@ function DateCalendar({
   // Render Calendar Grid Cells
   const renderDays = () => {
     const cells = []
+    const { ymd: todayYMD, nowPH } = getPhilippineNow()
+
+    const pkg = selectedPackage || { duration_id: 1, duration_start: '09:00:00', duration_end: '17:00:00' }
+    const durId = Number(pkg.duration_id || 1)
+    const startStr = pkg.duration_start || (durId === 2 || durId === 4 ? '20:00:00' : durId === 3 ? '08:00:00' : '09:00:00')
 
     // Empty cells for alignment
     for (let i = 0; i < firstDayIndex; i++) {
@@ -223,10 +251,11 @@ function DateCalendar({
     // Days of current month
     for (let day = 1; day <= daysInMonth; day++) {
       const dateStr = formatYMD(currentYear, currentMonth, day)
-      const isPast = dateStr < todayYMD
+      const proposedSlotStart = new Date(`${dateStr}T${startStr}`)
+      const isPast = dateStr < todayYMD || (dateStr === todayYMD && proposedSlotStart <= nowPH)
       const isToday = dateStr === todayYMD
       const isSelected = selectedDate === dateStr
-      const availability = getDateAvailability(dateStr)
+      const availability = isPast ? 'past' : getDateAvailability(dateStr)
       const isOccupied = availability === 'occupied'
       const isPending = availability === 'pending'
       const isBlocked = isPast || isOccupied || isPending
@@ -251,7 +280,7 @@ function DateCalendar({
               : isPending
               ? 'Pending (You have a pending reservation on this time slot)'
               : isPast
-              ? 'Past Date'
+              ? 'Past Time / Date (This package duration start time has already passed)'
               : 'Available'
           }
         >

@@ -137,12 +137,51 @@ function Reservation() {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  // Get Philippine Standard Time (Asia/Manila, UTC+8)
+  const getPhilippineNow = () => {
+    const now = new Date()
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Manila',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    })
+    const parts = formatter.formatToParts(now)
+    const map = {}
+    parts.forEach((p) => {
+      map[p.type] = p.value
+    })
+    const ymd = `${map.year}-${map.month}-${map.day}`
+    const hms = `${map.hour}:${map.minute}:${map.second}`
+    const nowPH = new Date(`${ymd}T${hms}`)
+    return { ymd, hms, nowPH }
+  }
+
   const handleSelectDate = (dateStr) => {
     setSelectedDate(dateStr)
   }
 
   const handleConfirmDate = () => {
-    if (!selectedDate) return
+    if (!selectedDate) {
+      showToast('Please select an available date from the calendar.')
+      return
+    }
+
+    const { ymd: todayYMD, nowPH } = getPhilippineNow()
+    const activePkg = selectedPackage || packages[0] || {}
+    const durId = Number(activePkg.duration_id || 1)
+    const startTimeStr = activePkg.duration_start || (durId === 2 || durId === 4 ? '20:00:00' : durId === 3 ? '08:00:00' : '09:00:00')
+    const proposedSlotStart = new Date(`${selectedDate}T${startTimeStr}`)
+
+    if (selectedDate < todayYMD || (selectedDate === todayYMD && proposedSlotStart <= nowPH)) {
+      showToast('Cannot book a reservation for a time slot that has already passed in Philippine Time.')
+      return
+    }
+
     setCurrentStep('form')
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }

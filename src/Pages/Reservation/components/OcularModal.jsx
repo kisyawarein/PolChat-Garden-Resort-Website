@@ -207,14 +207,43 @@ function OcularModal({
     setVisitationDate(dateStr)
   }
 
+  // Get Philippine Standard Time (Asia/Manila, UTC+8)
+  const getPhilippineNow = () => {
+    const now = new Date()
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'Asia/Manila',
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit',
+      hour12: false,
+    })
+    const parts = formatter.formatToParts(now)
+    const map = {}
+    parts.forEach((p) => {
+      map[p.type] = p.value
+    })
+    const ymd = `${map.year}-${map.month}-${map.day}`
+    const hms = `${map.hour}:${map.minute}:${map.second}`
+    const nowPH = new Date(`${ymd}T${hms}`)
+    return { ymd, hms, nowPH }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     if (!visitationDate) {
       setErrorMsg('Please select an available date from the calendar.')
       return
     }
-    if (visitationDate < todayYMD) {
-      setErrorMsg('Ocular visit date cannot be in the past.')
+
+    const { ymd: todayYMD, nowPH } = getPhilippineNow()
+    const startHour = slot === 'morning' ? '09:00:00' : '14:00:00'
+    const proposedSlotStart = new Date(`${visitationDate}T${startHour}`)
+
+    if (visitationDate < todayYMD || (visitationDate === todayYMD && proposedSlotStart <= nowPH)) {
+      setErrorMsg('Cannot book an ocular visit for a time slot that has already passed in Philippine Time.')
       return
     }
 
@@ -227,7 +256,7 @@ function OcularModal({
     setIsSubmitting(true)
     setErrorMsg('')
 
-    const startTime = slot === 'morning' ? `${visitationDate}T09:00:00` : `${visitationDate}T14:00:00`
+    const startTime = `${visitationDate}T${startHour}`
     const endTime = slot === 'morning' ? `${visitationDate}T11:00:00` : `${visitationDate}T16:00:00`
 
     try {
@@ -257,6 +286,8 @@ function OcularModal({
 
   const renderDays = () => {
     const cells = []
+    const { ymd: todayYMD, nowPH } = getPhilippineNow()
+    const startHour = slot === 'morning' ? '09:00:00' : '14:00:00'
 
     for (let i = 0; i < firstDayIndex; i++) {
       cells.push(<div key={`empty-${i}`} className="ocular-cal-cell ocular-cal-empty" />)
@@ -264,11 +295,12 @@ function OcularModal({
 
     for (let day = 1; day <= daysInMonth; day++) {
       const dateStr = formatYMD(currentYear, currentMonth, day)
-      const isPast = dateStr < todayYMD
+      const proposedSlotStart = new Date(`${dateStr}T${startHour}`)
+      const isPast = dateStr < todayYMD || (dateStr === todayYMD && proposedSlotStart <= nowPH)
       const isToday = dateStr === todayYMD
       const isSelected = visitationDate === dateStr
-      const slotConflict = checkSlotConflict(dateStr, slot)
-      const isBooked = slotConflict === 'confirmed'
+      const slotConflict = isPast ? null : checkSlotConflict(dateStr, slot)
+      const isBooked = slotConflict === 'occupied' || slotConflict === 'confirmed'
       const isPending = slotConflict === 'pending'
       const isBlocked = isPast || isBooked || isPending
 
@@ -288,11 +320,11 @@ function OcularModal({
           onClick={() => handleSelectDate(dateStr)}
           title={
             isBooked
-              ? `Booked for ${slot === 'morning' ? 'Morning Slot (9am-11am)' : 'Afternoon Slot (2pm-4pm)'}`
+              ? `Occupied for ${slot === 'morning' ? 'Morning Slot (9am-11am)' : 'Afternoon Slot (2pm-4pm)'}`
               : isPending
               ? `Pending for ${slot === 'morning' ? 'Morning Slot (9am-11am)' : 'Afternoon Slot (2pm-4pm)'}`
               : isPast
-              ? 'Past Date'
+              ? 'Past Time / Date (Slot time has passed)'
               : 'Available'
           }
         >
