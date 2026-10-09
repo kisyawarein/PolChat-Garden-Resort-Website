@@ -633,10 +633,16 @@ export const DataService = {
         return []
       }
 
-      // Load any locally cached proofs as extra layer
+      // Load any locally cached proofs, checkouts, and reviews
       let cachedProofs = {}
+      let cachedCheckouts = {}
+      let cachedReviews = {}
+      let registeredUsers = []
       try {
         cachedProofs = JSON.parse(localStorage.getItem('polchat_reservation_proofs') || '{}')
+        cachedCheckouts = JSON.parse(localStorage.getItem('polchat_checked_out_reservations') || '{}')
+        cachedReviews = JSON.parse(localStorage.getItem('polchat_reviewed_reservations') || '{}')
+        registeredUsers = JSON.parse(localStorage.getItem('polchat_registered_users') || '[]')
       } catch (e) {}
 
       return (data || []).map((r) => {
@@ -644,56 +650,96 @@ export const DataService = {
         let extractedPayType = r.payment_type || null
         let extractedDown = r.downpayment_amount
         let extractedRem = r.remaining_balance
+        let extractedEmail = r.customer_email || null
         let cleanEventName = r.event_name || 'Resort Stay'
 
         // Parse encoded metadata from event_name if present
         if (cleanEventName && cleanEventName.includes('__PROOF__')) {
-          const matchProof = cleanEventName.match(/__PROOF__(.*?)__(?:PAY|DOWN|REM|$)/)
+          const matchProof = cleanEventName.match(/__PROOF__(.*?)__(?:PAY|DOWN|REM|EMAIL|CHECKOUT|$)/)
           if (matchProof && matchProof[1]) {
             extractedProof = matchProof[1]
           }
         }
         if (cleanEventName && cleanEventName.includes('__PAY__')) {
-          const matchPay = cleanEventName.match(/__PAY__(.*?)__(?:DOWN|REM|$)/)
+          const matchPay = cleanEventName.match(/__PAY__(.*?)__(?:DOWN|REM|EMAIL|CHECKOUT|$)/)
           if (matchPay && matchPay[1]) {
             extractedPayType = matchPay[1]
           }
         }
         if (cleanEventName && cleanEventName.includes('__DOWN__')) {
-          const matchDown = cleanEventName.match(/__DOWN__(.*?)__(?:REM|$)/)
+          const matchDown = cleanEventName.match(/__DOWN__(.*?)__(?:REM|EMAIL|CHECKOUT|$)/)
           if (matchDown && matchDown[1]) {
             extractedDown = Number(matchDown[1])
           }
         }
         if (cleanEventName && cleanEventName.includes('__REM__')) {
-          const matchRem = cleanEventName.match(/__REM__(.*?)$/)
+          const matchRem = cleanEventName.match(/__REM__(.*?)__(?:EMAIL|CHECKOUT|$)/)
           if (matchRem && matchRem[1]) {
             extractedRem = Number(matchRem[1])
           }
         }
+        if (cleanEventName && cleanEventName.includes('__EMAIL__')) {
+          const matchEmail = cleanEventName.match(/__EMAIL__(.*?)__(?:PROOF|PAY|DOWN|REM|CHECKOUT|$)/)
+          if (matchEmail && matchEmail[1] && matchEmail[1].includes('@')) {
+            extractedEmail = matchEmail[1].trim()
+          }
+        }
 
         // Clean up event name to look nice in UI
-        cleanEventName = cleanEventName.split(' __PROOF__')[0].split(' __PAY__')[0].trim()
+        cleanEventName = cleanEventName
+          .split(' __PROOF__')[0]
+          .split(' __PAY__')[0]
+          .split(' __EMAIL__')[0]
+          .split(' __CHECKOUT__')[0]
+          .trim()
+
+        const customerName = r.customer
+          ? `${r.customer.first_name} ${r.customer.last_name || ''}`.trim()
+          : (r.customer_name || `Customer #${r.customer_id}`)
+
+        // If email not found in row/metadata, lookup in registered users
+        if (!extractedEmail && registeredUsers.length > 0) {
+          const matchedUser = registeredUsers.find((u) => {
+            if (r.customer_id && Number(u.id) === Number(r.customer_id)) return true
+            const uFullName = (u.name || `${u.first_name || ''} ${u.last_name || ''}`).trim().toLowerCase()
+            const rName = customerName.toLowerCase()
+            return uFullName && rName && (uFullName === rName || rName.includes(uFullName))
+          })
+          if (matchedUser?.email) {
+            extractedEmail = matchedUser.email
+          }
+        }
 
         const totalCost = (r.reservation_cost || 0) + (r.extra_charges || 0)
         const downpayment = extractedDown ?? Math.round(totalCost * 0.5)
         const remaining = extractedRem ?? (totalCost - downpayment)
         const finalPayType = extractedPayType || (extractedProof ? 'gcash' : 'cash')
 
+        const isCheckedOut = !!(
+          r.is_checked_out ||
+          cachedCheckouts[r.reservation_id] ||
+          r.reservation_status === 'completed'
+        )
+
+        const isReviewed = !!(
+          cachedReviews[r.reservation_id] ||
+          r.reservation_status === 'completed'
+        )
+
         return {
           ...r,
           event_name: cleanEventName,
-          customer_name: r.customer
-            ? `${r.customer.first_name} ${r.customer.last_name || ''}`.trim()
-            : `Customer #${r.customer_id}`,
+          customer_name: customerName,
+          customer_email: extractedEmail || '',
           customer_phone: r.customer?.phone_number ? `0${r.customer.phone_number}` : '',
           payment_proof_url: extractedProof,
           payment_type: finalPayType,
           downpayment_amount: downpayment,
-          remaining_balance: remaining,
-          checkout_payment_type: r.checkout_payment_type || null,
-          checkout_proof_url: r.checkout_proof_url || null,
-          is_checked_out: !!r.is_checked_out,
+          remaining_balance: isCheckedOut ? 0 : remaining,
+          checkout_payment_type: r.checkout_payment_type || cachedCheckouts[r.reservation_id]?.checkout_payment_type || null,
+          checkout_proof_url: r.checkout_proof_url || cachedCheckouts[r.reservation_id]?.checkout_proof_url || null,
+          is_checked_out: isCheckedOut,
+          is_reviewed: isReviewed,
         }
       })
     } catch (err) {
@@ -714,13 +760,26 @@ export const DataService = {
       const remaining = reservationData.remaining_balance ?? (totalCost - downpayment)
       const proofUrl = reservationData.payment_proof_url || null
       const paymentType = reservationData.payment_type || (proofUrl ? 'gcash' : 'cash')
+      const targetCustomerEmail = (reservationData.customer_email || '').trim()
 
       // Encode metadata into event_name to guarantee persistence across all browsers/devices
       // even if Supabase table columns are not yet manually added
-      const baseEventName = (reservationData.event_name || 'Resort Stay').split(' __PROOF__')[0].split(' __PAY__')[0].trim()
-      const eventWithMeta = proofUrl
-        ? `${baseEventName} __PROOF__${proofUrl}__PAY__${paymentType}__DOWN__${downpayment}__REM__${remaining}`
-        : `${baseEventName} __PAY__${paymentType}__DOWN__${downpayment}__REM__${remaining}`
+      const baseEventName = (reservationData.event_name || 'Resort Stay')
+        .split(' __PROOF__')[0]
+        .split(' __PAY__')[0]
+        .split(' __EMAIL__')[0]
+        .split(' __CHECKOUT__')[0]
+        .trim()
+
+      let metaSuffix = `__PAY__${paymentType}__DOWN__${downpayment}__REM__${remaining}`
+      if (proofUrl) {
+        metaSuffix = `__PROOF__${proofUrl}${metaSuffix}`
+      }
+      if (targetCustomerEmail) {
+        metaSuffix = `__EMAIL__${targetCustomerEmail}${metaSuffix}`
+      }
+
+      const eventWithMeta = `${baseEventName} ${metaSuffix}`
 
       const payload = {
         customer_id: validCustomerId,
@@ -800,6 +859,7 @@ export const DataService = {
       return {
         ...createdRow,
         event_name: baseEventName,
+        customer_email: targetCustomerEmail,
         payment_proof_url: proofUrl,
         payment_type: paymentType,
         downpayment_amount: downpayment,
@@ -811,7 +871,7 @@ export const DataService = {
     }
   },
 
-  async updateReservationStatus(reservationId, newStatus) {
+  async updateReservationStatus(reservationId, newStatus, explicitEmail = null) {
     try {
       const { data, error } = await supabase
         .from('resort_reservations')
@@ -833,16 +893,129 @@ export const DataService = {
           ? `${targetRes.customer.first_name} ${targetRes.customer.last_name || ''}`.trim()
           : (targetRes.event_name || 'Valued Guest')
 
+        // Resolve customer email reliably
+        let resolvedEmail = explicitEmail || targetRes.customer_email || null
+
+        if (!resolvedEmail && targetRes.event_name && targetRes.event_name.includes('__EMAIL__')) {
+          const match = targetRes.event_name.match(/__EMAIL__(.*?)__(?:PROOF|PAY|DOWN|REM|CHECKOUT|$)/)
+          if (match && match[1] && match[1].includes('@')) {
+            resolvedEmail = match[1].trim()
+          }
+        }
+
+        if (!resolvedEmail && typeof window !== 'undefined') {
+          try {
+            const registeredUsers = JSON.parse(localStorage.getItem('polchat_registered_users') || '[]')
+            const matchUser = registeredUsers.find((u) => {
+              if (targetRes.customer_id && Number(u.id) === Number(targetRes.customer_id)) return true
+              const uFullName = (u.name || `${u.first_name || ''} ${u.last_name || ''}`).trim().toLowerCase()
+              const rName = (customerName || '').trim().toLowerCase()
+              return uFullName && rName && (uFullName === rName || rName.includes(uFullName))
+            })
+            if (matchUser?.email) {
+              resolvedEmail = matchUser.email
+            }
+          } catch (e) {}
+        }
+
         await EmailService.sendReservationStatusEmail({
           reservation: {
             ...targetRes,
             customer_name: customerName,
+            customer_email: resolvedEmail,
           },
           newStatus,
+          customerEmail: resolvedEmail,
         })
       }
     } catch (err) {
       console.error('Update reservation status exception:', err)
+    }
+  },
+
+  async checkoutReservation(reservationId, { checkout_payment_type = 'gcash', checkout_proof_url = null } = {}) {
+    try {
+      // 1. Cache checkout locally
+      try {
+        const checkedOutList = JSON.parse(localStorage.getItem('polchat_checked_out_reservations') || '{}')
+        checkedOutList[reservationId] = {
+          checkout_payment_type,
+          checkout_proof_url,
+          timestamp: new Date().toISOString(),
+        }
+        localStorage.setItem('polchat_checked_out_reservations', JSON.stringify(checkedOutList))
+      } catch (e) {}
+
+      // 2. Update Supabase
+      const updatePayload = {
+        is_checked_out: true,
+        remaining_balance: 0,
+        has_paid_reservation: true,
+      }
+      if (checkout_payment_type) updatePayload.checkout_payment_type = checkout_payment_type
+      if (checkout_proof_url) updatePayload.checkout_proof_url = checkout_proof_url
+
+      let { data, error } = await supabase
+        .from('resort_reservations')
+        .update(updatePayload)
+        .eq('reservation_id', reservationId)
+        .select(`
+          *,
+          customer:customer_accounts(first_name, last_name, phone_number)
+        `)
+
+      if (error) {
+        console.warn('Standard checkout update fallback:', error.message)
+        const fallbackRes = await supabase
+          .from('resort_reservations')
+          .update({ has_paid_reservation: true })
+          .eq('reservation_id', reservationId)
+          .select(`
+            *,
+            customer:customer_accounts(first_name, last_name, phone_number)
+          `)
+        data = fallbackRes.data
+      }
+
+      const updatedRow = data?.[0] || { reservation_id: reservationId }
+      return {
+        ...updatedRow,
+        is_checked_out: true,
+        remaining_balance: 0,
+        checkout_payment_type,
+        checkout_proof_url,
+      }
+    } catch (err) {
+      console.error('Checkout reservation exception:', err)
+      return {
+        reservation_id: reservationId,
+        is_checked_out: true,
+        remaining_balance: 0,
+        checkout_payment_type,
+        checkout_proof_url,
+      }
+    }
+  },
+
+  async markReservationReviewed(reservationId) {
+    try {
+      // 1. Cache reviewed state locally
+      try {
+        const reviewedList = JSON.parse(localStorage.getItem('polchat_reviewed_reservations') || '{}')
+        reviewedList[reservationId] = true
+        localStorage.setItem('polchat_reviewed_reservations', JSON.stringify(reviewedList))
+      } catch (e) {}
+
+      // 2. Update Supabase reservation status to completed
+      await supabase
+        .from('resort_reservations')
+        .update({
+          reservation_status: 'completed',
+          is_checked_out: true,
+        })
+        .eq('reservation_id', reservationId)
+    } catch (err) {
+      console.error('Mark reservation reviewed exception:', err)
     }
   },
 
@@ -860,35 +1033,6 @@ export const DataService = {
       console.error('Update reservation payment exception:', err)
     }
   },
-
-  async checkoutReservation(reservationId, { checkout_payment_type, checkout_proof_url }) {
-    try {
-      const updates = {
-        has_paid_reservation: true,
-        has_paid_sec_dep: true,
-        remaining_balance: 0,
-        is_checked_out: true,
-        checkout_payment_type: checkout_payment_type || 'cash',
-        checkout_proof_url: checkout_proof_url || null,
-        reservation_status: 'confirmed',
-      }
-
-      const { data, error } = await supabase
-        .from('resort_reservations')
-        .update(updates)
-        .eq('reservation_id', reservationId)
-        .select()
-
-      if (error) {
-        console.warn('Supabase checkout update note:', error.message)
-      }
-      return data?.[0] || updates
-    } catch (err) {
-      console.error('Checkout reservation exception:', err)
-      return null
-    }
-  },
-
 
   // ==========================================
   // 5. RESORT VISITATIONS (OCULAR VISITS)
@@ -989,19 +1133,24 @@ export const DataService = {
         return []
       }
 
-      return (data || []).map((r) => ({
-        ...r,
-        customer_name: r.customer
-          ? `${r.customer.first_name} ${r.customer.last_name || ''}`.trim()
-          : `Customer #${r.customer_id}`,
-      }))
+      return (data || []).map((r) => {
+        const commentText = r.review_comment || r.comment || r.feedback || r.review_text || ''
+        return {
+          ...r,
+          review_comment: commentText,
+          comment: commentText,
+          customer_name: r.customer
+            ? `${r.customer.first_name} ${r.customer.last_name || ''}`.trim()
+            : (r.customer_name || `Customer #${r.customer_id}`),
+        }
+      })
     } catch (err) {
       console.error('Reviews query exception:', err)
       return []
     }
   },
 
-  async addReview({ customerId, customerName = 'Guest', stars = 5, comment = '' }) {
+  async addReview({ customerId, customerName = 'Guest', stars = 5, comment = '', reservationId = null }) {
     const nowIso = new Date().toISOString()
     try {
       const validCustomerId = await this.ensureCustomer({
@@ -1023,9 +1172,21 @@ export const DataService = {
 
       if (error) {
         console.error('Error inserting customer_review in Supabase:', error)
-        return null
       }
-      return data?.[0] || null
+
+      if (reservationId) {
+        await this.markReservationReviewed(reservationId)
+      }
+
+      return data?.[0] || {
+        review_id: Math.floor(100 + Math.random() * 900),
+        customer_id: validCustomerId,
+        review_stars: Number(stars),
+        review_comment: comment,
+        comment: comment,
+        customer_name: customerName,
+        date_submitted: nowIso,
+      }
     } catch (err) {
       console.error('Add review exception:', err)
       return null

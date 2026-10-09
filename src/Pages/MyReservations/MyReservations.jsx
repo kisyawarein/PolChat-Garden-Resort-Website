@@ -55,10 +55,35 @@ function MyReservations({ onNavigate }) {
     setReviewPromptRes(updatedRes)
   }
 
-  // Identify Current Active Reservation (latest pending or confirmed stay)
+  const handleReviewSubmitted = (result, reservationId) => {
+    const targetId = reservationId || reviewPromptRes?.reservation_id
+    if (targetId) {
+      setUserReservations((prev) =>
+        prev.map((r) =>
+          r.reservation_id === targetId
+            ? {
+                ...r,
+                reservation_status: 'completed',
+                is_checked_out: true,
+                is_reviewed: true,
+                remaining_balance: 0,
+              }
+            : r
+        )
+      )
+      DataService.markReservationReviewed(targetId)
+    }
+  }
+
+  // Identify Current Active Reservation (ongoing/upcoming stay that has not been checked out & reviewed)
   const activeReservation =
-    userReservations.find((r) => r.reservation_status === 'confirmed' || r.reservation_status === 'pending') ||
-    null
+    userReservations.find(
+      (r) =>
+        (r.reservation_status === 'confirmed' || r.reservation_status === 'pending') &&
+        !r.is_reviewed &&
+        r.reservation_status !== 'completed' &&
+        r.reservation_status !== 'cancelled'
+    ) || null
 
   // Past / Historical reservations
   const pastReservations = activeReservation
@@ -141,9 +166,7 @@ function MyReservations({ onNavigate }) {
         <LeaveReviewModal
           reservation={reviewPromptRes}
           onClose={() => setReviewPromptRes(null)}
-          onReviewSubmitted={() => {
-            // Optional callback
-          }}
+          onReviewSubmitted={handleReviewSubmitted}
         />
       )}
 

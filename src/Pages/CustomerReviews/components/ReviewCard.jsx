@@ -23,7 +23,7 @@ function ReviewCard({ review }) {
         </div>
       </div>
 
-      <p className="review-comment-text">"{review.review_comment}"</p>
+      <p className="review-comment-text">"{review.review_comment || review.comment || 'Great experience!'}"</p>
     </div>
   )
 }

@@ -38,6 +38,7 @@ export default function LeaveReviewModal({
       customerName: customerName,
       stars: Number(stars),
       comment: comment.trim(),
+      reservationId: reservation?.reservation_id,
     })
 
     setIsSubmitting(false)
@@ -45,11 +46,11 @@ export default function LeaveReviewModal({
     if (result) {
       setSubmittedSuccess(true)
       if (onReviewSubmitted) {
-        onReviewSubmitted(result)
+        onReviewSubmitted(result, reservation?.reservation_id)
       }
       setTimeout(() => {
         onClose()
-      }, 2200)
+      }, 2000)
     } else {
       setErrorMsg('Error submitting your review. Please try again.')
     }

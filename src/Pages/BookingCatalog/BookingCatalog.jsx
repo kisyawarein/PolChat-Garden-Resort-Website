@@ -38,11 +38,12 @@ function BookingCatalog() {
 
   // Optimistic status update for resort reservations
   const handleUpdateReservationStatus = async (reservationId, status) => {
+    const target = reservations.find((r) => r.reservation_id === reservationId)
     setReservations((prev) =>
       prev.map((r) => (r.reservation_id === reservationId ? { ...r, reservation_status: status } : r))
     )
     showToast(`Reservation #${reservationId} marked as ${status}.`)
-    await DataService.updateReservationStatus(reservationId, status)
+    await DataService.updateReservationStatus(reservationId, status, target?.customer_email)
   }
 
   // Optimistic payment update for resort reservations

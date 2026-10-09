@@ -17,38 +17,97 @@ function InquirySection() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [successNotice, setSuccessNotice] = useState('')
 
-  // Load inquiries
-  const loadInquiries = async () => {
-    const allInquiries = await DataService.getInquiries()
-    // Filter by current customer if logged in
-    if (user && user.role === 'customer') {
-      const userInqs = allInquiries.filter(
-        (i) => i.customer_id === user.id || i.customer_name === user.name
-      )
-      setCustomerInquiries(userInqs.length > 0 ? userInqs : allInquiries)
-      if (!activeInquiry && (userInqs.length > 0 || allInquiries.length > 0)) {
-        setActiveInquiry(userInqs[0] || allInquiries[0])
-      }
-    } else if (guestEmail) {
-      const emailInqs = allInquiries.filter(
-        (i) => (i.customer_name && i.customer_name.toLowerCase().includes(guestEmail.toLowerCase()))
-      )
-      setCustomerInquiries(emailInqs)
-    } else {
-      setCustomerInquiries([])
-    }
-  }
-
+  // Reset state when auth changes (e.g. logging out or switching accounts)
   useEffect(() => {
+    if (!isAuthenticated) {
+      setActiveInquiry(null)
+      setActiveChats([])
+      setCustomerInquiries([])
+      setGuestEmail('')
+      setGuestName('')
+      setReplyText('')
+      setInquiryLabel('')
+      setStartingStatement('')
+    } else {
+      setActiveInquiry(null)
+      setActiveChats([])
+      setReplyText('')
+    }
+  }, [isAuthenticated, user?.id])
+
+  // Load inquiries strictly for the current authenticated user or guest email
+  useEffect(() => {
+    let isMounted = true
+
+    const loadInquiries = async () => {
+      const allInquiries = await DataService.getInquiries()
+      if (!isMounted) return
+
+      if (isAuthenticated && user) {
+        const userInqs = allInquiries.filter((i) => {
+          const idMatch = user.id && Number(i.customer_id) === Number(user.id)
+          const nameMatch = user.name && i.customer_name?.toLowerCase() === user.name.toLowerCase()
+          const usernameMatch = user.username && i.customer_name?.toLowerCase() === user.username.toLowerCase()
+          const emailMatch = user.email && i.customer_name?.toLowerCase().includes(user.email.toLowerCase())
+          return idMatch || nameMatch || usernameMatch || emailMatch
+        })
+
+        setCustomerInquiries(userInqs)
+        if (userInqs.length > 0) {
+          setActiveInquiry((prev) => {
+            if (prev && userInqs.some((q) => q.inquiry_id === prev.inquiry_id)) {
+              return prev
+            }
+            return userInqs[0]
+          })
+        } else {
+          setActiveInquiry(null)
+          setActiveChats([])
+        }
+      } else if (!isAuthenticated && guestEmail.trim()) {
+        const emailInqs = allInquiries.filter(
+          (i) => i.customer_name && i.customer_name.toLowerCase().includes(guestEmail.trim().toLowerCase())
+        )
+        setCustomerInquiries(emailInqs)
+        if (emailInqs.length > 0) {
+          setActiveInquiry((prev) => {
+            if (prev && emailInqs.some((q) => q.inquiry_id === prev.inquiry_id)) {
+              return prev
+            }
+            return emailInqs[0]
+          })
+        } else {
+          setActiveInquiry(null)
+          setActiveChats([])
+        }
+      } else {
+        setCustomerInquiries([])
+        setActiveInquiry(null)
+        setActiveChats([])
+      }
+    }
+
     loadInquiries()
-  }, [user, guestEmail])
+
+    return () => {
+      isMounted = false
+    }
+  }, [user, isAuthenticated, guestEmail])
 
   // Load active chats when activeInquiry changes
   useEffect(() => {
+    let isMounted = true
     if (activeInquiry) {
       DataService.getChats(activeInquiry.inquiry_id).then((chats) => {
-        setActiveChats(chats || [])
+        if (isMounted) {
+          setActiveChats(chats || [])
+        }
       })
+    } else {
+      setActiveChats([])
+    }
+    return () => {
+      isMounted = false
     }
   }, [activeInquiry])
 
@@ -73,6 +132,7 @@ function InquirySection() {
       customer_name: customerDisplayName,
       created_at: new Date().toISOString(),
       date_created: new Date().toISOString().split('T')[0],
+      inquiry_status: 'open',
       is_resolved: false,
     }
 
@@ -162,7 +222,13 @@ function InquirySection() {
             {!isAuthenticated ? (
               <div className="support-locked-inquiry-wrap">
                 <div className="support-locked-header-row">
-                  <span className="support-locked-badge">🔒 GUEST INQUIRY FORM</span>
+                  <span className="support-locked-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                    <span>GUEST INQUIRY FORM</span>
+                  </span>
                 </div>
                 <h3 className="support-form-card-title">Send Us a Question</h3>
                 <p className="support-form-card-desc">
@@ -171,7 +237,10 @@ function InquirySection() {
 
                 {successNotice && (
                   <div className="support-inquiry-success-box">
-                    ✓ {successNotice}
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    <span>{successNotice}</span>
                   </div>
                 )}
 
@@ -253,7 +322,10 @@ function InquirySection() {
 
                 {successNotice && (
                   <div className="support-inquiry-success-box">
-                    ✓ {successNotice}
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                    <span>{successNotice}</span>
                   </div>
                 )}
 
@@ -337,12 +409,17 @@ function InquirySection() {
 
                   <div className="support-chat-responder-pill">
                     {activeInquiry.admin_responder ? (
-                      <span className="support-responder-assigned">
-                        🟢 Staff: <strong>{activeInquiry.admin_responder}</strong>
+                      <span className="support-responder-assigned" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                        <span style={{ width: '8px', height: '8px', borderRadius: '50%', backgroundColor: '#16a34a', display: 'inline-block' }} />
+                        <span>Staff: <strong>{activeInquiry.admin_responder}</strong></span>
                       </span>
                     ) : (
-                      <span className="support-responder-waiting">
-                        ⏳ Waiting for staff responder...
+                      <span className="support-responder-waiting" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                          <circle cx="12" cy="12" r="10" />
+                          <polyline points="12 6 12 12 16 14" />
+                        </svg>
+                        <span>Waiting for staff responder...</span>
                       </span>
                     )}
                   </div>
@@ -388,14 +465,18 @@ function InquirySection() {
                     value={replyText}
                     onChange={(e) => setReplyText(e.target.value)}
                   />
-                  <button type="submit" className="support-reply-send-btn">
+                  <button type="submit" className="support-reply-send-btn" disabled={!replyText.trim()}>
                     Send
                   </button>
                 </form>
               </div>
             ) : (
               <div className="support-chat-empty-box">
-                <span className="support-empty-chat-icon">💬</span>
+                <span className="support-empty-chat-icon">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#ACAD79" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                  </svg>
+                </span>
                 <h3>Customer Helpdesk Live Chat</h3>
                 <p>
                   {isAuthenticated

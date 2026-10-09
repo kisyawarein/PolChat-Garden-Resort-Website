@@ -66,7 +66,7 @@ function CustomerReviews() {
     const matchRating = filterRating === 'all' || String(r.review_stars) === filterRating
     const term = searchTerm.toLowerCase().trim()
     const nameMatch = (r.customer_name || '').toLowerCase().includes(term)
-    const commentMatch = (r.comment || '').toLowerCase().includes(term)
+    const commentMatch = (r.review_comment || r.comment || '').toLowerCase().includes(term)
     const idMatch = String(r.review_id).includes(term)
     const matchSearch = !term || (nameMatch || commentMatch || idMatch)
     return matchRating && matchSearch
@@ -346,11 +346,11 @@ function CustomerReviews() {
                       </td>
                       <td>
                         <p className="rev-comment-snippet">
-                          {rev.comment || 'No written feedback provided.'}
+                          {rev.review_comment || rev.comment || 'No written feedback provided.'}
                         </p>
                       </td>
                       <td className="rev-date-text">
-                        {rev.created_at ? rev.created_at.split('T')[0] : 'Recent'}
+                        {rev.date_submitted ? rev.date_submitted.split('T')[0] : (rev.created_at ? rev.created_at.split('T')[0] : 'Recent')}
                       </td>
                     </tr>
                   ))
@@ -397,10 +397,10 @@ function CustomerReviews() {
               <div className="modal-charges-card">
                 <h4 className="modal-charges-title">Customer Feedback</h4>
                 <p className="rev-modal-comment-body">
-                  "{selectedReviewModal.comment || 'No written comments provided.'}"
+                  "{selectedReviewModal.review_comment || selectedReviewModal.comment || 'No written comments provided.'}"
                 </p>
                 <div className="rev-modal-date-sub">
-                  Date Submitted: {selectedReviewModal.created_at || 'Recent'}
+                  Date Submitted: {selectedReviewModal.date_submitted ? selectedReviewModal.date_submitted.split('T')[0] : (selectedReviewModal.created_at ? selectedReviewModal.created_at.split('T')[0] : 'Recent')}
                 </div>
               </div>
             </div>

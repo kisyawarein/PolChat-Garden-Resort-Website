@@ -59,10 +59,42 @@ export const EmailService = {
     if (!reservation) return null
 
     const statusUpper = (newStatus || '').toUpperCase()
-    const targetEmail =
-      customerEmail ||
-      reservation.customer_email ||
-      (reservation.customer_name ? `${reservation.customer_name.toLowerCase().replace(/\s+/g, '')}@gmail.com` : 'polchat2k20@gmail.com')
+    let targetEmail = (customerEmail || reservation.customer_email || '').trim()
+
+    if (!targetEmail) {
+      // 1. Try parsing __EMAIL__ from event_name if present
+      if (reservation.event_name && reservation.event_name.includes('__EMAIL__')) {
+        const match = reservation.event_name.match(/__EMAIL__(.*?)__(?:PROOF|PAY|DOWN|REM|CHECKOUT|$)/)
+        if (match && match[1] && match[1].includes('@')) {
+          targetEmail = match[1].trim()
+        }
+      }
+
+      // 2. Try looking up in localStorage registered users
+      if (!targetEmail && typeof window !== 'undefined') {
+        try {
+          const registeredUsers = JSON.parse(localStorage.getItem('polchat_registered_users') || '[]')
+          const found = registeredUsers.find((u) => {
+            if (reservation.customer_id && Number(u.id) === Number(reservation.customer_id)) return true
+            const uName = (u.name || `${u.first_name || ''} ${u.last_name || ''}`).trim().toLowerCase()
+            const resName = (reservation.customer_name || '').trim().toLowerCase()
+            return uName && resName && (uName === resName || resName.includes(uName))
+          })
+          if (found?.email) {
+            targetEmail = found.email.trim()
+          }
+        } catch (e) {}
+      }
+
+      // 3. Check customer object on reservation
+      if (!targetEmail && reservation.customer?.email) {
+        targetEmail = reservation.customer.email.trim()
+      }
+    }
+
+    if (!targetEmail) {
+      targetEmail = 'polchat2k20@gmail.com'
+    }
 
     const guestName = reservation.customer_name || reservation.event_name || 'Guest'
     const resId = reservation.reservation_id || 'N/A'

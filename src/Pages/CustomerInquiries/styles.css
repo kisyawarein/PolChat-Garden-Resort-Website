@@ -784,3 +784,243 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* =========================================================
+   ADMIN IDENTITY VERIFICATION MODAL
+   ========================================================= */
+.inq-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(40, 28, 20, 0.65);
+  backdrop-filter: blur(4px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  box-sizing: border-box;
+  animation: inqFadeIn 0.2s ease-out;
+}
+
+@keyframes inqFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.inq-modal-box {
+  background-color: #ffffff;
+  border-radius: 16px;
+  border: 1.5px solid #D8D0C3;
+  box-shadow: 0 20px 50px rgba(40, 28, 20, 0.28);
+  width: 100%;
+  max-width: 500px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+  animation: inqScaleUp 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes inqScaleUp {
+  from {
+    transform: scale(0.95);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.inq-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 22px;
+  background-color: #ffffff;
+  border-bottom: 1.5px solid #EDE8DE;
+}
+
+.inq-modal-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.inq-modal-badge-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #43593B;
+  color: #F2D17E;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 2px solid #ACAD79;
+}
+
+.inq-modal-title-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.inq-modal-title {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: #58402E;
+  letter-spacing: -0.2px;
+}
+
+.inq-modal-subtitle {
+  margin: 0;
+  font-size: 0.78rem;
+  color: #796656;
+  font-weight: 500;
+}
+
+.inq-close-x {
+  background: transparent;
+  border: none;
+  color: #796656;
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.inq-close-x:hover {
+  background-color: #FAF8F5;
+  color: #58402E;
+}
+
+.inq-modal-body {
+  padding: 20px 22px;
+  background-color: #FAF8F5;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.inq-ticket-context-card {
+  background-color: #ffffff;
+  border: 1.5px solid #D8D0C3;
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.inq-context-label {
+  font-size: 0.68rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #796656;
+  letter-spacing: 0.4px;
+}
+
+.inq-context-val {
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #58402E;
+}
+
+.inq-context-guest {
+  font-size: 0.78rem;
+  color: #43593B;
+  font-weight: 700;
+}
+
+.inq-prompt-desc {
+  margin: 0;
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: #58402E;
+}
+
+.inq-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.inq-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #58402E;
+}
+
+.inq-text-input {
+  width: 100%;
+  height: 42px;
+  padding: 0 14px;
+  background-color: #ffffff;
+  border: 1.5px solid #D8D0C3;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #58402E;
+  box-sizing: border-box;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.inq-text-input:focus {
+  border-color: #7CCE17;
+  box-shadow: 0 0 0 3px rgba(124, 206, 23, 0.15);
+}
+
+.inq-modal-footer {
+  padding: 16px 22px;
+  background-color: #ffffff;
+  border-top: 1.5px solid #EDE8DE;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.inq-btn-cancel {
+  padding: 9px 18px;
+  border-radius: 8px;
+  background-color: #FAF8F5;
+  border: 1.5px solid #D8D0C3;
+  color: #58402E;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.inq-btn-cancel:hover {
+  background-color: #EDE8DE;
+  border-color: #ACAD79;
+}
+
+.inq-btn-confirm {
+  padding: 9px 20px;
+  border-radius: 8px;
+  background-color: #43593B;
+  border: 1.5px solid #35492E;
+  color: #ffffff;
+  font-size: 0.84rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.inq-btn-confirm:hover {
+  background-color: #58402E;
+  border-color: #453122;
+  color: #F2D17E;
+}
