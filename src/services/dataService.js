@@ -151,16 +151,91 @@ export const DataService = {
 
   getRegisteredEmails() {
     try {
-      return JSON.parse(localStorage.getItem('polchat_customer_emails') || '{}')
+      const creds = this.getAccountCredentials()
+      const emails = {}
+      Object.keys(creds).forEach((k) => {
+        if (creds[k]?.email) {
+          emails[creds[k].customerId || k] = creds[k].email
+        }
+      })
+      const direct = JSON.parse(localStorage.getItem('polchat_customer_emails') || '{}')
+      return { ...direct, ...emails }
     } catch {
       return {}
+    }
+  },
+
+  getAccountCredentials() {
+    try {
+      return JSON.parse(localStorage.getItem('polchat_customer_credentials') || '{}')
+    } catch {
+      return {}
+    }
+  },
+
+  saveAccountCredential(customerId, { email, password, firstName, lastName }) {
+    if (!customerId && !email) return
+    try {
+      const creds = this.getAccountCredentials()
+      const cleanEmail = (email || '').trim().toLowerCase()
+      const cleanPw = (password || '').trim()
+      const cleanFirst = (firstName || '').trim().toLowerCase()
+      const cleanLast = (lastName || '').trim().toLowerCase()
+      const idStr = customerId ? String(customerId) : ''
+
+      const record = {
+        customerId: idStr,
+        email: cleanEmail,
+        password: cleanPw,
+        firstName: cleanFirst,
+        lastName: cleanLast,
+      }
+
+      if (idStr) creds[idStr] = record
+      if (cleanEmail) creds[cleanEmail] = record
+      if (cleanFirst && cleanLast) creds[`${cleanFirst}_${cleanLast}`] = record
+
+      localStorage.setItem('polchat_customer_credentials', JSON.stringify(creds))
+      if (cleanEmail && idStr) {
+        this.saveRegisteredEmail(idStr, cleanEmail)
+      }
+    } catch (e) {}
+  },
+
+  findAccountCredential({ customerId, email, firstName, lastName, identifier }) {
+    try {
+      const creds = this.getAccountCredentials()
+      const cleanId = (identifier || '').trim().toLowerCase()
+      const cleanEmail = (email || '').trim().toLowerCase()
+      const cleanFirst = (firstName || '').trim().toLowerCase()
+      const cleanLast = (lastName || '').trim().toLowerCase()
+      const custIdStr = customerId ? String(customerId) : ''
+
+      if (custIdStr && creds[custIdStr]?.password) return creds[custIdStr]
+      if (cleanEmail && creds[cleanEmail]?.password) return creds[cleanEmail]
+      if (cleanId && creds[cleanId]?.password) return creds[cleanId]
+      if (cleanFirst && cleanLast && creds[`${cleanFirst}_${cleanLast}`]?.password) return creds[`${cleanFirst}_${cleanLast}`]
+
+      // Search all records
+      const all = Object.values(creds)
+      const found = all.find((c) => {
+        if (!c || !c.password) return false
+        if (custIdStr && c.customerId === custIdStr) return true
+        if (cleanEmail && c.email === cleanEmail) return true
+        if (cleanId && (c.email === cleanId || c.customerId === cleanId || c.firstName === cleanId || c.lastName === cleanId)) return true
+        if (cleanFirst && cleanLast && c.firstName === cleanFirst && c.lastName === cleanLast) return true
+        return false
+      })
+      return found || null
+    } catch {
+      return null
     }
   },
 
   saveRegisteredEmail(customerId, email) {
     if (!email) return
     try {
-      const emails = this.getRegisteredEmails()
+      const emails = JSON.parse(localStorage.getItem('polchat_customer_emails') || '{}')
       emails[String(customerId)] = email.trim().toLowerCase()
       localStorage.setItem('polchat_customer_emails', JSON.stringify(emails))
     } catch (e) {}
@@ -168,16 +243,25 @@ export const DataService = {
 
   deleteRegisteredEmail(customerId) {
     try {
-      const emails = this.getRegisteredEmails()
+      const emails = JSON.parse(localStorage.getItem('polchat_customer_emails') || '{}')
       delete emails[String(customerId)]
       delete emails[customerId]
       localStorage.setItem('polchat_customer_emails', JSON.stringify(emails))
+
+      const creds = this.getAccountCredentials()
+      const target = creds[String(customerId)] || creds[customerId]
+      if (target?.email) delete creds[target.email]
+      if (target?.firstName && target?.lastName) delete creds[`${target.firstName}_${target.lastName}`]
+      delete creds[String(customerId)]
+      delete creds[customerId]
+      localStorage.setItem('polchat_customer_credentials', JSON.stringify(creds))
     } catch (e) {}
   },
 
   clearAllRegisteredEmails() {
     try {
       localStorage.removeItem('polchat_customer_emails')
+      localStorage.removeItem('polchat_customer_credentials')
     } catch (e) {}
   },
 
@@ -299,8 +383,11 @@ export const DataService = {
         customer_id: Date.now(),
       }
 
-      if (created?.customer_id && customer.email) {
-        this.saveRegisteredEmail(created.customer_id, customer.email)
+      if (created?.customer_id) {
+        this.saveAccountCredential(created.customer_id, {
+          email: customer.email || '',
+          password: customer.password || '',
+        })
       }
 
       this.invalidateCache('customers')

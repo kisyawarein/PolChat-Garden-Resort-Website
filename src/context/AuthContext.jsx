@@ -80,29 +80,64 @@ export function AuthProvider({ children }) {
       return { success: true, user: adminMatch }
     }
 
-    // 2. Query customer_accounts directly from Supabase
+    // 2. Query customer_accounts directly from Supabase and match name, id, or registered email
     try {
       const customers = await DataService.getCustomers({ force: true })
+      const emailMap = DataService.getRegisteredEmails()
+
       const match = (customers || []).find((c) => {
         const first = (c.first_name || '').trim().toLowerCase()
         const last = (c.last_name || '').trim().toLowerCase()
         const full = `${first} ${last}`.trim().toLowerCase()
+        const custEmail = (emailMap[c.customer_id] || emailMap[String(c.customer_id)] || c.email || '').trim().toLowerCase()
+
         return (
           first === cleanId ||
           last === cleanId ||
           full === cleanId ||
+          (custEmail && custEmail === cleanId) ||
           (c.customer_id && String(c.customer_id) === cleanId)
         )
       })
 
       if (match) {
+        // Strict customer password verification
+        const credential = DataService.findAccountCredential({
+          customerId: match.customer_id,
+          email: cleanId.includes('@') ? cleanId : (emailMap[match.customer_id] || match.email),
+          firstName: match.first_name,
+          lastName: match.last_name,
+          identifier: cleanId,
+        })
+
+        const expectedPassword = credential?.password || match.password || null
+
+        if (expectedPassword) {
+          if (cleanPass !== expectedPassword) {
+            return { success: false, error: 'Incorrect password. Please try again.' }
+          }
+        } else {
+          // If no recorded password, only allow resort default or reject
+          if (cleanPass !== 'customer123') {
+            return { success: false, error: 'Incorrect password. Please try again.' }
+          }
+        }
+
+        const matchedEmail = (
+          credential?.email ||
+          emailMap[match.customer_id] ||
+          emailMap[String(match.customer_id)] ||
+          match.email ||
+          (cleanId.includes('@') ? cleanId : `${(match.first_name || 'user').toLowerCase().replace(/\s+/g, '')}@gmail.com`)
+        ).trim()
+
         const customerUser = {
           id: match.customer_id,
           username: (match.first_name || 'customer').toLowerCase(),
           first_name: match.first_name,
           last_name: match.last_name || '',
           name: `${match.first_name} ${match.last_name || ''}`.trim(),
-          email: `${(match.first_name || 'user').toLowerCase().replace(/\s+/g, '')}@gmail.com`,
+          email: matchedEmail,
           password: cleanPass,
           phone: match.phone_number ? `0${match.phone_number}` : '09171234567',
           role: 'customer',
@@ -164,6 +199,7 @@ export function AuthProvider({ children }) {
     }
 
     const customerId = created ? created.customer_id : Math.floor(100 + Math.random() * 900)
+    DataService.saveAccountCredential(customerId, { email: cleanEmail, password })
 
     const newUser = {
       id: customerId,
