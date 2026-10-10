@@ -170,7 +170,7 @@ function Analytics() {
       {/* Main Top Header Bar */}
       <div className="analytics-header-bar">
         <div className="analytics-title-group">
-          <h1 className="analytics-main-title">Resort Intelligence & Analytics</h1>
+          <h1 className="analytics-main-title">Data Visualization</h1>
           <p className="analytics-subtitle">
             Consolidated operational data, revenue trends, customer lifetime value, and sentiment metrics.
           </p>
