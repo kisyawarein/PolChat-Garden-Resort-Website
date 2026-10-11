@@ -206,7 +206,7 @@ function Home() {
         />
         <div className="home-hero-overlay" />
         <div className="home-hero-content">
-          <h1 className="home-hero-title">WELCOME TO POLCHAT!</h1>
+          <h1 className="home-hero-title">Welcome To PolChat Garden Resort!</h1>
           <div className="home-hero-info-row">
             <span className="home-hero-info-item"> A brief escape to reconnect, refresh, and recharge your energy.</span>
             {/* <span className="home-hero-info-item">INFORMATION</span> 
@@ -268,10 +268,10 @@ This is for family outings, barkada bonding, birthday celebrations, and simply t
       <section className="home-section-4">
         {/* Top Centered Header & Information */}
         <div className="home-section-4-header">
-          <h2 className="home-section-4-title">HIGHLIGHTS OF POLCHAT</h2>
+          <h2 className="home-section-4-title">Highlights of PolChat Garden Resort</h2>
           <div className="home-section-4-info-grid">
             <div className="home-section-4-info-column">
-              <span className="home-section-4-info-text">INFORMATION</span>
+              <span className="home-section-4-info-text">Explore the beauty of PolChat Garden Resort, surrounded by lush greenery, colorful flowers, and relaxing scenery. </span>
               {/*<span className="home-section-4-info-text">INFORMATION</span>*/}
             </div>
           {/*}  <div className="home-section-4-info-column">
@@ -349,7 +349,7 @@ This is for family outings, barkada bonding, birthday celebrations, and simply t
               />
             </div>
             <div className="home-section-5-content">
-              <h2 className="home-section-5-title">Nature & Serenity:</h2>
+              <h2 className="home-section-5-title">Nature & Serenity</h2>
               <div className="home-section-5-info-grid">
                 <div className="home-section-5-info-column">
                   <span className="home-section-5-info-text">Escape the noise. Our lush green gardens and refreshing pools offer the perfect peaceful environment to unwind with family and friends.</span>
@@ -407,7 +407,7 @@ This is for family outings, barkada bonding, birthday celebrations, and simply t
       {/* Section 6: Highlights Interlocking Triangular Grid */}
       <section className="home-section-6">
         <div className="home-section-6-header">
-          <h2 className="home-section-6-title">HIGHLIGHTS</h2>
+          <h2 className="home-section-6-title"> • SCENES OF NATURE •</h2>
           <p className="home-section-6-subtitle">
             Pools, garden paths, gathering spaces, and peaceful corners to unwind.
           </p>

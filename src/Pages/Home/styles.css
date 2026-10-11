@@ -48,12 +48,13 @@
 }
 
 .home-hero-title {
-  font-size: 2.75rem;
-  font-weight: 900;
+  font-family: 'Pacifico', cursive;
+  font-size: 4rem;
+  font-weight: 250;
   color: #ffffff;
   margin: 0;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  letter-spacing: 0;
+  text-transform: none;
   text-shadow: 0 3px 12px rgba(0, 0, 0, 0.6);
 }
 
@@ -66,9 +67,10 @@
 }
 
 .home-hero-info-item {
-  font-size: 1.15rem;
+  font-family: 'Lora', serif;
+  font-size: 1.30rem;
   font-weight: 800;
-  color: var(--color-sand, #F2D17E);
+  color: var(--color-sand, #ffe196);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
@@ -179,12 +181,15 @@
 }
 
 .home-section-3-title {
-  font-size: 2.5rem;
+  font-family: 'Lora', serif;
+  font-style: italic;
+  font-size: 3rem;
   font-weight: 900;
+  padding-top: 20px;
   color: var(--color-forest, #43593B);
   margin: 0;
   letter-spacing: -0.01em;
-  text-transform: uppercase;
+  text-transform: capitalize;
 }
 
 .home-section-3-info-grid {
@@ -201,11 +206,12 @@
 }
 
 .home-section-3-info-text {
-  font-size: 0.95rem;
-  font-weight: 800;
+  font-family: 'Marcellus', serif;
+  font-size: 1.3rem;
+  font-weight: 550;
   color: var(--color-bark, #58402E);
   letter-spacing: 0.03em;
-  text-transform: uppercase;
+  text-transform:none;
 }
 
 .home-section-3-link {
@@ -236,7 +242,7 @@
   justify-content: flex-start;
   padding: 200px 16px;
   border-bottom: 1px dashed rgba(88, 64, 46, 0.15);
-  background-color: var(--color-sand-light, #fbf3dc);
+  background-color: #eadfae;
   gap: 48px;
   overflow: hidden;
 }
@@ -250,12 +256,13 @@
 }
 
 .home-section-4-title {
+  font-family: 'Lora', serif;
   font-size: 2.5rem;
   font-weight: 900;
   color: var(--color-forest, #43593B);
   margin: 0;
   letter-spacing: -0.01em;
-  text-transform: uppercase;
+  text-transform: capitalize;
 }
 
 .home-section-4-info-grid {
@@ -275,11 +282,12 @@
 
 /* Information Text */
 .home-section-4-info-text {
-  font-size: 0.95rem;
-  font-weight: 800;
+  font-family: 'Marcellus', serif;
+  font-size: 1.3rem;
+  font-weight: 550;
   color: var(--color-bark, #58402E);
   letter-spacing: 0.03em;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .home-section-4-picture-row {
@@ -294,7 +302,7 @@
 }
 
 .home-section-4-picture-card {
-  background-color: #eadfae;
+  background-color: #eadfae; 
   border: 2px solid var(--color-bark, #58402E);
   display: flex;
   align-items: center;
@@ -314,7 +322,7 @@
 }
 
 .home-section-4-picture-card-large {
-  width: 370px;
+  width: 360px;
   height: 470px;
 }
 
@@ -474,12 +482,13 @@
 }
 
 .home-section-5-title {
+  font-family: 'Lora', serif;
   font-size: 2.75rem;
   font-weight: 900;
   color: var(--color-forest, #43593B);
   margin: 0;
   letter-spacing: -0.01em;
-  text-transform: uppercase;
+  text-transform: capitalize;
 }
 
 .home-section-5-info-grid {
@@ -496,11 +505,12 @@
 }
 
 .home-section-5-info-text {
-  font-size: 0.95rem;
-  font-weight: 800;
+  font-family: 'Marcellus', serif;
+  font-size: 1.3rem;
+  font-weight: 550;
   color: var(--color-bark, #58402E);
   letter-spacing: 0.03em;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .home-section-5-link {
@@ -544,7 +554,8 @@
 }
 
 .home-section-6-title {
-  font-size: 2.5rem;
+  font-family: 'Lora', serif;
+  font-size: 3.5rem;
   font-weight: 900;
   color: var(--color-forest, #43593B);
   margin: 0;
@@ -553,8 +564,9 @@
 }
 
 .home-section-6-subtitle {
-  font-size: 1rem;
-  font-weight: 800;
+  font-family: 'Marcellus', serif;
+  font-size: 1.3rem;
+  font-weight: 550;
   color: var(--color-bark, #58402E);
   margin: 0;
   letter-spacing: 0.06em;
@@ -678,7 +690,8 @@
 }
 
 .home-section-7-title {
-  font-size: 2.5rem;
+  font-family: 'Lora', serif;
+  font-size: 3rem;
   font-weight: 900;
   color: var(--color-forest, #43593B);
   margin: 0;
@@ -702,11 +715,12 @@
 }
 
 .home-section-7-info-text {
-  font-size: 0.95rem;
-  font-weight: 800;
+  font-family: 'Marcellus', serif;
+  font-size: 1.3rem;
+  font-weight: 550;
   color: var(--color-bark, #58402E);
   letter-spacing: 0.03em;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .home-section-7-container {
