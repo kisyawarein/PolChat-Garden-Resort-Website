@@ -29,6 +29,14 @@
 *, *::before, *::after {
   box-sizing: border-box;
 }
+/* fixed position to remove white space on the right corner of the screen */
+html,
+body,
+#root {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
 
 body {
   margin: 0;
