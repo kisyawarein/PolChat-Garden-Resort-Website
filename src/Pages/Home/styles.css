@@ -226,7 +226,7 @@
   opacity: 0.85;
 }
 
-/* Section 4: Shifting Cards Section */
+/* Section 4: Shifting Cards / Pictures Section */
 .home-section-4 {
   width: 100%;
   min-height: 80vh;
@@ -273,6 +273,7 @@
   gap: 4px;
 }
 
+/* Information Text */
 .home-section-4-info-text {
   font-size: 0.95rem;
   font-weight: 800;
@@ -301,20 +302,20 @@
   flex-shrink: 0;
   box-sizing: border-box;
   user-select: none;
-  overflow: hidden;
-  border-radius: 8px;
+  overflow: hidden;     /* Prevent content from overflowing */
+  border-radius: 3px;   /* Rounded corners */
   transition: width 0.35s ease, height 0.35s ease, opacity 0.35s ease, border-width 0.35s ease;
 }
 
-/* Two shared sizes */
+/* Two shared sizes for the small and large cards. */
 .home-section-4-picture-card-small {
-  width: 190px;
-  height: 250px;
+  width: 170px;
+  height: 260px;
 }
 
 .home-section-4-picture-card-large {
-  width: 290px;
-  height: 340px;
+  width: 370px;
+  height: 470px;
 }
 
 /* Edge cards trigger shifting */
@@ -420,7 +421,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 80px 24px;
+  padding: 250px 24px; /* Add padding to create space from top and bottom*/
   border-bottom: 1px dashed rgba(67, 89, 59, 0.15);
   background-color: var(--color-sage-light, #f1f2e8);
 }
@@ -442,11 +443,11 @@
 }
 
 .home-section-5-picture-box {
-  width: 480px;
-  height: 420px;
+  width: 500px;
+  height: 650px;
   background-color: #dce5da;
   border: 2px solid var(--color-forest, #43593B);
-  border-radius: 8px;
+  border-radius: 3px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -520,7 +521,7 @@
   opacity: 0.85;
 }
 
-/* Section 6: Mosaic */
+/* Section 6: Mosaic or triangle pictures */
 .home-section-6 {
   width: 100%;
   min-height: 90vh;
@@ -528,7 +529,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 60px 24px;
+  padding: 250px 24px;
   border-bottom: 1px dashed rgba(88, 64, 46, 0.15);
   background-color: var(--color-sand-light, #fbf3dc);
   gap: 40px;
@@ -614,11 +615,11 @@
   overflow: visible;
   pointer-events: none;
 }
-
-.home-section-6-polygon {
-  fill: transparent;
-  stroke: var(--color-forest, #43593B);
-  stroke-width: 2.5px;
+/* Triangle polygons */
+.home-section-6-polygon { 
+  fill: transparent;  
+  stroke: var(--color-forest, #43593B); /* polygon line border color */
+  stroke-width: 1px;  /* polygon line border: thickness or thin */
   stroke-linejoin: round;
 }
 
@@ -662,7 +663,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 60px 24px 80px;
+  padding: 250px 24px 80px;
   border-bottom: 1px dashed rgba(67, 89, 59, 0.15);
   background-color: var(--color-forest-light, #edf2eb);
   gap: 40px;
