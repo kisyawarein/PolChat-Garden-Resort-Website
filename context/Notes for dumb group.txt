@@ -95,3 +95,5 @@ c. Shows Reservation History
 6. Announcements and Notifications
 
 - Announcements and notifs are sent via email or sms
+
+7. NEVER 

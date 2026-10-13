@@ -261,9 +261,6 @@ This is for family outings, barkada bonding, birthday celebrations, and simply t
               </div> */}
             </div>
 
-            <a href="#information" className="home-section-3-link">
-              INFORMATION LINK
-            </a>
           </div>
         </div>
       </section>
@@ -276,66 +273,101 @@ This is for family outings, barkada bonding, birthday celebrations, and simply t
           <div className="home-section-4-info-grid">
             <div className="home-section-4-info-column">
               <span className="home-section-4-info-text">Explore the beauty of PolChat Garden Resort, surrounded by lush greenery, colorful flowers, and relaxing scenery. </span>
-              {/*<span className="home-section-4-info-text">INFORMATION</span>*/}
             </div>
-          {/*}  <div className="home-section-4-info-column">
-              <span className="home-section-4-info-text">INFORMATION</span>
-              <span className="home-section-4-info-text">INFORMATION</span>
-            </div>
-            <div className="home-section-4-info-column">
-              <span className="home-section-4-info-text">INFORMATION</span>
-              <span className="home-section-4-info-text">INFORMATION</span>
-            </div>*/}
           </div>
         </div>
 
-        {/* Picture Row with Single-Item Shift & Edge Fading */}
-        <div className="home-section-4-picture-row">
-          {visibleCards.map((card) => {
-            const image = HOME_IMAGES[Number(card.id.slice(5)) - 1]
-            const sizeClass =
-              card.size === 'small'
-                ? 'home-section-4-picture-card-small'
-                : 'home-section-4-picture-card-large'
+        {/* Picture Row with Side Arrow Buttons */}
+        <div className="home-section-4-carousel-wrapper">
+          <button
+            type="button"
+            className="home-section-4-arrow-button home-section-4-arrow-left"
+            onClick={() => handleShift('right')}
+            disabled={Boolean(shiftDirection)}
+            aria-label="Previous pictures"
+            title="Previous"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="home-section-4-arrow-icon"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="15 18 9 12 15 6" />
+            </svg>
+          </button>
 
-            const edgeClass = card.isLeftEdge
-              ? 'home-section-4-picture-card-edge home-section-4-picture-card-edge-left'
-              : card.isRightEdge
-              ? 'home-section-4-picture-card-edge home-section-4-picture-card-edge-right'
-              : ''
+          <div className="home-section-4-picture-row">
+            {visibleCards.map((card) => {
+              const image = HOME_IMAGES[Number(card.id.slice(5)) - 1]
+              const sizeClass =
+                card.size === 'small'
+                  ? 'home-section-4-picture-card-small'
+                  : 'home-section-4-picture-card-large'
 
-            const handleClick = () => {
-              if (card.isLeftEdge) {
-                handleShift('left') // Click left edge -> shift left
-              } else if (card.isRightEdge) {
-                handleShift('right') // Click right edge -> shift right
-              }
-            }
+              const edgeClass = card.isLeftEdge
+                ? 'home-section-4-picture-card-edge home-section-4-picture-card-edge-left'
+                : card.isRightEdge
+                ? 'home-section-4-picture-card-edge home-section-4-picture-card-edge-right'
+                : ''
 
-            return (
-              <div
-                key={card.id}
-                className={`home-section-4-picture-card ${sizeClass} ${edgeClass} ${card.animClass}`.trim()}
-                onClick={card.isClickable ? handleClick : undefined}
-                role={card.isClickable ? 'button' : undefined}
-                tabIndex={card.isClickable ? 0 : undefined}
-                title={
-                  card.isLeftEdge
-                    ? 'Click to shift left'
-                    : card.isRightEdge
-                    ? 'Click to shift right'
-                    : undefined
+              const handleClick = () => {
+                if (card.isLeftEdge) {
+                  handleShift('right') // Click left edge -> show previous image
+                } else if (card.isRightEdge) {
+                  handleShift('left') // Click right edge -> show next image
                 }
-              >
-                <img
-                  className="home-section-image"
-                  src={getHomeImageUrl(image)}
-                  alt={image.alt}
-                  loading="lazy"
-                />
-              </div>
-            )
-          })}
+              }
+
+              return (
+                <div
+                  key={card.id}
+                  className={`home-section-4-picture-card ${sizeClass} ${edgeClass} ${card.animClass}`.trim()}
+                  onClick={card.isClickable ? handleClick : undefined}
+                  role={card.isClickable ? 'button' : undefined}
+                  tabIndex={card.isClickable ? 0 : undefined}
+                  title={
+                    card.isLeftEdge
+                      ? 'Click to show previous'
+                      : card.isRightEdge
+                      ? 'Click to show next'
+                      : undefined
+                  }
+                >
+                  <img
+                    className="home-section-image"
+                    src={getHomeImageUrl(image)}
+                    alt={image.alt}
+                    loading="lazy"
+                  />
+                </div>
+              )
+            })}
+          </div>
+
+          <button
+            type="button"
+            className="home-section-4-arrow-button home-section-4-arrow-right"
+            onClick={() => handleShift('left')}
+            disabled={Boolean(shiftDirection)}
+            aria-label="Next pictures"
+            title="Next"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              className="home-section-4-arrow-icon"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <polyline points="9 18 15 12 9 6" />
+            </svg>
+          </button>
         </div>
       </section>
 
@@ -357,20 +389,8 @@ This is for family outings, barkada bonding, birthday celebrations, and simply t
               <div className="home-section-5-info-grid">
                 <div className="home-section-5-info-column">
                   <span className="home-section-5-info-text">Escape the noise. Our lush green gardens and refreshing pools offer the perfect peaceful environment to unwind with family and friends.</span>
-                  {/*<span className="home-section-5-info-text">INFORMATION</span>*/}
                 </div>
-            {/*     <div className="home-section-5-info-column">
-                  <span className="home-section-5-info-text">INFORMATION</span>
-                  <span className="home-section-5-info-text">INFORMATION</span>
-                </div>
-                <div className="home-section-5-info-column">
-                  <span className="home-section-5-info-text">INFORMATION</span>
-                  <span className="home-section-5-info-text">INFORMATION</span>
-                </div> */}
               </div>
-              <a href="#information" className="home-section-5-link">
-                INFORMATION LINK
-              </a>
             </div>
           </div>
 
@@ -381,20 +401,8 @@ This is for family outings, barkada bonding, birthday celebrations, and simply t
               <div className="home-section-5-info-grid">
                 <div className="home-section-5-info-column">
                   <span className="home-section-5-info-text">Explore our amenities, view available facilities, and prepare for a relaxing stay. Plan your day trip or private celebration with us. </span>
-                {/*  <span className="home-section-5-info-text">INFORMATION</span> */}
-                </div> 
-               {/* <div className="home-section-5-info-column">
-                  <span className="home-section-5-info-text">INFORMATION</span>
-                  <span className="home-section-5-info-text">INFORMATION</span>
-                </div> */}
-               {/*  <div className="home-section-5-info-column">
-                  <span className="home-section-5-info-text">INFORMATION</span>
-                  <span className="home-section-5-info-text">INFORMATION</span>
-                </div> */}
+                </div>
               </div>
-              <a href="#information" className="home-section-5-link">
-                INFORMATION LINK
-              </a>
             </div>
             <div className="home-section-5-picture-box">
               <img
@@ -444,6 +452,7 @@ This is for family outings, barkada bonding, birthday celebrations, and simply t
                     <svg
                       viewBox={isHalf ? '0 0 100 173' : '0 0 200 173'}
                       className="home-section-6-triangle-svg"
+                      preserveAspectRatio="none"
                       aria-hidden="true"
                     >
                       <polygon points={triangle.points} className="home-section-6-polygon" />
@@ -458,37 +467,23 @@ This is for family outings, barkada bonding, birthday celebrations, and simply t
 
       {/* Section 7 */}
       <section className="home-section-7">
-        {/* Top Centered Header with 3-column information grid identical to Section 4 */}
         <div className="home-section-7-header">
           <h2 className="home-section-7-title">POLCHAT IS WAITING FOR YOU!</h2>
         </div>
-          <div className="home-section-7-info-grid">
-            <div className="home-section-7-info-column">
-          
-              <span className="home-section-7-info-text">PolChat Garden Resort is a family-owned getaway made for relaxing and spending time together. Enjoy the swimming pool, lush garden, and cozy spaces around the resort. It’s a lovely place for family outings, birthdays, and gatherings with friends. Choose a day visit or ask us about overnight stays and private events. Our team is happy to help you find a package that suits your plans. Contact us to check rates, available dates, and booking details. We look forward to welcoming you to PolChat!</span>
-            {/*  <span className="home-section-7-info-text">INFORMATION</span> */}
-            </div>
-            <div className="home-section-7-info-column">
-            {/*  <span className="home-section-7-info-text">INFORMATION</span>
-              <span className="home-section-7-info-text">INFORMATION</span>
-            </div>
-            <div className="home-section-7-info-column">
-              <span className="home-section-7-info-text">INFORMATION</span>
-              <span className="home-section-7-info-text">INFORMATION</span>
-            </div> */}
-          </div>
+        <div className="home-section-7-info-grid">
+          <p className="home-section-7-info-text">
+            PolChat Garden Resort is a family-owned getaway made for relaxing and spending time together. Enjoy the swimming pool, lush garden, and cozy spaces around the resort. It’s a lovely place for family outings, birthdays, and gatherings with friends. Choose a day visit or ask us about overnight stays and private events. Our team is happy to help you find a package that suits your plans. Contact us to check rates, available dates, and booking details. We look forward to welcoming you to PolChat!
+          </p>
         </div>
 
-        {/* Container inside like Section 3 */}
-        <div className="home-section-7-container">
-          <div className="home-section-7-picture-box">
-            <img
-              className="home-section-image"
-              src={getHomeImageUrl(HOME_IMAGES[10])}
-              alt={HOME_IMAGES[10].alt}
-              loading="lazy"
-            />
-          </div>
+        {/* Picture */}
+        <div className="home-section-7-picture-box">
+          <img
+            className="home-section-image"
+            src={getHomeImageUrl(HOME_IMAGES[10])}
+            alt={HOME_IMAGES[10].alt}
+            loading="lazy"
+          />
         </div>
       </section>
     </div>

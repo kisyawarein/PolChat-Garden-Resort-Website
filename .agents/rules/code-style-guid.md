@@ -27,3 +27,5 @@ trigger: always_on
 #58402E
 
 use these smartly and make sure it looks beautiful when used.
+
+always make sure the changes are compatible with vercel so that if i build it, there wont be unexpected errors
