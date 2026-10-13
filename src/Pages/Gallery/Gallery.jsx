@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { DataService } from '../../services/dataService'
 import { getWebsiteImageUrl } from '../../services/imageService'
+import GalleryModal from './components/GalleryModal'
 import './styles.css'
 
 const GALLERY_FALLBACK_IMAGES = [
@@ -29,7 +30,7 @@ const GALLERY_ROW_LAYOUTS = [
 
 function Gallery() {
   const [galleryItems, setGalleryItems] = useState([])
-  const [activeLightboxItem, setActiveLightboxItem] = useState(null)
+  const [selectedImageIndex, setSelectedImageIndex] = useState(null)
 
   useEffect(() => {
     async function loadGallery() {
@@ -50,6 +51,20 @@ function Gallery() {
   galleryItems.forEach((item) => {
     slotMap[item.slot_id] = item
   })
+
+  // Build sequential list of all images across the gallery layout
+  const allImages = GALLERY_ROW_LAYOUTS.flatMap((row) =>
+    row.slotIds.map((slotId) => {
+      const item = slotMap[slotId]
+      const fallbackImage = GALLERY_FALLBACK_IMAGES[(slotId - 1) % GALLERY_FALLBACK_IMAGES.length]
+      const imageUrl = item?.image_url || getWebsiteImageUrl(`homepage/${fallbackImage}`)
+      return {
+        slotId,
+        imageUrl,
+        alt: `PolChat Garden Resort Photo ${slotId}`,
+      }
+    })
+  )
 
   return (
     <div className="gallery-page">
@@ -93,66 +108,24 @@ function Gallery() {
                 className={`gallery-row gallery-row-${row.columns}cols ${row.heightClass}`}
               >
                 {row.slotIds.map((slotId) => {
-                  const item = slotMap[slotId] || {
-                    slot_id: slotId,
-                    label: `PHOTO ${String(slotId).padStart(2, '0')}`,
-                    title: `Resort Feature ${slotId}`,
-                    category: 'General',
-                  }
-
-                  const hasPhoto = Boolean(item.image_url)
-                  const fallbackImage = GALLERY_FALLBACK_IMAGES[(slotId - 1) % GALLERY_FALLBACK_IMAGES.length]
+                  const imageIndex = allImages.findIndex((img) => img.slotId === slotId)
+                  const imageObj = allImages[imageIndex]
 
                   return (
                     <div
-                      key={item.slot_id}
-                      className={`gallery-picture-card ${hasPhoto ? 'gallery-card-with-photo' : 'gallery-card-default'}`}
-                      onClick={() => hasPhoto && setActiveLightboxItem(item)}
+                      key={slotId}
+                      className="gallery-picture-card"
+                      onClick={() => setSelectedImageIndex(imageIndex)}
                       role="button"
                       tabIndex={0}
-                      aria-label={`${item.label}: ${item.title}`}
+                      aria-label={`View photo ${imageIndex + 1}`}
                     >
-                      {hasPhoto ? (
-                        <>
-                          <img
-                            src={item.image_url}
-                            alt={item.title || item.label}
-                            className="gallery-photo-img"
-                            loading="lazy"
-                          />
-                          <div className="gallery-photo-overlay">
-                            <span className="gallery-photo-pill">{item.label}</span>
-                            <div className="gallery-photo-content">
-                              {item.category && (
-                                <span className="gallery-photo-category">{item.category}</span>
-                              )}
-                              <h3 className="gallery-photo-title">{item.title}</h3>
-                              {item.caption && (
-                                <p className="gallery-photo-caption">{item.caption}</p>
-                              )}
-                            </div>
-                            <span className="gallery-photo-zoom-hint" title="Click to enlarge">
-                              🔍 Click to enlarge
-                            </span>
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <img
-                            src={getWebsiteImageUrl(`homepage/${fallbackImage}`)}
-                            alt={`${item.title} at PolChat Garden Resort`}
-                            className="gallery-default-image"
-                            loading="lazy"
-                          />
-                          <div className="gallery-default-inner">
-                            <span className="gallery-picture-label">{item.label}</span>
-                            <span className="gallery-picture-title">{item.title}</span>
-                            {item.category && (
-                              <span className="gallery-picture-tag">{item.category}</span>
-                            )}
-                          </div>
-                        </>
-                      )}
+                      <img
+                        src={imageObj?.imageUrl}
+                        alt={imageObj?.alt}
+                        className="gallery-photo-img"
+                        loading="lazy"
+                      />
                     </div>
                   )
                 })}
@@ -163,47 +136,13 @@ function Gallery() {
       </section>
 
       {/* Fullscreen Lightbox Modal */}
-      {activeLightboxItem && (
-        <div
-          className="gallery-lightbox-backdrop"
-          onClick={() => setActiveLightboxItem(null)}
-          role="dialog"
-          aria-modal="true"
-        >
-          <div
-            className="gallery-lightbox-dialog"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <button
-              type="button"
-              className="gallery-lightbox-close-btn"
-              onClick={() => setActiveLightboxItem(null)}
-              aria-label="Close Lightbox"
-            >
-              ✕
-            </button>
-            <div className="gallery-lightbox-image-wrap">
-              <img
-                src={activeLightboxItem.image_url}
-                alt={activeLightboxItem.title}
-                className="gallery-lightbox-image"
-              />
-            </div>
-            <div className="gallery-lightbox-meta">
-              <div className="gallery-lightbox-tags">
-                <span className="gallery-lightbox-pill">{activeLightboxItem.label}</span>
-                {activeLightboxItem.category && (
-                  <span className="gallery-lightbox-cat">{activeLightboxItem.category}</span>
-                )}
-              </div>
-              <h2 className="gallery-lightbox-title">{activeLightboxItem.title}</h2>
-              {activeLightboxItem.caption && (
-                <p className="gallery-lightbox-desc">{activeLightboxItem.caption}</p>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      <GalleryModal
+        isOpen={selectedImageIndex !== null}
+        images={allImages}
+        currentIndex={selectedImageIndex}
+        onClose={() => setSelectedImageIndex(null)}
+        onNavigate={(newIndex) => setSelectedImageIndex(newIndex)}
+      />
     </div>
   )
 }
