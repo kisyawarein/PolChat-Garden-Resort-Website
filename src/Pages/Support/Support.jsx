@@ -69,7 +69,7 @@ function Support() {
         />
         <div className="support-hero-overlay" />
         <div className="support-hero-content">
-          <h1 className="support-hero-title">INFORMATION: CENTER</h1>
+          <h1 className="support-hero-title">Support</h1>
         </div>
       </section>
 

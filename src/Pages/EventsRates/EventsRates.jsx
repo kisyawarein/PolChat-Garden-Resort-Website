@@ -41,7 +41,7 @@ function EventsRates() {
         />
         <div className="events-rates-hero-overlay" />
         <div className="events-rates-hero-content">
-          <h1 className="events-rates-hero-title">EVENTS & RATES</h1>
+          <h1 className="events-rates-hero-title">Event & Rates</h1>
         </div>
       </section>
 

@@ -1,3 +1,4 @@
+import nightPoolImage from '../../../resources/pictures/homepage/landscape-night-pool.png'
 import { getWebsiteImageUrl } from '../../services/imageService'
 import './styles.css'
 
@@ -96,8 +97,8 @@ function About() {
             <div className="about-section-4-picture-box">
               <img
                 className="about-page-image"
-                src={getWebsiteImageUrl('homepage/day_pool_kubo.png')}
-                alt="Resort pool beside the traditional kubo"
+                src={nightPoolImage}
+                alt="Resort pool at night"
                 loading="lazy"
               />
             </div>

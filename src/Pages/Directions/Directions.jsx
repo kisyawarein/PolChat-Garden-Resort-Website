@@ -21,7 +21,7 @@ function Directions() {
         <div className="directions-hero-overlay" />
         <div className="directions-hero-content">
           <p className="directions-hero-subtitle">LOCATION & GETTING HERE</p>
-          <h1 className="directions-hero-title">INFORMATION: CENTER</h1>
+          <h1 className="directions-hero-title">Directions</h1>
         </div>
       </section>
 
@@ -31,14 +31,14 @@ function Directions() {
           {/* Address Information Card */}
           <div className="directions-info-card">
             <div className="directions-info-header">
-              <div className="directions-pin-badge">📍 RESORT LOCATION</div>
+              <div className="directions-pin-badge"> RESORT LOCATION</div>
               <h2 className="directions-location-name">PolChat Garden Resort</h2>
               <p className="directions-full-address">{address}</p>
             </div>
 
             <div className="directions-quick-meta">
               <div className="directions-meta-item">
-                <span className="directions-meta-label">Direct Line / Mobile</span>
+                <span className="directions-meta-label">Mobile</span>
                 <a href="tel:+639534954389" className="directions-meta-value">0953 495 4389</a>
               </div>
               <div className="directions-meta-item">
@@ -68,7 +68,7 @@ function Directions() {
                   alert('Address copied to clipboard!')
                 }}
               >
-                <span>📋 Copy Address</span>
+                <span> Copy Address</span>
               </button>
             </div>
           </div>

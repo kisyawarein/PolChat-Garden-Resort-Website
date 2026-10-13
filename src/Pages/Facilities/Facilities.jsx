@@ -63,12 +63,12 @@ function Facilities() {
         />
         <div className="facilities-hero-overlay" />
         <div className="facilities-hero-content">
-          <h1 className="facilities-hero-title">RESORT FACILITIES</h1>
-          <div className="facilities-hero-info-row">
+          <h1 className="facilities-hero-title">Resort Facilities</h1>
+        {/*}  <div className="facilities-hero-info-row">
             <span className="facilities-hero-info-item">EVENT VENUES</span>
             <span className="facilities-hero-info-item">COZY ACCOMMODATIONS</span>
             <span className="facilities-hero-info-item">GARDEN SANCTUARY</span>
-          </div>
+          </div> */}
         </div>
       </section>
 

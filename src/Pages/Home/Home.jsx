@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import heroVideo from '../../../resources/Homepage_Video.mp4'
+import nightPoolImage from '../../../resources/pictures/homepage/landscape-night-pool.png'
 import { getWebsiteImageUrl } from '../../services/imageService'
 import './styles.css'
 
@@ -12,11 +13,14 @@ const HOME_IMAGES = [
   { fileName: 'flowerpots.png', alt: 'Flower pots in the resort garden' },
   { fileName: 'landscape_bathtub.png', alt: 'Outdoor bathtub among the resort landscape' },
   { fileName: 'grilling_station.png', alt: 'Outdoor grilling station' },
-  { fileName: 'landscape_stairs.png', alt: 'Garden stairs through the landscape' },
+  { fileName: 'landscape-night-pool.png', alt: 'Resort pool at night' },
   { fileName: 'landscape_wooden.png', alt: 'Wooden garden landscape' },
   { fileName: 'portrait-treehouse.png', alt: 'Tree house among the resort greenery' },
 ]
-const getHomeImageUrl = (image) => getWebsiteImageUrl(`homepage/${image.fileName}`)
+const getHomeImageUrl = (image) =>
+  image.fileName === 'landscape-night-pool.png'
+    ? nightPoolImage
+    : getWebsiteImageUrl(`homepage/${image.fileName}`)
 
 const TOTAL_ITEMS = HOME_IMAGES.length
 const SLOT_SIZES = ['small', 'large', 'small', 'large', 'small', 'large', 'small']
@@ -231,8 +235,8 @@ function Home() {
           <div className="home-section-3-picture-box">
             <img
               className="home-section-image"
-              src={getHomeImageUrl(HOME_IMAGES[8])}
-              alt={HOME_IMAGES[8].alt}
+              src={nightPoolImage}
+              alt="Resort pool at night"
               loading="lazy"
             />
           </div>
