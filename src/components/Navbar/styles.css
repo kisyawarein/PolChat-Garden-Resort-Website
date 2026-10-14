@@ -353,7 +353,8 @@
 
   .navbar-right-actions {
     order: 3;
-    max-width: 42px;
+    max-width: none;
+    flex-shrink: 0;
   }
 
   .navbar-auth-buttons,
@@ -363,15 +364,23 @@
     box-shadow: none;
   }
 
-  .navbar-login-btn,
-  .navbar-user-chip {
-    display: none;
+  .navbar-auth-buttons {
+    gap: 3px;
   }
 
+  .navbar-login-btn,
   .navbar-signup-btn,
   .navbar-logout-btn {
-    padding: 9px 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 9px;
     font-size: 0.72rem;
+    white-space: nowrap;
+  }
+
+  .navbar-user-chip {
+    display: none;
   }
 
   .navbar-user-role-badge {
@@ -394,6 +403,13 @@
   }
 
   .book-now-button {
-    padding-inline: 10px;
+    padding-inline: 9px;
+  }
+
+  .navbar-login-btn,
+  .navbar-signup-btn,
+  .navbar-logout-btn {
+    padding-inline: 7px;
+    font-size: 0.68rem;
   }
 }
