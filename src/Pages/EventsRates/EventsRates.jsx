@@ -170,9 +170,7 @@ function EventsRates() {
                 />
               </div>
               <p className="events-rates-section-4-paragraph">
-                Feel the magic and mystery distinct to each destination with
-                imaginative and authentic celebrations tailored to the
-                occasion. 
+               Every celebration is special, and we want to help you make it memorable. Whether you're spending time with family, celebrating a birthday, or gathering with friends, PolChat Garden Resort offers a peaceful place to enjoy your special moments. Relax, have fun, and create memories together in a beautiful natural setting.
               </p>
             </div>
           </div>
