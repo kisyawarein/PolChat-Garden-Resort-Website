@@ -421,3 +421,19 @@
     font-size: 1.6rem;
   }
 }
+
+@media (max-width: 480px) {
+  .facilities-hero-info-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .facilities-section-3-picture-box {
+    min-height: 300px;
+  }
+
+  .facilities-section-3-picture-label {
+    font-size: 1.45rem;
+    text-align: center;
+  }
+}

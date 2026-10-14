@@ -312,11 +312,6 @@ function AuthModal({ onAdminLoggedIn }) {
     }
   }
 
-  const handleQuickFillAdmin = () => {
-    setUsernameOrEmail('admin')
-    setPassword('admin123')
-  }
-
   return (
     <div className="auth-modal-backdrop" onClick={handleClose}>
       <div
@@ -426,19 +421,6 @@ function AuthModal({ onAdminLoggedIn }) {
                   </button>
                 </div>
 
-                <div className="auth-admin-hint-box">
-                  <span>Admin:</span>
-                  <button
-                    type="button"
-                    className="auth-quick-fill-btn"
-                    onClick={() => {
-                      setNameOrEmail('Admin')
-                      setPassword('admin123')
-                    }}
-                  >
-                    Admin / admin123
-                  </button>
-                </div>
               </div>
             ) : isOtpStep ? (
               // ==========================================

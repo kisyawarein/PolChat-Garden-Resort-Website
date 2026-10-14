@@ -417,11 +417,6 @@
    Responsive Adjustments
    ========================================================================== */
 @media (max-width: 1024px) {
-
-  .support-section-4 {
-    margin-bottom: 900px !important;
-  }
-
   .support-section-4-container {
     flex-direction: column;
     gap: 48px;
@@ -836,6 +831,7 @@
 }
 
 .support-reply-send-btn {
+  flex-shrink: 0;
   background-color: var(--color-forest, #43593B);
   color: #ffffff;
   border: none;
@@ -860,6 +856,31 @@
 .support-empty-chat-icon {
   font-size: 3rem;
   margin-bottom: 12px;
+}
+
+@media (max-width: 480px) {
+  .support-hero-title {
+    font-size: 2.6rem;
+  }
+
+  .support-section-2-picture-box,
+  .support-section-6-picture-box {
+    min-height: 300px;
+  }
+
+  .support-section-2-picture-label,
+  .support-section-6-picture-label {
+    font-size: 1.5rem;
+    text-align: center;
+  }
+
+  .support-reply-bar {
+    flex-direction: column;
+  }
+
+  .support-reply-send-btn {
+    width: 100%;
+  }
 }
 
 /* Logged-out Guest Lock Styles */

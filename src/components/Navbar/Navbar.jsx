@@ -106,6 +106,7 @@ function Navbar({ currentPage, onNavigate, onToggleSidebar }) {
   const navItems = isAdmin ? adminNavItems : guestNavItems
 
   const [indicatorStyle, setIndicatorStyle] = useState({ left: 0, width: 0, opacity: 0 })
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const buttonRefs = useRef({})
 
   const updateIndicator = useCallback(() => {
@@ -126,6 +127,10 @@ function Navbar({ currentPage, onNavigate, onToggleSidebar }) {
     window.addEventListener('resize', updateIndicator)
     return () => window.removeEventListener('resize', updateIndicator)
   }, [updateIndicator, isAdmin])
+
+  useEffect(() => {
+    setIsMobileMenuOpen(false)
+  }, [currentPage, isAdmin])
 
   // Only show the first part of the first name (e.g. "Raishawn" from "Raishawn Alejandro")
   const getShortFirstName = () => {
@@ -154,8 +159,21 @@ function Navbar({ currentPage, onNavigate, onToggleSidebar }) {
         </button>
       )}
 
+      <button
+        type="button"
+        className="navbar-mobile-toggle"
+        onClick={() => setIsMobileMenuOpen((isOpen) => !isOpen)}
+        aria-expanded={isMobileMenuOpen}
+        aria-controls="primary-navigation"
+        aria-label={isMobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+      >
+        <span />
+        <span />
+        <span />
+      </button>
+
       {/* Main Navigation Pill */}
-      <nav className="navbar-pill">
+      <nav id="primary-navigation" className={`navbar-pill${isMobileMenuOpen ? ' navbar-pill-open' : ''}`}>
         <div
           className="navbar-indicator"
           style={{
@@ -172,7 +190,10 @@ function Navbar({ currentPage, onNavigate, onToggleSidebar }) {
                 ref={(el) => (buttonRefs.current[item.id] = el)}
                 type="button"
                 className={currentPage === item.id ? 'navbar-button navbar-button-active' : 'navbar-button'}
-                onClick={() => onNavigate(item.id)}
+                onClick={() => {
+                  onNavigate(item.id)
+                  setIsMobileMenuOpen(false)
+                }}
               >
                 {item.icon && <span className="navbar-item-icon-wrap">{item.icon}</span>}
                 <span>{item.label}</span>

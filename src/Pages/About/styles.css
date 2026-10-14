@@ -569,3 +569,20 @@
     justify-content: center;
   }
 }
+
+@media (max-width: 480px) {
+  .about-section-1 {
+    min-height: 560px;
+  }
+
+  .about-section-3-picture-box,
+  .about-section-5-picture-box {
+    height: 300px;
+  }
+
+  .about-section-3-picture-label,
+  .about-section-5-picture-label {
+    font-size: 1.45rem;
+    text-align: center;
+  }
+}

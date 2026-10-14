@@ -924,3 +924,53 @@
     border-radius: 8px;
   }
 }
+
+@media (max-width: 480px) {
+  .home-section-1 {
+    min-height: 78vh;
+  }
+
+  .home-hero-info-row {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .home-section-3-container {
+    min-height: 0;
+    padding: 56px 16px;
+  }
+
+  .home-section-3-picture-box {
+    height: 300px;
+  }
+
+  .home-section-4-picture-row,
+  .home-section-6-mosaic {
+    margin-inline: -8px;
+    padding-inline: 8px;
+  }
+
+  .home-section-6-mosaic {
+    overflow-x: visible;
+  }
+
+  .home-section-6-triangle-row {
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .home-section-6-triangle-item {
+    width: min(220px, 82vw);
+    height: min(190px, 72vw);
+  }
+
+  .home-section-6-triangle-half {
+    width: 50%;
+    height: 100%;
+  }
+
+  .home-section-6-triangle-nested {
+    margin-left: 0;
+  }
+}

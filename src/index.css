@@ -37,7 +37,21 @@ body,
 #root {
   width: 100%;
   max-width: 100%;
-  overflow-x: hidden;
+  overflow-x: clip;
+}
+
+img,
+video,
+canvas,
+svg {
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  max-width: 100%;
 }
 
 body {
