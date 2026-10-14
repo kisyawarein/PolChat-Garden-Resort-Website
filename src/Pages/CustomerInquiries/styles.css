@@ -1014,3 +1014,12 @@
   border-color: #453122;
   color: #F2D17E;
 }
+
+/* Mobile responsiveness overrides */
+@media (max-width: 600px) {
+  .catalog-panel-header-card { height: auto; min-height: 0; flex-wrap: wrap; }
+  .catalog-header-controls, .inq-ticket-meta, .inq-chat-meta-tags, .inq-ticket-top, .inq-ticket-foot { flex-wrap: wrap; }
+  .inq-search-wrap { width: 100%; min-width: 0; }
+  .inq-modal-box { max-height: calc(100dvh - 32px); overflow-y: auto; }
+  .inq-chat-meta-tags { overflow-wrap: anywhere; }
+}

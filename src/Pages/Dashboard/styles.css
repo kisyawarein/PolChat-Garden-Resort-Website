@@ -871,3 +871,11 @@
 .dash-access-denied-btn:hover {
   opacity: 0.9;
 }
+
+/* Mobile responsiveness overrides */
+@media (max-width: 600px) {
+  .dash-page-container { padding-left: 16px; padding-right: 16px; }
+  .dash-panel-actions-group { flex-wrap: wrap; }
+  .dash-dropdown-menu { left: 0; right: auto; width: min(260px, calc(100vw - 32px)); }
+  .dash-chart-tooltip, .dash-stat-label { overflow-wrap: anywhere; white-space: normal; }
+}

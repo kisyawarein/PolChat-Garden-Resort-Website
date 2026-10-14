@@ -128,3 +128,7 @@
   color: var(--color-bark, #58402E);
   font-family: monospace;
 }
+
+@media (max-width: 600px) {
+  .email-toast-container { left: 16px; right: 16px; bottom: max(16px, env(safe-area-inset-bottom)); width: auto; max-width: none; }
+}

@@ -509,3 +509,11 @@
   line-height: 1.6;
   color: #43593B;
 }
+
+/* Mobile responsiveness overrides */
+@media (max-width: 600px) {
+  .pp-page-wrapper { padding-left: 16px; padding-right: 16px; }
+  .pp-section-card, .pp-global-card, .pp-policy-block { padding: 14px; }
+  .pp-tabs-bar { overflow-x: auto; flex-wrap: nowrap; }
+  .pp-section-header, .pp-package-header, .pp-time-row, .pp-action-buttons { flex-wrap: wrap; }
+}

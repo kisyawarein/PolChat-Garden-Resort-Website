@@ -1352,3 +1352,12 @@
   background-color: #9f1239;
   border-color: #881337;
 }
+
+/* Mobile responsiveness overrides */
+@media (max-width: 600px) {
+  .catalog-panel-header-card, .catalog-header-controls { height: auto; min-height: 0; flex-wrap: wrap; }
+  .schedule-search-wrap { width: 100%; }
+  .cust-table-panel-card { height: auto; min-height: 0; overflow: visible; }
+  .cust-data-table { min-width: 720px; }
+  .cust-overview-val { overflow-wrap: anywhere; white-space: normal; }
+}

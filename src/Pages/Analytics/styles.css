@@ -842,3 +842,13 @@
   font-weight: 700;
   cursor: pointer;
 }
+
+/* Mobile responsiveness overrides */
+@media (max-width: 600px) {
+  .analytics-page-container { padding-left: 16px; padding-right: 16px; }
+  .analytics-header-bar, .analytics-header-actions { flex-wrap: wrap; }
+  .analytics-dropdown-menu { left: 0; right: auto; width: min(260px, calc(100vw - 32px)); }
+  .analytics-tooltip, .dash-stat-label, .analytics-kpi-label { overflow-wrap: anywhere; white-space: normal; }
+  .analytics-date-row { flex-direction: column; align-items: stretch; }
+  .analytics-kpi-grid { grid-template-columns: 1fr; }
+}

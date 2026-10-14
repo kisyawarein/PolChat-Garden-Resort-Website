@@ -1,4 +1,4 @@
-/* =========================================================
+﻿/* =========================================================
    POLCHAT GARDEN RESORT - BOOKING CATALOG STYLES
    Color Palette:
    - Primary Green: #7CCE17
@@ -2502,4 +2502,15 @@
     padding: 0 !important;
     border: none !important;
   }
+}
+
+/* Mobile responsiveness overrides */
+@media (max-width: 600px) {
+  .catalog-panel-header-card, .calendar-nav-toolbar { height: auto; min-height: 0; }
+  .calendar-nav-right-controls, .calendar-nav-buttons, .schedule-mode-switcher, .calendar-legend-bar { flex-wrap: wrap; }
+  .calendar-matrix-card { overflow-x: auto; }
+  .calendar-weekdays-bar, .calendar-days-grid { min-width: 620px; }
+  .cal-badge-pill { white-space: normal; overflow-wrap: anywhere; overflow: visible; text-overflow: clip; }
+  .cal-day-details-dialog { max-height: calc(100dvh - 32px); }
+  .cal-day-details-dialog .modal-card-body { overflow-y: auto; }
 }

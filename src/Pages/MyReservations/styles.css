@@ -1154,3 +1154,12 @@
   line-height: 1.45;
 }
 
+
+/* Mobile responsiveness overrides */
+@media (max-width: 600px) {
+  .myres-table-panel-card { height: auto; min-height: 0; overflow: visible; }
+  .myres-data-table { min-width: 720px; }
+  .myres-search-wrap { width: 100%; }
+  .myres-info-grid { grid-template-columns: 1fr; }
+  .myres-balance-card, .myres-checkout-row, .myres-deposit-card { flex-direction: column; align-items: stretch; }
+}

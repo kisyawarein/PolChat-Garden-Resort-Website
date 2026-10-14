@@ -711,3 +711,14 @@
   background-color: #43593B;
   color: #ffffff;
 }
+
+/* Mobile responsiveness overrides */
+@media (max-width: 600px) {
+  .catalog-panel-header-card, .catalog-header-controls { height: auto; flex-wrap: wrap; }
+  .schedule-search-wrap { width: 100%; }
+  .rev-data-table { min-width: 760px; }
+  .modal-backdrop { padding: 16px; }
+  .modal-dialog-card { max-height: calc(100dvh - 32px); }
+  .modal-card-body { overflow-y: auto; }
+  .modal-info-grid { grid-template-columns: 1fr; }
+}
