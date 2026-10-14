@@ -206,11 +206,12 @@ function Reservation() {
     }
     const endIso = `${endDateObj.getFullYear()}-${pad(endDateObj.getMonth() + 1)}-${pad(endDateObj.getDate())}T${pad(endDateObj.getHours())}:${pad(endDateObj.getMinutes())}:${pad(endDateObj.getSeconds())}`
 
-    const totalCalculatedCost = priceCalculation.basePrice + priceCalculation.extensionCharge
-    const extraCharges = priceCalculation.extraPaxCharge + priceCalculation.securityDeposit
+    const eventCharge = Number(priceCalculation.eventCharge || 0)
+    const totalCalculatedCost = Number(priceCalculation.basePrice || 0) + Number(priceCalculation.extensionCharge || 0)
+    const extraCharges = Number(priceCalculation.extraPaxCharge || 0) + Number(priceCalculation.securityDeposit || 2000) + eventCharge
     const grandTotal = totalCalculatedCost + extraCharges
     const downpaymentAmount = paymentInfo?.downpaymentAmount ?? Math.round(grandTotal * 0.5)
-    const remainingBalance = grandTotal - downpaymentAmount
+    const remainingBalance = Math.max(0, grandTotal - downpaymentAmount)
 
     const tempResId = Math.floor(1000 + Math.random() * 9000)
 
@@ -229,6 +230,7 @@ function Reservation() {
       has_paid_reservation: paymentInfo?.paymentMethod === 'gcash',
       reservation_cost: totalCalculatedCost,
       extra_charges: extraCharges,
+      event_cost: eventCharge,
       reservation_status: 'pending',
       event_name: `${formData.eventName || 'Resort Stay'} (${formData.firstName} ${formData.lastName})`,
       payment_proof_url: paymentInfo?.paymentProofPreview || null,

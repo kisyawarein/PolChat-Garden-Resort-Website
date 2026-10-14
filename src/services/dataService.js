@@ -1061,35 +1061,42 @@ export const DataService = {
         let extractedDown = r.downpayment_amount
         let extractedRem = r.remaining_balance
         let extractedEmail = r.customer_email || null
+        let extractedEventCost = r.event_cost || 0
         let cleanEventName = r.event_name || 'Resort Stay'
 
         // Parse encoded metadata from event_name if present
         if (cleanEventName && cleanEventName.includes('__PROOF__')) {
-          const matchProof = cleanEventName.match(/__PROOF__(.*?)__(?:PAY|DOWN|REM|EMAIL|CHECKOUT|$)/)
+          const matchProof = cleanEventName.match(/__PROOF__(.*?)__(?:PAY|DOWN|REM|EVENT|EMAIL|CHECKOUT|$)/)
           if (matchProof && matchProof[1]) {
             extractedProof = matchProof[1]
           }
         }
+        if (cleanEventName && cleanEventName.includes('__EVENT__')) {
+          const matchEvent = cleanEventName.match(/__EVENT__(.*?)__(?:PROOF|PAY|DOWN|REM|EMAIL|CHECKOUT|$)/)
+          if (matchEvent && matchEvent[1]) {
+            extractedEventCost = Number(matchEvent[1])
+          }
+        }
         if (cleanEventName && cleanEventName.includes('__PAY__')) {
-          const matchPay = cleanEventName.match(/__PAY__(.*?)__(?:DOWN|REM|EMAIL|CHECKOUT|$)/)
+          const matchPay = cleanEventName.match(/__PAY__(.*?)__(?:DOWN|REM|EVENT|EMAIL|CHECKOUT|$)/)
           if (matchPay && matchPay[1]) {
             extractedPayType = matchPay[1]
           }
         }
         if (cleanEventName && cleanEventName.includes('__DOWN__')) {
-          const matchDown = cleanEventName.match(/__DOWN__(.*?)__(?:REM|EMAIL|CHECKOUT|$)/)
+          const matchDown = cleanEventName.match(/__DOWN__(.*?)__(?:REM|EVENT|EMAIL|CHECKOUT|$)/)
           if (matchDown && matchDown[1]) {
             extractedDown = Number(matchDown[1])
           }
         }
         if (cleanEventName && cleanEventName.includes('__REM__')) {
-          const matchRem = cleanEventName.match(/__REM__(.*?)__(?:EMAIL|CHECKOUT|$)/)
+          const matchRem = cleanEventName.match(/__REM__(.*?)__(?:EMAIL|EVENT|CHECKOUT|$)/)
           if (matchRem && matchRem[1]) {
             extractedRem = Number(matchRem[1])
           }
         }
         if (cleanEventName && cleanEventName.includes('__EMAIL__')) {
-          const matchEmail = cleanEventName.match(/__EMAIL__(.*?)__(?:PROOF|PAY|DOWN|REM|CHECKOUT|$)/)
+          const matchEmail = cleanEventName.match(/__EMAIL__(.*?)__(?:PROOF|EVENT|PAY|DOWN|REM|CHECKOUT|$)/)
           if (matchEmail && matchEmail[1] && matchEmail[1].includes('@')) {
             extractedEmail = matchEmail[1].trim()
           }
@@ -1099,9 +1106,23 @@ export const DataService = {
         cleanEventName = cleanEventName
           .split(' __PROOF__')[0]
           .split(' __PAY__')[0]
+          .split(' __EVENT__')[0]
+          .split(' __DOWN__')[0]
+          .split(' __REM__')[0]
           .split(' __EMAIL__')[0]
           .split(' __CHECKOUT__')[0]
           .trim()
+
+        const isCheckedOut = !!(
+          r.is_checked_out ||
+          cachedCheckouts[r.reservation_id] ||
+          r.reservation_status === 'completed'
+        )
+
+        const isReviewed = !!(
+          cachedReviews[r.reservation_id] ||
+          r.reservation_status === 'completed'
+        )
 
         const customerName = r.customer
           ? `${r.customer.first_name} ${r.customer.last_name || ''}`.trim()
@@ -1120,21 +1141,32 @@ export const DataService = {
           }
         }
 
-        const totalCost = (r.reservation_cost || 0) + (r.extra_charges || 0)
-        const downpayment = extractedDown ?? Math.round(totalCost * 0.5)
-        const remaining = extractedRem ?? (totalCost - downpayment)
+        let totalCost = Number(r.reservation_cost || 0) + Number(r.extra_charges || 0)
+        let downpayment = extractedDown !== undefined && extractedDown !== null ? Number(extractedDown) : Math.round(totalCost * 0.5)
+
+        // If downpayment exceeds recorded totalCost (e.g. legacy records where event was omitted from totalCost),
+        // adjust totalCost to reflect the full booking amount (downpayment is exactly 50%)
+        if (downpayment > totalCost) {
+          totalCost = downpayment * 2
+        }
+
+        // If event cost wasn't explicitly tagged, derive it from totalCost - base - sec_dep if it is an event
+        const hasEventName = Boolean(cleanEventName && cleanEventName !== 'Resort Stay' && !cleanEventName.startsWith('Resort Stay'))
+        if (extractedEventCost === 0 && hasEventName) {
+          const basePkg = Number(r.reservation_cost || 0)
+          const impliedExtra = Math.max(0, totalCost - basePkg - 2000)
+          if (impliedExtra >= 1500) {
+            extractedEventCost = impliedExtra
+          }
+        }
+
+        let remaining = isCheckedOut
+          ? 0
+          : (extractedRem !== undefined && extractedRem !== null && Number(extractedRem) >= 0)
+          ? Number(extractedRem)
+          : Math.max(0, totalCost - downpayment)
+
         const finalPayType = extractedPayType || (extractedProof ? 'gcash' : 'cash')
-
-        const isCheckedOut = !!(
-          r.is_checked_out ||
-          cachedCheckouts[r.reservation_id] ||
-          r.reservation_status === 'completed'
-        )
-
-        const isReviewed = !!(
-          cachedReviews[r.reservation_id] ||
-          r.reservation_status === 'completed'
-        )
 
         return {
           ...r,
@@ -1144,8 +1176,9 @@ export const DataService = {
           customer_phone: r.customer?.phone_number ? `0${r.customer.phone_number}` : '',
           payment_proof_url: extractedProof,
           payment_type: finalPayType,
+          event_cost: extractedEventCost,
           downpayment_amount: downpayment,
-          remaining_balance: isCheckedOut ? 0 : remaining,
+          remaining_balance: remaining,
           checkout_payment_type: r.checkout_payment_type || cachedCheckouts[r.reservation_id]?.checkout_payment_type || null,
           checkout_proof_url: r.checkout_proof_url || cachedCheckouts[r.reservation_id]?.checkout_proof_url || null,
           is_checked_out: isCheckedOut,
@@ -1170,20 +1203,27 @@ export const DataService = {
 
       const totalCost = Number(reservationData.reservation_cost || 0) + Number(reservationData.extra_charges || 0)
       const downpayment = reservationData.downpayment_amount ?? Math.round(totalCost * 0.5)
-      const remaining = reservationData.remaining_balance ?? (totalCost - downpayment)
+      const remaining = Math.max(0, reservationData.remaining_balance ?? (totalCost - downpayment))
       const proofUrl = reservationData.payment_proof_url || null
       const paymentType = reservationData.payment_type || (proofUrl ? 'gcash' : 'cash')
       const targetCustomerEmail = (reservationData.customer_email || '').trim()
+      const eventCost = Number(reservationData.event_cost || 0)
 
       // Encode metadata into event_name without exceeding database column limits
       const baseEventName = (reservationData.event_name || 'Resort Stay')
         .split(' __PROOF__')[0]
         .split(' __PAY__')[0]
+        .split(' __EVENT__')[0]
+        .split(' __DOWN__')[0]
+        .split(' __REM__')[0]
         .split(' __EMAIL__')[0]
         .split(' __CHECKOUT__')[0]
         .trim()
 
       let metaSuffix = `__PAY__${paymentType}__DOWN__${downpayment}__REM__${remaining}`
+      if (eventCost > 0) {
+        metaSuffix = `__EVENT__${eventCost}${metaSuffix}`
+      }
       // Only include proof URL in metadata string if it is a short hosted URL (not large base64)
       if (proofUrl && !proofUrl.startsWith('data:') && proofUrl.length < 150) {
         metaSuffix = `__PROOF__${proofUrl}${metaSuffix}`
@@ -1269,6 +1309,7 @@ export const DataService = {
         customer_email: targetCustomerEmail,
         payment_proof_url: proofUrl,
         payment_type: paymentType,
+        event_cost: eventCost,
         downpayment_amount: downpayment,
         remaining_balance: remaining,
         reservation_status: reservationData.reservation_status || 'pending',

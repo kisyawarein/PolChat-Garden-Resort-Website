@@ -19,7 +19,7 @@ function BookingReceipt({
   })
 
   const downpayment = paymentDetails?.downpaymentAmount || reservation?.downpayment_amount || Math.round((priceCalculation.totalAmount || 0) * 0.5)
-  const remainingBalance = paymentDetails?.remainingBalance !== undefined ? paymentDetails.remainingBalance : (priceCalculation.totalAmount - downpayment)
+  const remainingBalance = Math.max(0, paymentDetails?.remainingBalance !== undefined ? paymentDetails.remainingBalance : (priceCalculation.totalAmount - downpayment))
 
   return (
     <div className="resv-receipt-step-wrapper">

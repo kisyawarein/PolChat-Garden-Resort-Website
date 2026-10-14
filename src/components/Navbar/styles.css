@@ -336,8 +336,22 @@
 
   .navbar-button {
     justify-content: flex-start;
-    padding: 11px 12px;
+    padding: 10px 14px;
     font-size: 0.84rem;
+    border-radius: 8px;
+    color: var(--color-forest, #43593B);
+  }
+
+  .navbar-button-active {
+    background-color: var(--color-forest, #43593B);
+    color: #ffffff !important;
+    font-weight: 700;
+    box-shadow: 0 2px 8px rgba(67, 89, 59, 0.2);
+  }
+
+  .navbar-button-active:hover {
+    background-color: var(--color-forest-dark, #2f3e29);
+    color: #ffffff !important;
   }
 
   .navbar-indicator {

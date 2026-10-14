@@ -257,13 +257,19 @@
 
 .sidebar-nav-item-active {
   background-color: var(--color-forest, #43593B);
-  color: #ffffff;
+  color: #ffffff !important;
   font-weight: 700;
+  border-left: 4px solid var(--color-lime, #7CCE17);
+  box-shadow: 0 2px 10px rgba(67, 89, 59, 0.22);
+}
+
+.sidebar-nav-item-active .sidebar-item-icon svg {
+  stroke: #ffffff;
 }
 
 .sidebar-nav-item-active:hover {
   background-color: var(--color-forest-dark, #2f3e29);
-  color: #ffffff;
+  color: #ffffff !important;
 }
 
 .sidebar-item-icon {

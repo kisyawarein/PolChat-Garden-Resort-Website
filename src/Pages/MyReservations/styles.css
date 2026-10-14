@@ -283,6 +283,121 @@
   border: 1px solid #F2D17E;
 }
 
+.myres-active-header-title-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.myres-nearest-pill {
+  font-size: 0.68rem;
+  font-weight: 800;
+  color: #386B06;
+  background-color: #EBF8DC;
+  border: 1px solid #7CCE17;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  letter-spacing: 0.3px;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+}
+
+/* Reservation Switcher Bar */
+.myres-switcher-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  background-color: #fbf3dc;
+  border-bottom: 1.5px solid #F2D17E;
+  flex-wrap: wrap;
+}
+
+.myres-switcher-label-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.myres-switcher-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #58402E;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.myres-switcher-counter {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #7CCE17;
+  background-color: #43593B;
+  padding: 1px 7px;
+  border-radius: 9999px;
+}
+
+.myres-switcher-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  justify-content: flex-end;
+  min-width: 220px;
+}
+
+.myres-switcher-nav-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  border: 1px solid #58402E;
+  background-color: #ffffff;
+  color: #58402E;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.myres-switcher-nav-btn:hover:not(:disabled) {
+  background-color: #43593B;
+  color: #ffffff;
+  border-color: #43593B;
+}
+
+.myres-switcher-nav-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  border-color: #D8D0C3;
+}
+
+.myres-switcher-select {
+  flex: 1;
+  max-width: 260px;
+  height: 28px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #58402E;
+  background-color: #ffffff;
+  border: 1px solid #ACAD79;
+  border-radius: 6px;
+  padding: 0 8px;
+  cursor: pointer;
+  outline: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.myres-switcher-select:focus {
+  border-color: #43593B;
+  box-shadow: 0 0 0 2px rgba(67, 89, 59, 0.15);
+}
+
 /* Left Column: Active Reservation Panel Card */
 .myres-active-panel-card {
   background-color: #ffffff;
@@ -606,11 +721,48 @@
 .myres-table-row {
   border-bottom: 1px solid #EDE8DE;
   cursor: pointer;
-  transition: background-color 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
 .myres-table-row:hover {
   background-color: #FAF8F5;
+}
+
+.myres-table-row-selected {
+  background-color: #FAF4E5 !important;
+  box-shadow: inset 3.5px 0 0 #7CCE17;
+}
+
+.myres-table-row-selected:hover {
+  background-color: #F7EED8 !important;
+}
+
+.myres-table-id-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.myres-table-nearest-pill {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #386B06;
+  background-color: #EBF8DC;
+  border: 1px solid #7CCE17;
+  padding: 1px 5px;
+  border-radius: 9999px;
+  white-space: nowrap;
+}
+
+.myres-table-viewing-tag {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #ffffff;
+  background-color: #43593B;
+  padding: 1px 6px;
+  border-radius: 9999px;
+  white-space: nowrap;
 }
 
 .myres-data-table td {

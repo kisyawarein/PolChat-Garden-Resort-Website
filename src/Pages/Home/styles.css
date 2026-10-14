@@ -206,7 +206,7 @@
 }
 
 .home-section-3-info-text {
-  font-family: 'Marcellus', serif;
+  font-family: 'Lora', serif;
   font-size: 1.3rem;
   font-weight: 550;
   color: var(--color-bark, #58402E);
@@ -282,7 +282,7 @@
 
 /* Information Text */
 .home-section-4-info-text {
-  font-family: 'Marcellus', serif;
+  font-family: 'Lora', serif;
   font-size: 1.3rem;
   font-weight: 550;
   color: var(--color-bark, #58402E);
@@ -563,7 +563,7 @@
 }
 
 .home-section-5-info-text {
-  font-family: 'Marcellus', serif;
+  font-family: 'Lora', serif;
   font-size: 1.3rem;
   font-weight: 550;
   color: var(--color-bark, #58402E);
@@ -622,13 +622,26 @@
 }
 
 .home-section-6-subtitle {
-  font-family: 'Marcellus', serif;
+  font-family: 'Lora', serif;
   font-size: 1.3rem;
   font-weight: 550;
   color: var(--color-bark, #58402E);
   margin: 0;
   letter-spacing: 0.06em;
   text-transform: none;
+}
+
+.home-section-6-scroll-hint {
+  display: none;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--color-forest, #43593B);
+  background-color: rgba(124, 206, 23, 0.2);
+  border: 1px solid var(--color-lime, #7CCE17);
+  padding: 5px 14px;
+  border-radius: 9999px;
+  margin-top: 6px;
+  letter-spacing: 0.02em;
 }
 
 .home-section-6-mosaic {
@@ -766,7 +779,7 @@
 }
 
 .home-section-7-info-text {
-  font-family: 'Marcellus', serif;
+  font-family: 'Lora', serif;
   font-size: 1.25rem;
   line-height: 1.8;
   font-weight: 550;
@@ -814,10 +827,16 @@
     height: 360px;
   }
 
+  .home-section-6-scroll-hint {
+    display: inline-flex;
+    align-items: center;
+  }
+
   .home-section-6-mosaic {
     overflow-x: auto;
     align-items: flex-start;
     padding: 10px 16px;
+    -webkit-overflow-scrolling: touch;
   }
 
   .home-section-6-triangle-row {
@@ -854,12 +873,99 @@
     gap: 24px;
   }
 
+  /* Section 4 Mobile Presentation */
+  .home-section-4 {
+    padding: 56px 16px 68px;
+    min-height: auto;
+    gap: 24px;
+  }
+
   .home-section-4-title {
     font-size: 1.85rem;
   }
 
   .home-section-4-info-grid {
-    gap: 20px;
+    gap: 16px;
+  }
+
+  .home-section-4-info-text {
+    font-size: 1.05rem;
+    line-height: 1.55;
+  }
+
+  .home-section-4-carousel-wrapper {
+    position: relative;
+    padding-bottom: 56px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+
+  .home-section-4-picture-row {
+    width: 100%;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    gap: 14px;
+    padding: 10px 14px;
+    justify-content: flex-start;
+    scrollbar-width: none;
+  }
+
+  .home-section-4-picture-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .home-section-4-picture-card {
+    scroll-snap-align: center;
+    border-radius: 10px;
+    flex-shrink: 0;
+  }
+
+  .home-section-4-picture-card-small,
+  .home-section-4-picture-card-large {
+    width: min(290px, 80vw);
+    height: min(390px, 56vh);
+  }
+
+  .home-section-4-card-exit-left,
+  .home-section-4-card-enter-left,
+  .home-section-4-card-enter-right,
+  .home-section-4-card-exit-right {
+    animation: none;
+  }
+
+  .home-section-4-arrow-button {
+    top: auto;
+    bottom: 0;
+    transform: none;
+    width: 44px;
+    height: 44px;
+    background-color: #ffffff;
+    border: 2px solid var(--color-forest, #43593B);
+    color: var(--color-forest, #43593B);
+    box-shadow: 0 4px 14px rgba(67, 89, 59, 0.22);
+  }
+
+  .home-section-4-arrow-button:hover:not(:disabled) {
+    transform: scale(1.06);
+    background-color: var(--color-forest, #43593B);
+    color: #ffffff;
+  }
+
+  .home-section-4-arrow-left {
+    left: calc(50% - 54px);
+    right: auto;
+  }
+
+  .home-section-4-arrow-right {
+    right: calc(50% - 54px);
+    left: auto;
+  }
+
+  .home-section-4-arrow-icon {
+    width: 22px;
+    height: 22px;
   }
 
   .home-section-5-title {
@@ -874,8 +980,39 @@
     height: 280px;
   }
 
+  /* Section 6 Mobile Presentation */
+  .home-section-6 {
+    padding: 56px 16px 68px;
+    min-height: auto;
+    gap: 24px;
+  }
+
   .home-section-6-title {
     font-size: 1.85rem;
+  }
+
+  .home-section-6-subtitle {
+    font-size: 1.05rem;
+    line-height: 1.55;
+  }
+
+  .home-section-6-mosaic {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-forest) transparent;
+    padding: 12px 14px 20px;
+    align-items: flex-start;
+  }
+
+  .home-section-6-triangle-row {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    width: max-content;
+    align-items: center;
+    justify-content: flex-start;
   }
 
   .home-section-6-triangle-item {
@@ -890,24 +1027,6 @@
 
   .home-section-6-triangle-nested {
     margin-left: -96px;
-  }
-
-  .home-section-4-arrow-button {
-    width: 42px;
-    height: 42px;
-  }
-
-  .home-section-4-arrow-left {
-    left: 8px;
-  }
-
-  .home-section-4-arrow-right {
-    right: 8px;
-  }
-
-  .home-section-4-arrow-icon {
-    width: 20px;
-    height: 20px;
   }
 
   .home-section-7-title {
@@ -937,40 +1056,55 @@
 
   .home-section-3-container {
     min-height: 0;
-    padding: 56px 16px;
+    padding: 44px 14px;
   }
 
   .home-section-3-picture-box {
-    height: 300px;
+    height: 260px;
   }
 
-  .home-section-4-picture-row,
-  .home-section-6-mosaic {
-    margin-inline: -8px;
-    padding-inline: 8px;
+  /* Section 4 Small Phones */
+  .home-section-4 {
+    padding: 44px 12px 56px;
+    gap: 20px;
+  }
+
+  .home-section-4-picture-card-small,
+  .home-section-4-picture-card-large {
+    width: min(280px, 84vw);
+    height: min(370px, 54vh);
+  }
+
+  /* Section 6 Small Phones (keeps interlocking puzzle intact) */
+  .home-section-6 {
+    padding: 44px 12px 56px;
+    gap: 20px;
   }
 
   .home-section-6-mosaic {
-    overflow-x: visible;
+    padding: 10px 8px 16px;
+    overflow-x: auto;
   }
 
   .home-section-6-triangle-row {
-    flex-direction: column;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    width: max-content;
     align-items: center;
-    gap: 12px;
   }
 
   .home-section-6-triangle-item {
-    width: min(220px, 82vw);
-    height: min(190px, 72vw);
+    width: 170px;
+    height: 147px;
   }
 
   .home-section-6-triangle-half {
-    width: 50%;
-    height: 100%;
+    width: 85px;
+    height: 147px;
   }
 
   .home-section-6-triangle-nested {
-    margin-left: 0;
+    margin-left: -82px;
   }
 }

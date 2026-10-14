@@ -71,7 +71,7 @@
 }
 
 .about-section-1-subtitle {
-  font-family: 'Marcellus', serif;
+  font-family: 'Lora', serif;
   font-size: 1.3rem;
   font-weight: 800;
   color: var(--color-sand, #F2D17E);
@@ -127,7 +127,7 @@
 }
 
 .about-section-2-paragraph {
-  font-family: 'Marcellus', serif;
+  font-family: 'Lora', serif;
   font-size: 1.15rem;
   line-height: 1.8;
   color: var(--color-bark, #58402E);
@@ -256,7 +256,7 @@
 }
 
 .about-section-4-info-text {
-  font-family: 'Marcellus', serif;
+  font-family: 'Lora', serif;
   font-size: 1.3rem;
   font-weight: 550;
   color: var(--color-bark, #58402E);
@@ -377,7 +377,7 @@
 }
 
 .about-section-6-subheading {
-  font-family: 'Marcellus', serif;
+  font-family: 'Lora', serif;
   font-size: 1.3rem;
   font-weight: 550;
   line-height: 1.6;

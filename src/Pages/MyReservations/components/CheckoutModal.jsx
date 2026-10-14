@@ -13,9 +13,34 @@ export default function CheckoutModal({
   const [errorMsg, setErrorMsg] = useState('')
   const fileInputRef = useRef(null)
 
-  const totalAmount = (reservation?.reservation_cost || 0) + (reservation?.extra_charges || 0)
-  const downpayment = reservation?.downpayment_amount || Math.round(totalAmount * 0.5)
-  const balanceDue = reservation?.remaining_balance ?? (totalAmount - downpayment)
+  let totalAmount = (Number(reservation?.reservation_cost) || 0) + (Number(reservation?.extra_charges) || 0)
+  const downpayment = reservation?.downpayment_amount !== undefined && reservation?.downpayment_amount !== null
+    ? Number(reservation.downpayment_amount)
+    : Math.round(totalAmount * 0.5)
+
+  if (downpayment > totalAmount) {
+    totalAmount = downpayment * 2
+  }
+
+  const balanceDue = Math.max(0, reservation?.remaining_balance !== undefined && reservation?.remaining_balance !== null
+    ? Number(reservation.remaining_balance)
+    : (totalAmount - downpayment))
+
+  const eventCost = Number(reservation?.event_cost || 0)
+  const rawEventName = reservation?.event_name || ''
+  const cleanEventName = rawEventName
+    .split(' __PROOF__')[0]
+    .split(' __PAY__')[0]
+    .split(' __EVENT__')[0]
+    .split(' __DOWN__')[0]
+    .split(' __REM__')[0]
+    .split(' __EMAIL__')[0]
+    .split(' __CHECKOUT__')[0]
+    .trim()
+  const hasEvent = Boolean(
+    eventCost > 0 ||
+    (cleanEventName && cleanEventName !== 'Resort Stay' && !cleanEventName.startsWith('Resort Stay'))
+  )
 
   const handleFileChange = (file) => {
     if (!file) return
@@ -80,8 +105,20 @@ export default function CheckoutModal({
           <div className="myres-checkout-summary-card">
             <div className="myres-checkout-row">
               <span>Booking Reference:</span>
-              <strong>RES-#{reservation.reservation_id} ({reservation.event_name || 'Resort Stay'})</strong>
+              <strong>RES-#{reservation.reservation_id}</strong>
             </div>
+            {hasEvent && (
+              <div className="myres-checkout-row">
+                <span>Event / Occasion:</span>
+                <span>{cleanEventName}</span>
+              </div>
+            )}
+            {hasEvent && eventCost > 0 && (
+              <div className="myres-checkout-row">
+                <span>Event Hosting Fee:</span>
+                <span style={{ color: '#2F5E12', fontWeight: '700' }}>₱{eventCost.toLocaleString()}</span>
+              </div>
+            )}
             <div className="myres-checkout-row">
               <span>Total Booking Cost:</span>
               <span>₱{totalAmount.toLocaleString()}</span>

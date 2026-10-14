@@ -20,10 +20,89 @@ function PrintableReceipt({ item, onClose }) {
     }
   }
 
-  const basePrice = Number(item.reservation_cost) || 9000
-  const extraCharges = Number(item.extra_charges) || 0
-  const totalAmount = basePrice + extraCharges
-  const secDepStatus = item.has_paid_sec_dep ? 'PAID (PHP 2,000)' : 'UNPAID (Due on check-in)'
+  const getDefaultPackagePrice = (durationId) => {
+    switch (durationId) {
+      case 1: return 9000
+      case 2: return 10000
+      case 3:
+      case 4: return 19000
+      default: return 9000
+    }
+  }
+
+  const getDefaultEventRate = (durationId) => {
+    switch (durationId) {
+      case 1: return 1500
+      case 2: return 2000
+      case 3:
+      case 4: return 3000
+      default: return 2000
+    }
+  }
+
+  // Event parsing & calculation
+  const rawEvent = item.event_name || 'Resort Stay'
+  const cleanEventName = rawEvent
+    .split(' __PROOF__')[0]
+    .split(' __PAY__')[0]
+    .split(' __EVENT__')[0]
+    .split(' __DOWN__')[0]
+    .split(' __REM__')[0]
+    .split(' __EMAIL__')[0]
+    .split(' __CHECKOUT__')[0]
+    .trim()
+
+  let eventCost = Number(item.event_cost || 0)
+  if (!eventCost && typeof item.event_name === 'string' && item.event_name.includes('__EVENT__')) {
+    const match = item.event_name.match(/__EVENT__(\d+)/)
+    if (match) {
+      eventCost = Number(match[1])
+    }
+  }
+
+  const hasEvent = Boolean(
+    eventCost > 0 ||
+    (cleanEventName && cleanEventName !== 'Resort Stay' && !cleanEventName.startsWith('Resort Stay'))
+  )
+  if (hasEvent && eventCost === 0) {
+    eventCost = getDefaultEventRate(item.duration_id)
+  }
+
+  const secDepAmount = 2000
+  let basePackagePrice = getDefaultPackagePrice(item.duration_id)
+  if (Number(item.reservation_cost) && Number(item.reservation_cost) > 0) {
+    basePackagePrice = Number(item.reservation_cost)
+  }
+
+  let totalAmount = Number(item.reservation_cost || 0) + Number(item.extra_charges || 0)
+  if (totalAmount === 0) {
+    totalAmount = basePackagePrice + secDepAmount + (hasEvent ? eventCost : 0)
+  }
+
+  const recordedDown = item.downpayment_amount !== undefined && item.downpayment_amount !== null
+    ? Number(item.downpayment_amount)
+    : null
+  if (recordedDown && recordedDown > totalAmount) {
+    totalAmount = recordedDown * 2
+  }
+
+  const downpayment = recordedDown !== null ? recordedDown : Math.round(totalAmount * 0.5)
+  const isCheckedOut = !!item.is_checked_out
+  const remainingBalance = isCheckedOut
+    ? 0
+    : Math.max(0, item.remaining_balance !== undefined && item.remaining_balance !== null
+        ? Number(item.remaining_balance)
+        : (totalAmount - downpayment))
+
+  // Extra charges (extra headcount / hours extension)
+  const otherExtras = Math.max(0, totalAmount - basePackagePrice - (hasEvent ? eventCost : 0) - secDepAmount)
+  const secDepStatus = (item.has_paid_sec_dep || isCheckedOut)
+    ? 'PAID (PHP 2,000)'
+    : 'DUE ON CHECK-IN (PHP 2,000)'
+  const downpaymentStatus = (item.has_paid_reservation || item.payment_type === 'gcash' || item.payment_proof_url)
+    ? 'PAID'
+    : 'DUE TODAY (CASH)'
+
   const formattedDate = item.start_date 
     ? item.start_date.split('T')[0] 
     : (item.reservation_start_date ? item.reservation_start_date.split('T')[0] : 'N/A')
@@ -128,8 +207,14 @@ function PrintableReceipt({ item, onClose }) {
               </div>
               <div className="receipt-info-row">
                 <span className="receipt-info-label">Event / Occasion:</span>
-                <span className="receipt-info-val">{item.event_name || 'Private Gathering'}</span>
+                <span className="receipt-info-val">{cleanEventName || 'Private Gathering'}</span>
               </div>
+              {hasEvent && eventCost > 0 && (
+                <div className="receipt-info-row">
+                  <span className="receipt-info-label">Event Hosting Fee:</span>
+                  <span className="receipt-info-val" style={{ color: '#2F5E12', fontWeight: '800' }}>PHP {eventCost.toLocaleString()}</span>
+                </div>
+              )}
               <div className="receipt-info-row">
                 <span className="receipt-info-label">Package Reserved:</span>
                 <span className="receipt-info-val">{getPackageName(item.duration_id)}</span>
@@ -160,28 +245,51 @@ function PrintableReceipt({ item, onClose }) {
                 <tr>
                   <td>{getPackageName(item.duration_id)}</td>
                   <td>Base Package</td>
-                  <td style={{ textAlign: 'right' }}>PHP {basePrice.toLocaleString()}</td>
+                  <td style={{ textAlign: 'right' }}>PHP {basePackagePrice.toLocaleString()}</td>
                 </tr>
-                <tr>
-                  <td>Security Deposit (Refundable upon checkout)</td>
-                  <td>Fixed Deposit</td>
-                  <td style={{ textAlign: 'right', fontWeight: '600', color: item.has_paid_sec_dep ? '#2e6b0a' : '#7a5814' }}>
-                    {secDepStatus}
-                  </td>
-                </tr>
-                {extraCharges > 0 && (
+                {hasEvent && eventCost > 0 && (
+                  <tr>
+                    <td>Event / Occasion Hosting Fee ({cleanEventName})</td>
+                    <td>Event Surcharge</td>
+                    <td style={{ textAlign: 'right', fontWeight: '600' }}>PHP {eventCost.toLocaleString()}</td>
+                  </tr>
+                )}
+                {otherExtras > 0 && (
                   <tr>
                     <td>Additional Pax / Hourly Extension Fee</td>
                     <td>Extra Surcharge</td>
-                    <td style={{ textAlign: 'right' }}>PHP {extraCharges.toLocaleString()}</td>
+                    <td style={{ textAlign: 'right' }}>PHP {otherExtras.toLocaleString()}</td>
                   </tr>
                 )}
+                <tr>
+                  <td>Security Deposit (100% Refundable upon checkout)</td>
+                  <td>Fixed Deposit</td>
+                  <td style={{ textAlign: 'right', fontWeight: '600', color: (item.has_paid_sec_dep || isCheckedOut) ? '#2e6b0a' : '#7a5814' }}>
+                    {secDepStatus}
+                  </td>
+                </tr>
                 <tr className="receipt-total-row">
                   <td colSpan="2">
                     <strong>TOTAL RESERVATION AMOUNT</strong>
                   </td>
                   <td style={{ textAlign: 'right' }}>
                     <strong>PHP {totalAmount.toLocaleString()}</strong>
+                  </td>
+                </tr>
+                <tr className="receipt-sub-row">
+                  <td colSpan="2">
+                    50% Downpayment ({downpaymentStatus})
+                  </td>
+                  <td style={{ textAlign: 'right', fontWeight: '700', color: (item.has_paid_reservation || item.payment_type === 'gcash') ? '#2e6b0a' : '#92400e' }}>
+                    PHP {downpayment.toLocaleString()}
+                  </td>
+                </tr>
+                <tr className="receipt-sub-row">
+                  <td colSpan="2">
+                    Remaining Balance Due on Checkout
+                  </td>
+                  <td style={{ textAlign: 'right', fontWeight: '800', color: isCheckedOut ? '#2e6b0a' : '#58402E' }}>
+                    {isCheckedOut ? 'PHP 0 (Fully Settled)' : `PHP ${remainingBalance.toLocaleString()}`}
                   </td>
                 </tr>
               </tbody>

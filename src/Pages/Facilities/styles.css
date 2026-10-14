@@ -133,7 +133,7 @@
 }
 
 .facilities-section-2-info-text {
-  font-family: 'Marcellus', serif;
+  font-family: 'Lora', serif;
   font-size: 1.3rem;
   font-weight: 550;
   color: var(--color-bark, #58402E);
@@ -183,7 +183,7 @@
 
 .facilities-section-2-description {
   max-width: 900px;
-  font-family: 'Marcellus', serif;
+  font-family: 'Lora', serif;
   font-size: 1.3rem;
   font-weight: 550;
   line-height: 1.8;
@@ -313,7 +313,7 @@
 }
 
 .facilities-section-4-subtitle {
-  font-family: 'Marcellus', serif;
+  font-family: 'Lora', serif;
   font-size: 1.3rem;
   font-weight: 550;
   color: var(--color-bark, #58402E);

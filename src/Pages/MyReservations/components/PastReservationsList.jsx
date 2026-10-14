@@ -2,6 +2,9 @@ import { useState } from 'react'
 
 function PastReservationsList({
   pastReservations = [],
+  selectedReservationId,
+  nearestReservationId,
+  onSelectReservation,
   onOpenReceipt,
   onOpenReview,
 }) {
@@ -188,16 +191,27 @@ function PastReservationsList({
                 filteredList.map((r) => {
                   const dateStr = r.start_date ? r.start_date.split('T')[0] : 'N/A'
                   const timeSlot = formatResortTime(r.start_date, r.end_date, r.duration_id)
-                  const totalPaid = (r.reservation_cost || 0) + (r.extra_charges || 0)
+                  let totalPaid = (Number(r.reservation_cost) || 0) + (Number(r.extra_charges) || 0)
+                  if (r.downpayment_amount && Number(r.downpayment_amount) * 2 > totalPaid) {
+                    totalPaid = Number(r.downpayment_amount) * 2
+                  }
+                  const isSelected = r.reservation_id === selectedReservationId
+                  const isNearest = r.reservation_id === nearestReservationId
 
                   return (
                     <tr
                       key={r.reservation_id}
-                      className="myres-table-row"
-                      onClick={() => onOpenReceipt(r)}
-                      title="Click to view official receipt"
+                      className={`myres-table-row ${isSelected ? 'myres-table-row-selected' : ''}`}
+                      onClick={() => onSelectReservation && onSelectReservation(r.reservation_id)}
+                      title={isSelected ? 'Currently shown in left container' : 'Click to view this booking in left container'}
                     >
-                      <td className="col-cell-edge myres-id-cell">#{r.reservation_id}</td>
+                      <td className="col-cell-edge myres-id-cell">
+                        <div className="myres-table-id-wrap">
+                          <span>#{r.reservation_id}</span>
+                          {isNearest && <span className="myres-table-nearest-pill" title="Nearest to come">⭐ Nearest</span>}
+                          {isSelected && <span className="myres-table-viewing-tag">Viewing</span>}
+                        </div>
+                      </td>
                       <td>
                         <div className="myres-tier-stack">
                           <span className="myres-tier-name">{getPackageName(r.duration_id)}</span>
@@ -213,9 +227,11 @@ function PastReservationsList({
                       <td className="myres-plain-text">{r.guest_count} Pax</td>
                       <td className="myres-plain-text myres-cost-text">₱{totalPaid.toLocaleString()}</td>
                       <td className="myres-status-cell">
-                        <span className="myres-plain-status-text">
-                          {r.reservation_status ? r.reservation_status.charAt(0).toUpperCase() + r.reservation_status.slice(1) : 'Confirmed'}
-                        </span>
+                        <div className="myres-table-status-wrap">
+                          <span className="myres-plain-status-text">
+                            {r.reservation_status ? r.reservation_status.charAt(0).toUpperCase() + r.reservation_status.slice(1) : 'Confirmed'}
+                          </span>
+                        </div>
                       </td>
                     </tr>
                   )

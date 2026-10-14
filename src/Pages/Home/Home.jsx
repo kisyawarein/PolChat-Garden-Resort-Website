@@ -423,6 +423,9 @@ This is for family outings, barkada bonding, birthday celebrations, and simply t
           <p className="home-section-6-subtitle">
             Pools, garden paths, gathering spaces, and peaceful corners to unwind.
           </p>
+          <span className="home-section-6-scroll-hint" aria-hidden="true">
+            ↔ Swipe horizontally to explore resort scenery
+          </span>
         </div>
 
         <div className="home-section-6-mosaic">

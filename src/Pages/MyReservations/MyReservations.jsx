@@ -75,20 +75,74 @@ function MyReservations({ onNavigate }) {
     }
   }
 
-  // Identify Current Active Reservation (ongoing/upcoming stay that has not been checked out & reviewed)
-  const activeReservation =
-    userReservations.find(
-      (r) =>
-        (r.reservation_status === 'confirmed' || r.reservation_status === 'pending') &&
-        !r.is_reviewed &&
-        r.reservation_status !== 'completed' &&
-        r.reservation_status !== 'cancelled'
-    ) || null
+  const [selectedReservationId, setSelectedReservationId] = useState(null)
 
-  // Past / Historical reservations
-  const pastReservations = activeReservation
-    ? userReservations.filter((r) => r.reservation_id !== activeReservation.reservation_id)
-    : userReservations
+  // Calculate the booked reservation nearest to come (closest upcoming stay >= today)
+  const getNearestUpcomingReservation = (reservations) => {
+    if (!reservations || reservations.length === 0) return null
+    const booked = reservations.filter((r) => r.reservation_status !== 'cancelled')
+    if (booked.length === 0) return null
+
+    const now = new Date()
+    const todayTimestamp = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime()
+
+    const upcoming = []
+    const past = []
+
+    booked.forEach((r) => {
+      if (!r.start_date) {
+        past.push({ res: r, diff: Infinity })
+        return
+      }
+      const rDate = new Date(r.start_date)
+      const rTimestamp = new Date(rDate.getFullYear(), rDate.getMonth(), rDate.getDate()).getTime()
+      const diff = rTimestamp - todayTimestamp
+
+      if (diff >= 0) {
+        upcoming.push({ res: r, diff })
+      } else {
+        past.push({ res: r, diff: Math.abs(diff) })
+      }
+    })
+
+    // 1. Closest upcoming date first (smallest non-negative diff)
+    if (upcoming.length > 0) {
+      upcoming.sort((a, b) => a.diff - b.diff)
+      return upcoming[0].res
+    }
+
+    // 2. Fallback to closest past date if all reservations are in the past
+    if (past.length > 0) {
+      past.sort((a, b) => a.diff - b.diff)
+      return past[0].res
+    }
+
+    return booked[0]
+  }
+
+  const bookedReservations = userReservations.filter((r) => r.reservation_status !== 'cancelled')
+  const nearestReservation = getNearestUpcomingReservation(userReservations)
+
+  // Ensure selectedReservationId is synchronized, defaulting to the reservation nearest to come
+  useEffect(() => {
+    if (bookedReservations.length > 0) {
+      const exists = bookedReservations.some((r) => r.reservation_id === selectedReservationId)
+      if (!exists && nearestReservation) {
+        setSelectedReservationId(nearestReservation.reservation_id)
+      }
+    } else {
+      setSelectedReservationId(null)
+    }
+  }, [userReservations, selectedReservationId, nearestReservation?.reservation_id])
+
+  // Identify Current Displayed Reservation (selected or default nearest)
+  const activeReservation =
+    bookedReservations.find((r) => r.reservation_id === selectedReservationId) ||
+    nearestReservation ||
+    null
+
+  // Past / History list contains all user reservations with clear selection highlight
+  const pastReservations = userReservations
 
   if (!isAuthenticated) {
     return (
@@ -132,11 +186,14 @@ function MyReservations({ onNavigate }) {
         <MyReservationSummaryCards reservations={userReservations} />
       </div>
 
-      {/* Main 2-Column Dashboard Layout (Left: Current Active Card, Right: Past Reservations Table) */}
+      {/* Main 2-Column Dashboard Layout (Left: Current Active Card with Switcher, Right: Past Reservations Table) */}
       <div className="myres-dashboard-layout">
-        {/* Left Column: Current Active Reservation */}
+        {/* Left Column: Current Active / Switched Reservation */}
         <CurrentActiveCard
           activeReservation={activeReservation}
+          bookedReservations={bookedReservations}
+          nearestReservationId={nearestReservation?.reservation_id}
+          onSelectReservation={setSelectedReservationId}
           onBookNew={() => onNavigate && onNavigate('reservation')}
           onOpenReceipt={setSelectedReceipt}
           onOpenPhoto={setSelectedPhotoUrl}
@@ -144,9 +201,12 @@ function MyReservations({ onNavigate }) {
           onOpenReview={setReviewPromptRes}
         />
 
-        {/* Right Column: Past Reservations & History */}
+        {/* Right Column: Past Reservations & History Table */}
         <PastReservationsList
           pastReservations={pastReservations}
+          selectedReservationId={activeReservation?.reservation_id}
+          nearestReservationId={nearestReservation?.reservation_id}
+          onSelectReservation={setSelectedReservationId}
           onOpenReceipt={setSelectedReceipt}
           onOpenReview={setReviewPromptRes}
         />

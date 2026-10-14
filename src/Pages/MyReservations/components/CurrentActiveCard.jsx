@@ -5,6 +5,9 @@ import twentytwoImg from '../../../assets/pkg_twentytwo.jpg'
 
 function CurrentActiveCard({
   activeReservation,
+  bookedReservations = [],
+  nearestReservationId,
+  onSelectReservation,
   onBookNew,
   onOpenReceipt,
   onOpenPhoto,
@@ -31,18 +34,71 @@ function CurrentActiveCard({
     }
   }
 
-  const totalCost = activeReservation
-    ? (activeReservation.reservation_cost || 0) + (activeReservation.extra_charges || 0)
+  let totalCost = activeReservation
+    ? (Number(activeReservation.reservation_cost) || 0) + (Number(activeReservation.extra_charges) || 0)
     : 0
-  const downpayment = activeReservation?.downpayment_amount || Math.round(totalCost * 0.5)
-  const balance = activeReservation?.remaining_balance ?? (totalCost - downpayment)
+  const downpayment = activeReservation?.downpayment_amount !== undefined && activeReservation?.downpayment_amount !== null
+    ? Number(activeReservation.downpayment_amount)
+    : Math.round(totalCost * 0.5)
+
+  if (downpayment > totalCost) {
+    totalCost = downpayment * 2
+  }
+
   const isCheckedOut = !!activeReservation?.is_checked_out
+  const balance = isCheckedOut
+    ? 0
+    : Math.max(0, activeReservation?.remaining_balance !== undefined && activeReservation?.remaining_balance !== null
+        ? Number(activeReservation.remaining_balance)
+        : (totalCost - downpayment))
+  const isNearest = activeReservation && activeReservation.reservation_id === nearestReservationId
+
+  const eventCost = Number(activeReservation?.event_cost || 0)
+  const rawEventName = activeReservation?.event_name || ''
+  const cleanEventName = rawEventName
+    .split(' __PROOF__')[0]
+    .split(' __PAY__')[0]
+    .split(' __EVENT__')[0]
+    .split(' __DOWN__')[0]
+    .split(' __REM__')[0]
+    .split(' __EMAIL__')[0]
+    .split(' __CHECKOUT__')[0]
+    .trim()
+  const hasEvent = Boolean(
+    eventCost > 0 ||
+    (cleanEventName && cleanEventName !== 'Resort Stay' && !cleanEventName.startsWith('Resort Stay'))
+  )
+
+  const currentIndex = bookedReservations.findIndex(
+    (r) => r.reservation_id === activeReservation?.reservation_id
+  )
+
+  const handlePrev = () => {
+    if (currentIndex > 0) {
+      onSelectReservation(bookedReservations[currentIndex - 1].reservation_id)
+    }
+  }
+
+  const handleNext = () => {
+    if (currentIndex < bookedReservations.length - 1) {
+      onSelectReservation(bookedReservations[currentIndex + 1].reservation_id)
+    }
+  }
 
   return (
     <div className="myres-active-column">
       {/* Header Container Card (66px) */}
       <div className="catalog-panel-header-card">
-        <h2 className="catalog-panel-title">Current Active Reservation</h2>
+        <div className="myres-active-header-title-box">
+          <h2 className="catalog-panel-title">
+            {isNearest ? 'Upcoming Reservation' : 'Selected Reservation'}
+          </h2>
+          {isNearest && (
+            <span className="myres-nearest-pill" title="Defaulted to your reservation nearest to come">
+              ⭐ Nearest to Come
+            </span>
+          )}
+        </div>
         {activeReservation && (
           <div className="myres-status-group">
             {isCheckedOut ? (
@@ -55,6 +111,65 @@ function CurrentActiveCard({
           </div>
         )}
       </div>
+
+      {/* Reservation Switcher Bar (Switch between booked stays) */}
+      {bookedReservations && bookedReservations.length > 1 && (
+        <div className="myres-switcher-bar">
+          <div className="myres-switcher-label-wrap">
+            <span className="myres-switcher-label">Switch Booking:</span>
+            <span className="myres-switcher-counter">
+              {currentIndex >= 0 ? `${currentIndex + 1} of ${bookedReservations.length}` : `${bookedReservations.length} Bookings`}
+            </span>
+          </div>
+
+          <div className="myres-switcher-actions">
+            <button
+              type="button"
+              className="myres-switcher-nav-btn"
+              onClick={handlePrev}
+              disabled={currentIndex <= 0}
+              title="View previous booked stay"
+              aria-label="View previous booked stay"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+            </button>
+
+            <select
+              className="myres-switcher-select"
+              value={activeReservation?.reservation_id || ''}
+              onChange={(e) => onSelectReservation && onSelectReservation(Number(e.target.value))}
+              aria-label="Select booked reservation to view in left container"
+            >
+              {bookedReservations.map((r) => {
+                const dateStr = r.start_date
+                  ? new Date(r.start_date).toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' })
+                  : 'No Date'
+                const isItemNearest = r.reservation_id === nearestReservationId
+                return (
+                  <option key={r.reservation_id} value={r.reservation_id}>
+                    RES-#{r.reservation_id} • {dateStr} {isItemNearest ? '⭐ (Nearest)' : ''}
+                  </option>
+                )
+              })}
+            </select>
+
+            <button
+              type="button"
+              className="myres-switcher-nav-btn"
+              onClick={handleNext}
+              disabled={currentIndex >= bookedReservations.length - 1}
+              title="View next booked stay"
+              aria-label="View next booked stay"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Main Active Card Surface */}
       <div className="myres-active-panel-card">
@@ -109,6 +224,16 @@ function CurrentActiveCard({
                   <span className="myres-info-label">Guest Headcount</span>
                   <span className="myres-info-val">{activeReservation.guest_count} Registered Guests</span>
                 </div>
+
+                {hasEvent && (
+                  <div className="myres-info-item">
+                    <span className="myres-info-label">Event / Occasion</span>
+                    <span className="myres-info-val">
+                      {cleanEventName || 'Private Event'}
+                      {eventCost > 0 ? ` (₱${eventCost.toLocaleString()})` : ''}
+                    </span>
+                  </div>
+                )}
 
                 <div className="myres-info-item">
                   <span className="myres-info-label">Payment Mode</span>
