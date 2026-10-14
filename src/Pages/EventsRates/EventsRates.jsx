@@ -148,7 +148,7 @@ function EventsRates() {
           <div className="events-rates-section-4-block">
             {/* Left Column: Title above tall large picture */}
             <div className="events-rates-section-4-col-large">
-              <h3 className="events-rates-section-4-sample-title">SAMPLE</h3>
+              <h3 className="events-rates-section-4-sample-title">FAMILY GATHERING</h3>
               <div className="events-rates-section-4-pic-large">
                 <img
                   className="events-rates-image"
@@ -172,11 +172,7 @@ function EventsRates() {
               <p className="events-rates-section-4-paragraph">
                 Feel the magic and mystery distinct to each destination with
                 imaginative and authentic celebrations tailored to the
-                occasion. Whether hosting a landmark celebration that ignites a
-                love for life and a deep appreciation of culture, or marking
-                a milestone with a private ceremony, PolChat&apos;s dedicated
-                event teams craft extraordinary shared experiences and nights to
-                remember – bespoke to the wishes of the guest.
+                occasion. 
               </p>
             </div>
           </div>
@@ -206,7 +202,7 @@ function EventsRates() {
 
             {/* Right Column: Title above tall large picture */}
             <div className="events-rates-section-4-col-large">
-              <h3 className="events-rates-section-4-sample-title">SAMPLE</h3>
+              <h3 className="events-rates-section-4-sample-title">COMPANY GATHERING</h3>
               <div className="events-rates-section-4-pic-large">
                 <img
                   className="events-rates-image"
