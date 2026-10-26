@@ -27,7 +27,16 @@ export default async function handler(req, res) {
       } catch (e) {}
     }
 
-    const { email, to, subject, body: emailBody, text, html } = body || {}
+    const {
+  email,
+  to,
+  subject,
+  body: emailBody,
+  text,
+  html,
+  pdfBase64,
+  pdfFilename,
+} = body || {}
     const recipient = (email || to || '').trim()
     const mailSubject = subject || 'PolChat Garden Resort Notification'
     const mailText = emailBody || text || ''
@@ -46,9 +55,15 @@ export default async function handler(req, res) {
       process.env.VITE_EMAIL_PASS
 
     if (!emailUser || !emailPass) {
-      console.warn('[Vercel Serverless Mailer] EMAIL_USER or EMAIL_PASS not set in environment variables')
-      return res.status(200).json({ success: true, message: 'Processed (SMTP credentials not configured in environment)' })
-    }
+  console.warn(
+    '[Vercel Serverless Mailer] EMAIL_USER or EMAIL_PASS not set in environment variables'
+  )
+
+  return res.status(500).json({
+    success: false,
+    error: 'SMTP credentials are not configured.',
+  })
+}
 
     const cleanUser = emailUser.trim()
     const cleanPass = emailPass.trim().replace(/[\s_-]/g, '')
@@ -67,6 +82,17 @@ export default async function handler(req, res) {
       subject: mailSubject,
       text: mailText,
     }
+    if (pdfBase64) {
+  mailOptions.attachments = [
+    {
+      filename: pdfFilename || 'PolChat-Receipt.pdf',
+      content: pdfBase64,
+      encoding: 'base64',
+      contentType: 'application/pdf',
+    },
+  ]
+}
+
     if (html) mailOptions.html = html
 
     await transporter.sendMail(mailOptions)
