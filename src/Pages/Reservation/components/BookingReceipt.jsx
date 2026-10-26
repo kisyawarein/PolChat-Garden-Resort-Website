@@ -28,12 +28,12 @@ function BookingReceipt({
   }
 
   const canvas = await html2canvas(receiptElement, {
-    scale: 2,
+    scale: 1,
     useCORS: true,
     backgroundColor: '#ffffff',
   })
 
-  const imageData = canvas.toDataURL('image/png')
+  const imageData = canvas.toDataURL('image/jpeg', 0.45)
 
   const pdf = new jsPDF({
     orientation: 'portrait',
@@ -54,7 +54,7 @@ function BookingReceipt({
 
   pdf.addImage(
     imageData,
-    'PNG',
+    'JPEG',
     margin,
     position,
     imageWidth,
@@ -70,7 +70,7 @@ function BookingReceipt({
 
   pdf.addImage(
     imageData,
-    'PNG',
+    'JPEG',
     margin,
     position,
     imageWidth,
@@ -81,6 +81,78 @@ function BookingReceipt({
 }
 
 return pdf
+}
+
+// PASTE THE NEW FUNCTION HERE
+
+const generateEmailReceiptPDF = async () => {
+  const receiptElement = document.getElementById('resv-printable-slip')
+
+  if (!receiptElement) {
+    throw new Error('Reservation slip not found.')
+  }
+
+  const canvas = await html2canvas(receiptElement, {
+    scale: 0.65,
+    useCORS: true,
+    backgroundColor: '#ffffff',
+    logging: false,
+  })
+
+  const imageData = canvas.toDataURL('image/jpeg', 0.35)
+
+  const pdf = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4',
+    compress: true,
+  })
+
+  const pageWidth = pdf.internal.pageSize.getWidth()
+  const pageHeight = pdf.internal.pageSize.getHeight()
+  const margin = 8
+  const usableWidth = pageWidth - margin * 2
+  const usableHeight = pageHeight - margin * 2
+
+  const imageWidth = usableWidth
+  const imageHeight = (canvas.height * imageWidth) / canvas.width
+
+  let heightLeft = imageHeight
+  let position = margin
+
+  pdf.addImage(
+    imageData,
+    'JPEG',
+    margin,
+    position,
+    imageWidth,
+    imageHeight,
+    undefined,
+    'FAST'
+  )
+
+  heightLeft -= usableHeight
+
+  while (heightLeft > 0) {
+    pdf.addPage()
+
+    position = margin - (imageHeight - heightLeft)
+
+    pdf.addImage(
+      imageData,
+      'JPEG',
+      margin,
+      position,
+      imageWidth,
+      imageHeight,
+      undefined,
+      'FAST'
+    )
+
+    heightLeft -= usableHeight
+  }
+
+  return pdf
 }
 
 const handleDownloadPDF = async () => {
