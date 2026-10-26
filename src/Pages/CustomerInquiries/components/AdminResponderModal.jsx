@@ -45,7 +45,11 @@ function AdminResponderModal({ isOpen, inquiry, defaultName, onConfirm, onCancel
             <div className="inq-ticket-context-card">
               <span className="inq-context-label">TICKET TOPIC</span>
               <strong className="inq-context-val">{inquiry.inquiry_label || 'Customer Inquiry'}</strong>
-              <span className="inq-context-guest">Customer: {inquiry.customer_name || `Customer #${inquiry.customer_id}`}</span>
+              <span className="inq-context-guest">
+  Customer: {inquiry.guest_name ||
+    inquiry.customer_name ||
+    (inquiry.customer_id ? `Customer #${inquiry.customer_id}` : 'Guest')}
+</span>
             </div>
 
             <p className="inq-prompt-desc">

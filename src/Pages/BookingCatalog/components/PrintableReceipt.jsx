@@ -1,9 +1,86 @@
+import jsPDF from 'jspdf'
+import html2canvas from 'html2canvas'
+
+
 function PrintableReceipt({ item, onClose }) {
   if (!item) return null
 
   const handlePrint = () => {
     window.print()
   }
+
+  const handleDownloadPDF = async () => {
+  try {
+    const receiptElement = document.getElementById('printable-sheet')
+
+    if (!receiptElement) {
+      console.error('Receipt element not found.')
+      return
+    }
+
+    const canvas = await html2canvas(receiptElement, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+    })
+
+    const imageData = canvas.toDataURL('image/png')
+
+    const pdf = new jsPDF({
+      orientation: 'portrait',
+      unit: 'mm',
+      format: 'a4',
+    })
+
+    const pageWidth = pdf.internal.pageSize.getWidth()
+    const pageHeight = pdf.internal.pageSize.getHeight()
+
+    const margin = 10
+    const usableWidth = pageWidth - margin * 2
+
+    const imageWidth = usableWidth
+    const imageHeight =
+      (canvas.height * imageWidth) / canvas.width
+
+    let heightLeft = imageHeight
+    let position = margin
+
+    pdf.addImage(
+      imageData,
+      'PNG',
+      margin,
+      position,
+      imageWidth,
+      imageHeight
+    )
+
+    heightLeft -= pageHeight - margin * 2
+
+    while (heightLeft > 0) {
+      pdf.addPage()
+
+      position =
+        margin - (imageHeight - heightLeft)
+
+      pdf.addImage(
+        imageData,
+        'PNG',
+        margin,
+        position,
+        imageWidth,
+        imageHeight
+      )
+
+      heightLeft -= pageHeight - margin * 2
+    }
+
+    pdf.save(
+      `PolChat-Receipt-${item.reservation_id}.pdf`
+    )
+  } catch (error) {
+    console.error('Failed to generate receipt PDF:', error)
+  }
+}
 
   const getPackageName = (durationId) => {
     switch (durationId) {
@@ -126,8 +203,32 @@ function PrintableReceipt({ item, onClose }) {
                 <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
                 <rect x="6" y="14" width="12" height="8" />
               </svg>
-              <span>Print Receipt / PDF</span>
+              <span>Print Receipt</span>
             </button>
+
+            <button
+  type="button"
+  className="receipt-print-btn"
+  onClick={handleDownloadPDF}
+>
+  <svg
+    width="15"
+    height="15"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+    <polyline points="7 10 12 15 17 10" />
+    <line x1="12" y1="15" x2="12" y2="3" />
+  </svg>
+
+  <span>Download PDF</span>
+</button>
+
             <button
               type="button"
               className="receipt-close-btn"

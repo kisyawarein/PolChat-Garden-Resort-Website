@@ -78,9 +78,6 @@ function About() {
                   <span className="about-section-4-info-text">INFORMATION</span>
                 </div> */}
               </div>
-              <a href="#information" className="about-section-4-link">
-                INFORMATION LINK
-              </a>
             </div>
             <div className="about-section-4-picture-box">
               <img
@@ -118,9 +115,6 @@ function About() {
                   <span className="about-section-4-info-text">INFORMATION</span>
                 </div> */}
               </div>
-              <a href="#information" className="about-section-4-link">
-                INFORMATION LINK
-              </a>
             </div>
           </div>
         </div>
@@ -163,10 +157,12 @@ function About() {
                 <span className="about-section-6-contact-label">Location:</span>
                 <span className="about-section-6-contact-value">PolChat Garden, 346 Monaco Street Antipolo Calabarzon</span>
               </div>
-              <div className="about-section-6-contact-item">
-                <span className="about-section-6-contact-label">Phone / Mobile:</span>
-                <a href="tel:+639534954389" className="about-section-6-contact-link">0953 495 4389</a>
-              </div>
+             <div className="about-section-6-contact-item">
+  <span className="about-section-6-contact-label">Phone / Mobile:</span>
+  <span className="about-section-6-contact-value">
+    0953 495 4389
+  </span>
+</div>
               <div className="about-section-6-contact-item">
                 <span className="about-section-6-contact-label">Email:</span>
                 <a href="mailto:polchat2k20@gmail.com" className="about-section-6-contact-link">polchat2k20@gmail.com</a>

@@ -108,15 +108,11 @@ function Footer({ onNavigate }) {
               </li>
               <li className="footer-contact-item">
                 <span className="footer-contact-label">Phone:</span>
-                <a href="tel:+639534954389" className="footer-contact-value footer-clickable-contact">
-                  0953 495 4389
-                </a>
+                <span className="footer-contact-value">  +63 953 495 4389</span>
               </li>
               <li className="footer-contact-item">
                 <span className="footer-contact-label">Telephone:</span>
-                <a href="tel:0441234567" className="footer-contact-value footer-clickable-contact">
-                  (044) 123-4567
-                </a>
+                <span className="footer-contact-value">  044 123 4567</span>
               </li>
               <li className="footer-contact-item">
                 <span className="footer-contact-label">Email:</span>

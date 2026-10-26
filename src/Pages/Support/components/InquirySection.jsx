@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useAuth } from '../../../context/AuthContext'
 import { DataService } from '../../../services/dataService'
 
+
 function InquirySection() {
   const { user, isAuthenticated, openAuthModal } = useAuth()
 
@@ -10,6 +11,7 @@ function InquirySection() {
   const [startingStatement, setStartingStatement] = useState('')
   const [guestName, setGuestName] = useState('')
   const [guestEmail, setGuestEmail] = useState('')
+  const [guestEmailRegistered, setGuestEmailRegistered] = useState(false)
   const [customerInquiries, setCustomerInquiries] = useState([])
   const [activeInquiry, setActiveInquiry] = useState(null)
   const [activeChats, setActiveChats] = useState([])
@@ -34,7 +36,35 @@ function InquirySection() {
       setReplyText('')
     }
   }, [isAuthenticated, user?.id])
+useEffect(() => {
+  let isMounted = true
 
+  const checkGuestEmail = async () => {
+    if (isAuthenticated || !guestEmail.trim()) {
+      if (isMounted) {
+        setGuestEmailRegistered(false)
+      }
+      return
+    }
+
+    const email = guestEmail.trim().toLowerCase()
+
+    const account = await DataService.findAccountCredential({
+      email,
+    })
+
+    if (isMounted) {
+      setGuestEmailRegistered(Boolean(account))
+    }
+  }
+
+  const timer = window.setTimeout(checkGuestEmail, 400)
+
+  return () => {
+    isMounted = false
+    window.clearTimeout(timer)
+  }
+}, [guestEmail, isAuthenticated])
   // Load inquiries strictly for the current authenticated user or guest email
   useEffect(() => {
     let isMounted = true
@@ -48,7 +78,7 @@ function InquirySection() {
           const idMatch = user.id && Number(i.customer_id) === Number(user.id)
           const nameMatch = user.name && i.customer_name?.toLowerCase() === user.name.toLowerCase()
           const usernameMatch = user.username && i.customer_name?.toLowerCase() === user.username.toLowerCase()
-          const emailMatch = user.email && i.customer_name?.toLowerCase().includes(user.email.toLowerCase())
+          const emailMatch = user.email && i.customer_email && i.customer_email.trim().toLowerCase() === user.email.trim().toLowerCase()
           return idMatch || nameMatch || usernameMatch || emailMatch
         })
 
@@ -65,9 +95,13 @@ function InquirySection() {
           setActiveChats([])
         }
       } else if (!isAuthenticated && guestEmail.trim()) {
-        const emailInqs = allInquiries.filter(
-          (i) => i.customer_name && i.customer_name.toLowerCase().includes(guestEmail.trim().toLowerCase())
-        )
+  const normalizedGuestEmail = guestEmail.trim().toLowerCase()
+
+  const emailInqs = allInquiries.filter(
+    (i) =>
+      i.guest_email &&
+      i.guest_email.trim().toLowerCase() === normalizedGuestEmail
+  )
         setCustomerInquiries(emailInqs)
         if (emailInqs.length > 0) {
           setActiveInquiry((prev) => {
@@ -118,9 +152,12 @@ function InquirySection() {
 
     if (!isAuthenticated && !guestEmail.trim()) {
       return
+    if (!isAuthenticated && guestEmailRegistered) {
+    return
+  }
     }
 
-    const customerId = user ? user.id : 101
+    const customerId = user ? user.id : null
     const customerDisplayName = user
       ? (user.name || user.username)
       : `${guestName.trim() || 'Guest'} (${guestEmail.trim()})`
@@ -163,6 +200,8 @@ function InquirySection() {
       message: optimisticChat.message,
       customerId: customerId,
       customerName: customerDisplayName,
+      guestName: !isAuthenticated ? guestName.trim() : null,
+      guestEmail: !isAuthenticated ? guestEmail.trim() : (user?.email || null),
     }).then((res) => {
       if (res?.newInquiry) {
         setCustomerInquiries((prev) =>
@@ -256,6 +295,11 @@ function InquirySection() {
                       required
                     />
                     <span className="support-field-hint">We'll use this email to send you responses.</span>
+                    {guestEmailRegistered && (
+  <div className="support-inquiry-email-warning">
+    This email is already registered to a PolChat account. Please sign in to continue with this email.
+  </div>
+)}
                   </div>
 
                   <div className="support-form-field">
@@ -296,7 +340,7 @@ function InquirySection() {
                   <button
                     type="submit"
                     className="support-submit-inquiry-btn"
-                    disabled={isSubmitting}
+                    disabled={isSubmitting || guestEmailRegistered}
                   >
                     {isSubmitting ? 'Sending...' : 'Submit Inquiry with Email'}
                   </button>

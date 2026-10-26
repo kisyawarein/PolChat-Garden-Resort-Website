@@ -12,13 +12,17 @@ import './styles.css'
 function MyReservations({ onNavigate }) {
   const { user, isAuthenticated, openAuthModal } = useAuth()
   const [userReservations, setUserReservations] = useState([])
+  const [userVisitations, setUserVisitations] = useState([])
   const [selectedReceipt, setSelectedReceipt] = useState(null)
   const [selectedPhotoUrl, setSelectedPhotoUrl] = useState(null)
   const [checkoutModalRes, setCheckoutModalRes] = useState(null)
   const [reviewPromptRes, setReviewPromptRes] = useState(null)
 
   const loadData = async () => {
-    const all = await DataService.getReservations()
+  const [allReservations, allVisitations] = await Promise.all([
+    DataService.getReservations({ force: true }),
+    DataService.getVisitations({ force: true }),
+  ])
 
     // Filter reservations strictly belonging to the logged-in customer
     if (user) {
@@ -26,7 +30,7 @@ function MyReservations({ onNavigate }) {
       const userFirstName = (user.first_name || '').trim().toLowerCase()
       const userLastName = (user.last_name || '').trim().toLowerCase()
 
-      const filtered = (all || []).filter((r) => {
+      const filtered = (allReservations || []).filter((r) => {
         if (r.customer_id && user.id && Number(r.customer_id) === Number(user.id)) return true
         const custName = (r.customer_name || '').trim().toLowerCase()
         if (userFullName && custName === userFullName) return true
@@ -34,6 +38,36 @@ function MyReservations({ onNavigate }) {
         return false
       })
       setUserReservations(filtered)
+      const filteredVisitations = (allVisitations || []).filter((v) => {
+  if (
+    v.customer_id &&
+    user.id &&
+    Number(v.customer_id) === Number(user.id)
+  ) {
+    return true
+  }
+
+  const visitationName = (v.customer_name || '')
+    .trim()
+    .toLowerCase()
+
+  if (userFullName && visitationName === userFullName) {
+    return true
+  }
+
+  if (
+    userFirstName &&
+    userLastName &&
+    visitationName.includes(userFirstName) &&
+    visitationName.includes(userLastName)
+  ) {
+    return true
+  }
+
+  return false
+})
+
+setUserVisitations(filteredVisitations)
     } else {
       setUserReservations([])
     }
@@ -120,8 +154,13 @@ function MyReservations({ onNavigate }) {
     return booked[0]
   }
 
-  const bookedReservations = userReservations.filter((r) => r.reservation_status !== 'cancelled')
-  const nearestReservation = getNearestUpcomingReservation(userReservations)
+  const bookedReservations = userReservations.filter(
+  (r) =>
+    r.reservation_status !== 'cancelled' &&
+    !r.is_checked_out &&
+    r.reservation_status !== 'completed'
+)
+  const nearestReservation = getNearestUpcomingReservation(bookedReservations)
 
   // Ensure selectedReservationId is synchronized, defaulting to the reservation nearest to come
   useEffect(() => {
@@ -142,7 +181,12 @@ function MyReservations({ onNavigate }) {
     null
 
   // Past / History list contains all user reservations with clear selection highlight
-  const pastReservations = userReservations
+  const pastReservations = userReservations.filter(
+  (r) =>
+    r.is_checked_out ||
+    r.reservation_status === 'completed' ||
+    r.reservation_status === 'cancelled'
+)
 
   if (!isAuthenticated) {
     return (
@@ -211,7 +255,107 @@ function MyReservations({ onNavigate }) {
           onOpenReview={setReviewPromptRes}
         />
       </div>
+{/* Ocular / Visitation History */}
+<div className="myres-visitation-history">
+  <div className="catalog-panel-header-card">
+    <div className="myres-past-title-row">
+      <h2 className="catalog-panel-title">
+        Ocular / Visitation History
+      </h2>
 
+      <span className="myres-history-badge">
+        {userVisitations.length} Records
+      </span>
+    </div>
+  </div>
+
+  <div className="myres-table-panel-card">
+    <div className="myres-table-scroll-wrap">
+      <table className="myres-data-table">
+        <thead>
+          <tr>
+            <th>Visit ID</th>
+            <th>Visit Date</th>
+            <th>Time Slot</th>
+            <th>Guests</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {userVisitations.length === 0 ? (
+            <tr>
+              <td colSpan="5" className="myres-empty-cell">
+                No ocular visits found in your account history.
+              </td>
+            </tr>
+          ) : (
+            userVisitations.map((visit) => {
+              const startDate = visit.visitation_start_date
+                ? new Date(visit.visitation_start_date)
+                : null
+
+              const endDate = visit.visitation_end_date
+                ? new Date(visit.visitation_end_date)
+                : null
+
+              const visitDate = startDate
+                ? startDate.toLocaleDateString('en-US', {
+                    year: 'numeric',
+                    month: 'short',
+                    day: 'numeric',
+                  })
+                : 'N/A'
+
+              const visitTime =
+                startDate && endDate
+                  ? `${startDate.toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })} - ${endDate.toLocaleTimeString([], {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}`
+                  : visit.slot_type || 'N/A'
+
+              return (
+                <tr
+                  key={visit.visitation_id}
+                  className="myres-table-row"
+                >
+                  <td className="col-cell-edge myres-id-cell">
+                    #{visit.visitation_id}
+                  </td>
+
+                  <td className="myres-plain-text">
+                    {visitDate}
+                  </td>
+
+                  <td className="myres-plain-text">
+                    {visitTime}
+                  </td>
+
+                  <td className="myres-plain-text">
+                    {visit.guest_count} Pax
+                  </td>
+
+                  <td className="myres-status-cell">
+                    <span className="myres-plain-status-text">
+                      {visit.visitation_status
+                        ? visit.visitation_status.charAt(0).toUpperCase() +
+                          visit.visitation_status.slice(1)
+                        : 'Pending'}
+                    </span>
+                  </td>
+                </tr>
+              )
+            })
+          )}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
       {/* Checkout Balance Settlement Modal */}
       {checkoutModalRes && (
         <CheckoutModal

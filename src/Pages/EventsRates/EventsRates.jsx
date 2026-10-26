@@ -1,5 +1,8 @@
+import { useAuth } from '../../context/AuthContext'
 import eventsVideo from '../../../resources/EventsRates_Video.mp4'
 import { getWebsiteImageUrl } from '../../services/imageService'
+import { useEffect, useState } from 'react'
+import { DataService } from '../../services/dataService'
 import './styles.css'
 
 const RESERVATION_TYPES = [
@@ -26,7 +29,28 @@ const RESERVATION_TYPES = [
   },
 ]
 
-function EventsRates() {
+function EventsRates({ onNavigate }) {
+  const { isAuthenticated, openAuthModal } = useAuth()
+
+  const [rates, setRates] = useState([])
+  const [ratesLoading, setRatesLoading] = useState(true)
+
+  useEffect(() => {
+    const loadRates = async () => {
+      try {
+        const data = await DataService.getDurationTypes()
+        setRates(data || [])
+      } catch (error) {
+        console.error('Failed to load rates:', error)
+        setRates([])
+      } finally {
+        setRatesLoading(false)
+      }
+    }
+
+    loadRates()
+  }, [])
+
   return (
     <div className="events-rates-page">
       {/* Section 1: Video Background with "INFORMATION: CENTER" at bottom middle */}
@@ -98,9 +122,9 @@ function EventsRates() {
                   <span className="events-rates-section-3-info-text">PAVILION ACCESS</span>
                 </div>
               </div>
-              <a href="#rates-inquiry" className="events-rates-section-3-link">
+             <a href="#rate-breakdown" className="events-rates-section-3-link">
                 VIEW RATE BREAKDOWN
-              </a>
+                </a>
             </div>
           </div>
 
@@ -122,9 +146,19 @@ function EventsRates() {
                   <span className="events-rates-section-3-info-text">AUDIO & LIGHTING READY</span>
                 </div>
               </div>
-              <a href="#package-inquiry" className="events-rates-section-3-link">
-                INQUIRE FOR RESERVATIONS
-              </a>
+<button
+  type="button"
+  className="events-rates-section-3-link events-rates-inquire-button"
+  onClick={() => {
+    if (!isAuthenticated) {
+      openAuthModal('signup')
+    } else {
+      onNavigate('reservation')
+    }
+  }}
+>
+  INQUIRE FOR RESERVATIONS
+</button>
             </div>
             <div className="events-rates-section-3-picture-box">
               <img
@@ -137,7 +171,88 @@ function EventsRates() {
           </div>
         </div>
       </section>
+      {/* Rate Breakdown - uses the same pricing source as Book Now */}
+      <section id="rate-breakdown" className="events-rates-breakdown">
+        <div className="events-rates-breakdown-container">
+          <h2 className="events-rates-breakdown-title">RATE BREAKDOWN</h2>
 
+          <p className="events-rates-breakdown-subtitle">
+            View our current resort rates and additional charges.
+          </p>
+
+          {ratesLoading ? (
+            <p className="events-rates-breakdown-status">
+              Loading current rates...
+            </p>
+          ) : rates.length === 0 ? (
+            <p className="events-rates-breakdown-status">
+              Rate information is currently unavailable.
+            </p>
+          ) : (
+            <div className="events-rates-breakdown-grid">
+              {rates.map((rate) => (
+                <div
+                  key={rate.duration_id}
+                  className="events-rates-breakdown-card"
+                >
+                  <h3>
+{String(rate.duration_name || '')
+.replaceAll('_', ' ')
+.replace(/\b\w/g, (letter) => letter.toUpperCase())}
+</h3>
+
+                  <div className="events-rates-breakdown-price">
+                    ₱{Number(rate.duration_price || 0).toLocaleString('en-PH')}
+                  </div>
+
+                  <div className="events-rates-breakdown-details">
+                    <p>
+                      <span>Maximum Guests</span>
+                      <strong>{rate.max_pax}</strong>
+                    </p>
+
+                    <p>
+                      <span>Extra Guest</span>
+                      <strong>
+                        ₱{Number(
+                          rate.duration_extra_pax_charge || 0
+                        ).toLocaleString('en-PH')}
+                      </strong>
+                    </p>
+
+                    <p>
+                      <span>Extension / Hour</span>
+                      <strong>
+                        ₱{Number(
+                          rate.duration_extension_charge || 0
+                        ).toLocaleString('en-PH')}
+                      </strong>
+                    </p>
+
+                    <p>
+                      <span>Event Charge</span>
+                      <strong>
+                        ₱{Number(
+                          rate.duration_event_rate || 0
+                        ).toLocaleString('en-PH')}
+                      </strong>
+                    </p>
+
+                    <p>
+                      <span>Security Deposit</span>
+                      <strong>
+                        ₱{Number(rate.sec_dep || 0).toLocaleString('en-PH')}
+                      </strong>
+                    </p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Section 4: Replicated Layout from Image (EVENTS Headline + 2 Staggered Blocks) */}
       {/* Section 4: Replicated Layout from Image (EVENTS Headline + 2 Staggered Blocks) */}
       <section className="events-rates-section-4">
         <div className="events-rates-section-4-container">

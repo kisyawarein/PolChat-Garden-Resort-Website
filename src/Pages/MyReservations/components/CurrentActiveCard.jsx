@@ -14,6 +14,16 @@ function CurrentActiveCard({
   onOpenCheckout,
   onOpenReview,
 }) {
+
+const reservationEnd = activeReservation?.end_date
+  ? new Date(activeReservation.end_date)
+  : null
+
+const canCheckout =
+  reservationEnd instanceof Date &&
+  !Number.isNaN(reservationEnd.getTime()) &&
+  new Date() >= reservationEnd
+
   const getPackageImage = (durationId) => {
     switch (durationId) {
       case 1: return dayTourImg
@@ -155,18 +165,27 @@ function CurrentActiveCard({
               })}
             </select>
 
-            <button
-              type="button"
-              className="myres-switcher-nav-btn"
-              onClick={handleNext}
-              disabled={currentIndex >= bookedReservations.length - 1}
-              title="View next booked stay"
-              aria-label="View next booked stay"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="9 18 15 12 9 6" />
-              </svg>
-            </button>
+          <button
+  type="button"
+  className="myres-btn-checkout-cta"
+  onClick={() => {
+    if (canCheckout && onOpenCheckout) {
+      onOpenCheckout(activeReservation)
+    }
+  }}
+  disabled={!canCheckout}
+  title={
+    canCheckout
+      ? 'Check out and settle your remaining balance'
+      : 'Checkout becomes available at the end of your stay'
+  }
+>
+  <span>
+    {canCheckout
+      ? 'Check Out & Settle Balance →'
+      : 'Checkout Available at End of Stay'}
+  </span>
+</button>
           </div>
         </div>
       )}

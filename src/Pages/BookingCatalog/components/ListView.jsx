@@ -5,6 +5,10 @@ function ListView({
   setViewMode,
   reservations = [],
   visitations = [],
+  onUpdateReservationStatus,
+  onUpdateReservationPayment,
+  onUpdateVisitationStatus,
+  onOpenReceipt,
 }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [typeFilter, setTypeFilter] = useState('all') // 'all' | 'resort' | 'ocular'
@@ -277,6 +281,7 @@ function ListView({
               <col className="col-w-pax" />
               <col className="col-w-payment" />
               <col className="col-w-status" />
+              <col className="col-w-actions" />
             </colgroup>
             <thead ref={tableHeaderRef}>
               <tr>
@@ -504,6 +509,12 @@ function ListView({
                     </div>
                   )}
                 </th>
+                {/* Column VIII: Actions */}
+<th className="col-header-th">
+  <span className="col-header-text">
+    Actions
+  </span>
+</th>
               </tr>
             </thead>
 
@@ -566,6 +577,24 @@ function ListView({
                         {item.status ? item.status.charAt(0).toUpperCase() + item.status.slice(1) : 'Pending'}
                       </span>
                     </td>
+                    {/* Column VIII: Actions */}
+<td className="cell-actions-td">
+  {item.itemType === 'resort' ? (
+    <button
+      type="button"
+      className="catalog-view-receipt-btn"
+      onClick={() => {
+        if (onOpenReceipt) {
+          onOpenReceipt(item.raw)
+        }
+      }}
+    >
+      View Receipt
+    </button>
+  ) : (
+    <span className="cell-plain-text">—</span>
+  )}
+</td>
                   </tr>
                 ))
               )}

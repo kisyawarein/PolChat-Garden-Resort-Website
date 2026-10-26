@@ -192,7 +192,8 @@ function CustomerInquiries() {
 
                       <div className="inq-ticket-meta">
                         <span className="inq-cust-name-meta">
-                          {inq.customer_name || `Customer #${inq.customer_id}`}
+                          {inq.guest_name ||inq.customer_name ||
+                          (inq.customer_id ? `Customer #${inq.customer_id}` : 'Guest')}
                         </span>
                         <span className={`inq-staff-badge ${inq.admin_responder ? 'staff-assigned' : 'staff-unassigned'}`}>
                           {inq.admin_responder ? inq.admin_responder : 'Unassigned'}

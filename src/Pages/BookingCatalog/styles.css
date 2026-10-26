@@ -2523,5 +2523,35 @@
   .calendar-weekdays-bar, .calendar-days-grid { min-width: 620px; }
   .cal-badge-pill { white-space: normal; overflow-wrap: anywhere; overflow: visible; text-overflow: clip; }
   .cal-day-details-dialog { max-height: calc(100dvh - 32px); }
-  .cal-day-details-dialog .modal-card-body { overflow-y: auto; }
+  .cal-day-details-dialog .modal-card-body { overflow-y: auto; }}
+/* Admin Booking Actions Column */
+.col-w-actions {
+  width: 120px;
 }
+
+.cell-actions-td {
+  text-align: center;
+  vertical-align: middle;
+  white-space: nowrap;
+  padding: 10px 12px;
+}
+
+.catalog-view-receipt-btn {
+  border: 1px solid #43593b;
+  border-radius: 7px;
+  padding: 7px 12px;
+  background-color: #43593b;
+  color: #ffffff;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.catalog-view-receipt-btn:hover {
+  background-color: #58402e;
+  transform: translateY(-1px);
+}
+

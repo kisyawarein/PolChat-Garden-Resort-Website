@@ -54,12 +54,23 @@ export default defineConfig(({ mode }) => {
                   },
                 })
 
-                await transporter.sendMail({
-                  from: `"PolChat Garden Resort" <${cleanUser}>`,
-                  to: toEmail,
-                  subject: emailSubject,
-                  text: emailBody,
-                })
+                const attachments = []
+
+if (data.pdfBase64) {
+  attachments.push({
+    filename: data.pdfFilename || 'PolChat-Receipt.pdf',
+    content: data.pdfBase64,
+    encoding: 'base64',
+    contentType: 'application/pdf',
+  })
+}
+await transporter.sendMail({
+  from: `"PolChat Garden Resort" <${cleanUser}>`,
+  to: toEmail,
+  subject: emailSubject,
+  text: emailBody,
+  attachments,
+})
                 console.log(`✓ Email successfully delivered to ${toEmail} via Gmail SMTP!`)
               } catch (mailErr) {
                 console.warn('[Nodemailer] SMTP note:', mailErr.message)

@@ -1,3 +1,9 @@
+import jsPDF from 'jspdf'
+import html2canvas from 'html2canvas'
+import { useEffect, useRef } from 'react'
+
+
+
 function BookingReceipt({
   reservation,
   selectedPackage,
@@ -6,9 +12,187 @@ function BookingReceipt({
   paymentDetails,
   onReset,
 }) {
+
+
+  const emailedReceiptRef = useRef(null)
+
   const handlePrint = () => {
     window.print()
   }
+
+  const generateReceiptPDF = async () => {
+  const receiptElement = document.getElementById('resv-printable-slip')
+
+  if (!receiptElement) {
+    throw new Error('Reservation slip not found.')
+  }
+
+  const canvas = await html2canvas(receiptElement, {
+    scale: 2,
+    useCORS: true,
+    backgroundColor: '#ffffff',
+  })
+
+  const imageData = canvas.toDataURL('image/png')
+
+  const pdf = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4',
+  })
+
+  const pageWidth = pdf.internal.pageSize.getWidth()
+  const pageHeight = pdf.internal.pageSize.getHeight()
+  const margin = 10
+  const usableWidth = pageWidth - margin * 2
+
+  const imageWidth = usableWidth
+  const imageHeight = (canvas.height * imageWidth) / canvas.width
+
+  let heightLeft = imageHeight
+  let position = margin
+
+  pdf.addImage(
+    imageData,
+    'PNG',
+    margin,
+    position,
+    imageWidth,
+    imageHeight
+  )
+
+  heightLeft -= pageHeight - margin * 2
+
+ while (heightLeft > 0) {
+  pdf.addPage()
+
+  position = margin - (imageHeight - heightLeft)
+
+  pdf.addImage(
+    imageData,
+    'PNG',
+    margin,
+    position,
+    imageWidth,
+    imageHeight
+  )
+
+  heightLeft -= pageHeight - margin * 2
+}
+
+return pdf
+}
+
+const handleDownloadPDF = async () => {
+  try {
+    const pdf = await generateReceiptPDF()
+
+    const filename =
+      `PolChat-Reservation-${reservation?.reservation_id || 'Receipt'}.pdf`
+
+    pdf.save(filename)
+  } catch (error) {
+    console.error('Failed to download reservation PDF:', error)
+  }
+}
+
+useEffect(() => {
+  const reservationId = reservation?.reservation_id
+  const customerEmail = String(
+    reservation?.customer_email || ''
+  ).trim()
+
+  if (!reservationId || !customerEmail) {
+    return
+  }
+
+  // Do not email optimistic temporary reservations
+  if (String(reservationId).startsWith('temp_')) {
+    return
+  }
+
+  const emailKey = `polchat_receipt_emailed_${reservationId}`
+
+  // Prevent duplicate sending during rerenders and remounts
+ const existingEmailState = localStorage.getItem(emailKey)
+
+if (
+  emailedReceiptRef.current === reservationId ||
+  existingEmailState === 'sending' ||
+  existingEmailState === 'true'
+) {
+  return
+}
+
+  const sendReceiptEmail = async () => {
+  try {
+    emailedReceiptRef.current = reservationId
+    localStorage.setItem(emailKey, 'sending')
+
+      const pdf = await generateReceiptPDF()
+      const pdfDataUri = pdf.output('datauristring')
+      const pdfBase64 = pdfDataUri.split(',')[1]
+
+      if (!pdfBase64) {
+        throw new Error('Generated receipt PDF is empty.')
+      }
+
+      const filename =
+        `PolChat-Reservation-${reservationId}.pdf`
+
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: customerEmail,
+          subject:
+            `Your PolChat Garden Resort Receipt [RES-#${reservationId}]`,
+          body:
+            `Dear ${reservation?.customer_name || 'Valued Guest'},\n\n` +
+            `Thank you for your reservation at PolChat Garden Resort.\n\n` +
+            `Your reservation receipt is attached to this email as a PDF.\n\n` +
+            `Reservation No: RES-#${reservationId}\n` +
+            `Payment Method: ${reservation?.payment_type || paymentDetails?.paymentMethod || 'Recorded'}\n\n` +
+            `Please keep the attached receipt and present a printed or digital copy upon arrival.\n\n` +
+            `PolChat Garden Resort Team`,
+          pdfBase64,
+          pdfFilename: filename,
+        }),
+      })
+
+      const result = await response.json()
+
+      if (!response.ok || !result.success) {
+        throw new Error(
+          result.error || 'Receipt email could not be delivered.'
+        )
+      }
+
+      localStorage.setItem(emailKey, 'true')
+
+      console.log(
+        `Receipt email delivered to ${customerEmail}`
+      )
+    } catch (error) {
+  emailedReceiptRef.current = null
+  localStorage.removeItem(emailKey)
+
+  console.error('Failed to email reservation receipt:', error)
+}
+  }
+
+  // Allow the receipt DOM to finish rendering before html2canvas captures it
+  const timer = window.setTimeout(sendReceiptEmail, 600)
+
+  return () => {
+    window.clearTimeout(timer)
+  }
+}, [
+  reservation?.reservation_id,
+  reservation?.customer_email,
+])
 
   const resId = reservation?.reservation_id || Date.now().toString().slice(-6)
   const isCash = paymentDetails?.paymentMethod === 'cash' || reservation?.payment_type === 'cash'
@@ -188,18 +372,52 @@ function BookingReceipt({
 
       {/* Action Buttons */}
       <div className="resv-receipt-actions">
+
         <button
-          type="button"
-          className="resv-print-btn"
-          onClick={handlePrint}
-        >
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ marginRight: '6px' }}>
-            <polyline points="6 9 6 2 18 2 18 9" />
-            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
-            <rect x="6" y="14" width="12" height="8" />
-          </svg>
-          Download / Print Slip
-        </button>
+  type="button"
+  className="resv-print-btn"
+  onClick={handleDownloadPDF}
+>
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+    <polyline points="7 10 12 15 17 10" />
+    <line x1="12" y1="15" x2="12" y2="3" />
+  </svg>
+
+  Download PDF
+</button>
+
+        <button
+  type="button"
+  className="resv-print-btn"
+  onClick={handlePrint}
+>
+  <svg
+    width="18"
+    height="18"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <polyline points="6 9 6 2 18 2 18 9" />
+    <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
+    <rect x="6" y="14" width="12" height="8" />
+  </svg>
+
+  Print Slip
+</button>
         <button
           type="button"
           className="resv-new-resv-btn"

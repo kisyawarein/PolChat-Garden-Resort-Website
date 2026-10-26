@@ -86,14 +86,15 @@ export const EmailService = {
       }
 
       // 3. Check customer object on reservation
-      if (!targetEmail && reservation.customer?.email) {
-        targetEmail = reservation.customer.email.trim()
-      }
-    }
+if (!targetEmail && reservation.customer?.email) {
+  targetEmail = reservation.customer.email.trim()
+}
+} // <-- ADD THIS closing brace
 
-    if (!targetEmail) {
-      targetEmail = 'polchat2k20@gmail.com'
-    }
+if (!targetEmail) {
+  console.warn('Reservation email skipped: no customer email address found.')
+  return null
+}
 
     const guestName = reservation.customer_name || reservation.event_name || 'Valued Guest'
     const resId = reservation.reservation_id || 'N/A'
@@ -153,21 +154,33 @@ export const EmailService = {
   async sendInquiryReplyEmail({ inquiry, replyMessage, customerEmail, adminName = 'PolChat Staff' }) {
     if (!inquiry) return null
 
-    let targetEmail = customerEmail
+    let targetEmail =
+  inquiry.guest_email ||
+  customerEmail ||
+  inquiry.customer_email ||
+  inquiry.customer?.email ||
+  ''
     if (!targetEmail && inquiry.customer_name && inquiry.customer_name.includes('(')) {
       const match = inquiry.customer_name.match(/\(([^)]+)\)/)
+
+
       if (match && match[1] && match[1].includes('@')) {
         targetEmail = match[1].trim()
       }
     }
+
     if (!targetEmail) {
       targetEmail = 'polchat2k20@gmail.com'
     }
+const recipientName =
+  inquiry.guest_name ||
+  inquiry.customer_name ||
+  inquiry.customer?.name ||
+  'Guest'
 
     const inquiryId = inquiry.inquiry_id || 'N/A'
     const subject = `PolChat Support: New Reply on Inquiry #${inquiryId} (${inquiry.inquiry_label || 'Support'})`
-    const body = `Dear ${inquiry.customer_name || 'Guest'},\n\n${adminName} from PolChat Garden Resort has responded to your inquiry #${inquiryId}:\n\n"${replyMessage}"\n\nYou can view full conversation history and reply anytime by visiting the Resort Support portal on our website.\n\nPolChat Garden Resort Support Team\nEmail: polchat2k20@gmail.com\nAddress: PolChat Garden, 346 Monaco Street Antipolo Calabarzon`
-
+    const body = `Dear ${recipientName},\n\n${adminName} from PolChat Garden Resort has responded to your inquiry #${inquiryId}:\n\n"${replyMessage}"\n\nYou can view full conversation history and reply anytime by visiting the Resort Support portal on our website.\n\nPolChat Garden Resort Support Team\nEmail: polchat2k20@gmail.com\nAddress: PolChat Garden, 346 Monaco Street Antipolo Calabarzon`
     try {
       fetch('/api/send-email', {
         method: 'POST',

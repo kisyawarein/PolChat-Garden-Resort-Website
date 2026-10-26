@@ -752,11 +752,11 @@ export const DataService = {
       }
 
       const mapped = (data || []).map((i) => ({
-        ...i,
-        customer_name: i.customer
-          ? `${i.customer.first_name} ${i.customer.last_name || ''}`.trim()
-          : `Customer #${i.customer_id}`,
-      }))
+  ...i,
+  customer_name: i.customer
+    ? `${i.customer.first_name} ${i.customer.last_name || ''}`.trim()
+    : i.guest_name || (i.customer_id ? `Customer #${i.customer_id}` : 'Guest'),
+}))
       _adminCache.inquiries = mapped
       return _adminCache.inquiries
     } catch (err) {
@@ -765,27 +765,39 @@ export const DataService = {
     }
   },
 
-  async createInquiry({ label, message, customerId, customerName }) {
+  async createInquiry({
+  label,
+  message,
+  customerId,
+  customerName,
+  guestName = null,
+  guestEmail = null,
+}) {
     const nowIso = new Date().toISOString()
 
     try {
-      // 1. Ensure a valid customer_id in customer_accounts to prevent FK 409 Conflict
-      const validCustomerId = await this.ensureCustomer({
-        customerId,
-        customerName,
-      })
+// Registered customers use customer_accounts.
+// Guests stay separate with customer_id = null.
+const validCustomerId = customerId
+  ? await this.ensureCustomer({
+      customerId,
+      customerName,
+    })
+  : null
 
       // 2. Insert into resort_inquiries
       const { data: inqData, error: inqError } = await supabase
         .from('resort_inquiries')
         .insert([
           {
-            inquiry_label: label,
-            customer_id: validCustomerId,
-            inquiry_status: 'open',
-            created_at: nowIso,
-            updated_at: nowIso,
-          },
+  inquiry_label: label,
+  customer_id: validCustomerId,
+  guest_name: validCustomerId ? null : guestName,
+  guest_email: guestEmail,
+  inquiry_status: 'open',
+  created_at: nowIso,
+  updated_at: nowIso,
+},
         ])
         .select()
 
@@ -813,25 +825,39 @@ export const DataService = {
         console.error('Error inserting initial chat message:', chatError)
       }
 
-      const firstChat = chatData?.[0] || {
-        chat_id: Date.now(),
-        inquiry_id: createdInquiry.inquiry_id,
-        sender: 'customer',
-        sender_name: customerName,
-        message: message,
-        sent_at: nowIso,
-      }
+     const firstChat = chatData?.[0] || {
+  chat_id: Date.now(),
+  inquiry_id: createdInquiry.inquiry_id,
+  sender: 'customer',
+  sender_name: customerName,
+  message: message,
+  sent_at: nowIso,
+}
 
-      return {
-        newInquiry: {
-          ...createdInquiry,
-          customer_name: customerName,
-        },
-        firstChat: {
-          ...firstChat,
-          sender_name: customerName,
-        },
-      }
+const newInquiry = {
+  ...createdInquiry,
+  customer_name: customerName,
+}
+
+// Keep inquiry cache synchronized with the newly created inquiry
+if (_adminCache.inquiries) {
+  _adminCache.inquiries = [
+    newInquiry,
+    ..._adminCache.inquiries.filter(
+      (inquiry) => inquiry.inquiry_id !== newInquiry.inquiry_id
+    ),
+  ]
+}
+
+this.invalidateCache('dashboard')
+
+return {
+  newInquiry,
+  firstChat: {
+    ...firstChat,
+    sender_name: customerName,
+  },
+}
     } catch (err) {
       console.error('Create inquiry exception:', err)
       return null
@@ -1422,6 +1448,40 @@ export const DataService = {
     try {
       // 1. Cache checkout locally
       try {
+
+              // Verify that the reservation has reached its checkout date and time
+      const { data: reservation, error: reservationError } = await supabase
+        .from('resort_reservations')
+        .select('reservation_id, end_date, is_checked_out')
+        .eq('reservation_id', reservationId)
+        .maybeSingle()
+
+      if (reservationError) {
+        console.error('Unable to verify checkout eligibility:', reservationError)
+        return null
+      }
+
+      if (!reservation?.end_date) {
+        console.error('Checkout blocked: reservation end date is missing.')
+        return null
+      }
+
+      const reservationEnd = new Date(reservation.end_date)
+
+      if (
+        Number.isNaN(reservationEnd.getTime()) ||
+        new Date() < reservationEnd
+      ) {
+        console.warn(
+          'Checkout blocked: checkout is only available at the end of the stay.'
+        )
+        return null
+      }
+
+      if (reservation.is_checked_out) {
+        console.warn('Checkout blocked: reservation is already checked out.')
+        return null
+      }
         const checkedOutList = JSON.parse(localStorage.getItem('polchat_checked_out_reservations') || '{}')
         checkedOutList[reservationId] = {
           checkout_payment_type,
@@ -1472,13 +1532,7 @@ export const DataService = {
       }
     } catch (err) {
       console.error('Checkout reservation exception:', err)
-      return {
-        reservation_id: reservationId,
-        is_checked_out: true,
-        remaining_balance: 0,
-        checkout_payment_type,
-        checkout_proof_url,
-      }
+      return null
     }
   },
 

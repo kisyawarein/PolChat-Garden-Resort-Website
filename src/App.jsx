@@ -39,6 +39,14 @@ function AppContent() {
     }
     return 'home'
   })
+  useEffect(() => {
+  window.scrollTo({
+    top: 0,
+    left: 0,
+    behavior: 'instant',
+  })
+}, [currentPage])
+
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
 
   // Preload all admin data once when entering admin side
@@ -92,8 +100,8 @@ function AppContent() {
         return <Facilities />
       case 'gallery':
         return <Gallery />
-      case 'events-rates':
-        return <EventsRates />
+     case 'events-rates':
+  return <EventsRates onNavigate={setCurrentPage} />
       case 'directions':
         return <Directions />
       case 'support':

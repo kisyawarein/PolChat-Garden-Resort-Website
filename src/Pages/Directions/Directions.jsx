@@ -37,10 +37,7 @@ function Directions() {
             </div>
 
             <div className="directions-quick-meta">
-              <div className="directions-meta-item">
-                <span className="directions-meta-label">Mobile</span>
-                <a href="tel:+639534954389" className="directions-meta-value">0953 495 4389</a>
-              </div>
+
               <div className="directions-meta-item">
                 <span className="directions-meta-label">Official Email</span>
                 <a href="mailto:polchat2k20@gmail.com" className="directions-meta-value">polchat2k20@gmail.com</a>

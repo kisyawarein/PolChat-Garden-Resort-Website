@@ -1,3 +1,4 @@
+
 .events-rates-page {
   width: 100%;
   margin: 0;
@@ -463,4 +464,130 @@
     font-size: 0.88rem;
     padding: 0;
   }
+}
+
+
+/* ==========================================================================
+   Rate Breakdown
+   ========================================================================== */
+
+.events-rates-breakdown {
+  width: 100%;
+  padding: 80px 24px;
+  background-color: #f7f5ef;
+  scroll-margin-top: 100px;
+  box-sizing: border-box;
+}
+
+.events-rates-breakdown-container {
+  width: 100%;
+  max-width: 1380px;
+  margin: 0 auto;
+}
+
+.events-rates-breakdown-title {
+  margin: 0;
+  text-align: center;
+  font-size: 2.5rem;
+  font-weight: 900;
+  color: var(--color-forest, #43593B);
+  letter-spacing: 0.08em;
+}
+
+.events-rates-breakdown-subtitle {
+  max-width: 650px;
+  margin: 12px auto 40px;
+  text-align: center;
+  color: var(--color-bark, #58402E);
+  font-size: 1rem;
+}
+
+.events-rates-breakdown-status {
+  text-align: center;
+  color: var(--color-bark, #58402E);
+}
+
+.events-rates-breakdown-grid {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.events-rates-breakdown-card {
+  min-width: 0;
+  padding: 28px;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(67, 89, 59, 0.1);
+  box-sizing: border-box;
+}
+
+.events-rates-breakdown-card h3 {
+  margin: 0 0 16px;
+  color: var(--color-forest, #43593B);
+  font-size: 1.4rem;
+}
+
+.events-rates-breakdown-price {
+  margin-bottom: 24px;
+  color: var(--color-forest, #43593B);
+  font-size: 2rem;
+  font-weight: 800;
+}
+
+.events-rates-breakdown-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.events-rates-breakdown-details p {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 0;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(67, 89, 59, 0.15);
+  color: var(--color-bark, #58402E);
+}
+
+.events-rates-breakdown-details strong {
+  flex-shrink: 0;
+  text-align: right;
+  color: var(--color-forest, #43593B);
+}
+
+@media (max-width: 1100px) {
+  .events-rates-breakdown-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .events-rates-breakdown {
+    padding: 50px 16px;
+  }
+
+  .events-rates-breakdown-title {
+    font-size: 2rem;
+  }
+
+  .events-rates-breakdown-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .events-rates-breakdown-card {
+    padding: 22px;
+  }
+}
+
+.events-rates-inquire-button {
+  appearance: none;
+  border: none;
+  padding: 0;
+  background: transparent;
+  font: inherit;
+  text-align: left;
 }

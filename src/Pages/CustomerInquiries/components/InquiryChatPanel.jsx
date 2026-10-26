@@ -32,20 +32,28 @@ function InquiryChatPanel({
   }
 
   const handleSend = async (e) => {
-    e.preventDefault()
-    if (!replyText.trim()) return
+  e.preventDefault()
 
-    const newChat = await DataService.sendChatMessage({
-      inquiryId: inquiry.inquiry_id,
-      sender: 'admin',
-      senderName: inquiry.admin_responder || adminUser?.name || 'Admin Staff',
-      message: replyText.trim(),
-    })
+  const message = replyText.trim()
+  if (!message) return
 
-    setChats((prev) => [...prev, newChat])
-    setReplyText('')
+  const adminName =
+    inquiry.admin_responder ||
+    adminUser?.name ||
+    'Admin Staff'
+
+  const newChat = await DataService.sendChatMessage({
+    inquiryId: inquiry.inquiry_id,
+    sender: 'admin',
+    senderName: adminName,
+    message,
+  })
+
+  if (!newChat) return
+
+  setChats((prev) => [...prev, newChat])
+  setReplyText('')
   }
-
   return (
     <div className="inq-chat-panel-container">
       {/* Header Container Card (66px) */}
@@ -56,7 +64,14 @@ function InquiryChatPanel({
             <h3 className="catalog-panel-title inq-chat-subject-title">{inquiry.inquiry_label}</h3>
           </div>
           <div className="inq-chat-meta-tags">
-            <span>Customer: <strong>{inquiry.customer_name || `Customer #${inquiry.customer_id}`}</strong></span>
+            <span>
+  Customer:{' '}
+  <strong>
+    {inquiry.guest_name ||
+      inquiry.customer_name ||
+      (inquiry.customer_id ? `Customer #${inquiry.customer_id}` : 'Guest')}
+  </strong>
+</span>
             <span className="inq-meta-dot">•</span>
             <span>Staff: <strong>{inquiry.admin_responder || 'Unassigned'}</strong></span>
           </div>

@@ -37,6 +37,19 @@ function PastReservationsList({
       default: return ''
     }
   }
+const getCleanEventName = (eventName) => {
+  if (!eventName) return 'Resort Stay'
+
+  return eventName
+    .split(' __PROOF__')[0]
+    .split(' __PAY__')[0]
+    .split(' __EVENT__')[0]
+    .split(' __DOWN__')[0]
+    .split(' __REM__')[0]
+    .split(' __EMAIL__')[0]
+    .split(' __CHECKOUT__')[0]
+    .trim() || 'Resort Stay'
+}
 
   // Filter list
   const filteredList = pastReservations.filter((r) => {
@@ -128,14 +141,15 @@ function PastReservationsList({
       <div className="myres-table-panel-card">
         <div className="myres-table-scroll-wrap">
           <table className="myres-data-table">
-            <colgroup>
-              <col style={{ width: '14%' }} />
-              <col style={{ width: '24%' }} />
-              <col style={{ width: '26%' }} />
-              <col style={{ width: '12%' }} />
-              <col style={{ width: '14%' }} />
-              <col style={{ width: '10%' }} />
-            </colgroup>
+<colgroup>
+  <col style={{ width: '10%' }} />
+  <col style={{ width: '20%' }} />
+  <col style={{ width: '22%' }} />
+  <col style={{ width: '10%' }} />
+  <col style={{ width: '12%' }} />
+  <col style={{ width: '10%' }} />
+  <col style={{ width: '16%' }} />
+</colgroup>
             <thead>
               <tr>
                 <th className="col-cell-edge">
@@ -143,7 +157,6 @@ function PastReservationsList({
                     <span>Booking ID</span>
                   </div>
                 </th>
-
                 <th>
                   <div className="col-header-static">
                     <span>Package Tier</span>
@@ -178,12 +191,17 @@ function PastReservationsList({
                     <span>Status</span>
                   </div>
                 </th>
+<th>
+  <div className="col-header-static">
+    <span>Actions</span>
+  </div>
+</th>
               </tr>
             </thead>
             <tbody>
               {filteredList.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="myres-empty-cell">
+                  <td colSpan="7" className="myres-empty-cell">
                     No past reservations found in your account history.
                   </td>
                 </tr>
@@ -215,7 +233,7 @@ function PastReservationsList({
                       <td>
                         <div className="myres-tier-stack">
                           <span className="myres-tier-name">{getPackageName(r.duration_id)}</span>
-                          <span className="myres-event-sub">{r.event_name || 'Resort Stay'}</span>
+                          <span className="myres-event-sub">{getCleanEventName(r.event_name)}</span>
                         </div>
                       </td>
                       <td>
@@ -227,13 +245,42 @@ function PastReservationsList({
                       <td className="myres-plain-text">{r.guest_count} Pax</td>
                       <td className="myres-plain-text myres-cost-text">₱{totalPaid.toLocaleString()}</td>
                       <td className="myres-status-cell">
-                        <div className="myres-table-status-wrap">
-                          <span className="myres-plain-status-text">
-                            {r.reservation_status ? r.reservation_status.charAt(0).toUpperCase() + r.reservation_status.slice(1) : 'Confirmed'}
-                          </span>
-                        </div>
-                      </td>
-                    </tr>
+  <div className="myres-table-status-wrap">
+    <span className="myres-plain-status-text">
+      {r.reservation_status
+        ? r.reservation_status.charAt(0).toUpperCase() +
+          r.reservation_status.slice(1)
+        : 'Confirmed'}
+    </span>
+  </div>
+</td>
+
+<td className="myres-history-actions-cell">
+  {r.is_reviewed ? (
+    <button
+      type="button"
+      className="myres-history-review-btn myres-history-review-btn-reviewed"
+      disabled
+    >
+      ✓ Review Submitted
+    </button>
+  ) : r.is_checked_out || r.reservation_status === 'completed' ? (
+    <button
+      type="button"
+      className="myres-history-review-btn"
+      onClick={(e) => {
+        e.stopPropagation()
+        onOpenReview && onOpenReview(r)
+      }}
+    >
+      Leave a Review
+    </button>
+  ) : (
+    <span className="myres-history-no-action">—</span>
+  )}
+</td>
+
+</tr>
                   )
                 })
               )}
