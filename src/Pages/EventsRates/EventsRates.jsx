@@ -23,7 +23,7 @@ const RESERVATION_TYPES = [
   {
     id: 'reservation-night',
     title: 'Night',
-    time: '6:00 PM – 6:00 AM',
+    time: '8:00 PM – 6:00 AM',
     label: 'NIGHT STAY',
     image: 'homepage/landscape_wooden.png',
   },

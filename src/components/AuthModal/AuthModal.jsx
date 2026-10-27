@@ -25,6 +25,7 @@ function AuthModal({ onAdminLoggedIn }) {
   const [birthday, setBirthday] = useState('')
   const [email, setEmail] = useState('')
   const [signupPassword, setSignupPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
 
   // OTP Verification states
   const [isOtpStep, setIsOtpStep] = useState(false)
@@ -66,6 +67,7 @@ function AuthModal({ onAdminLoggedIn }) {
       setOtpDigits(['', '', '', '', '', ''])
       setIsSubmitting(false)
       setIsCheckingName(false)
+      setConfirmPassword('')
     }
   }, [isAuthModalOpen, authModalMode])
 
@@ -153,6 +155,10 @@ if (!emailPattern.test(cleanEmail)) {
       setErrorMsg('Password must be at least 6 characters.')
       return
     }
+if (signupPassword !== confirmPassword) {
+  setErrorMsg('Passwords do not match. Please re-enter your password.')
+  return
+}
 
     // Check database to prevent duplicate First Name, Last Name, or Email
     setIsCheckingName(true)
@@ -545,19 +551,31 @@ if (!emailPattern.test(cleanEmail)) {
                     />
                   </div>
 
-                  <div className="auth-field-group">
-                    <label className="auth-label">Password *</label>
-                    <input
-                      type="password"
-                      className="auth-input-line"
-                      value={signupPassword}
-                      onChange={(e) => setSignupPassword(e.target.value)}
-                      placeholder="At least 6 characters"
-                      required
-                    />
-                  </div>
+<div className="auth-field-group">
+  <label className="auth-label">Password *</label>
+  <input
+    type="password"
+    className="auth-input-line"
+    value={signupPassword}
+    onChange={(e) => setSignupPassword(e.target.value)}
+    placeholder="At least 6 characters"
+    required
+  />
+</div>
 
-                  <button
+<div className="auth-field-group">
+  <label className="auth-label">Confirm Password *</label>
+  <input
+    type="password"
+    className="auth-input-line"
+    value={confirmPassword}
+    onChange={(e) => setConfirmPassword(e.target.value)}
+    placeholder="Re-enter your password"
+    required
+  />
+</div>
+
+<button
                     type="submit"
                     className="auth-submit-btn"
                     disabled={isCheckingName}
