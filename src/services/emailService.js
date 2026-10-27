@@ -120,22 +120,25 @@ if (!targetEmail) {
       return null
     }
 
-    // 1. Dispatch real email via /api/send-email (matching OTP mailer mechanism)
-    try {
-      fetch('/api/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: targetEmail,
-          subject,
-          body,
-        }),
-      }).catch((err) => {
-        console.warn('Status email network dispatch note:', err)
-      })
-    } catch (netErr) {
-      console.warn('Status email dispatch note:', netErr)
-    }
+// Do not send a second confirmation email after booking/payment.
+// BookingReceipt already sends the official receipt email with PDF.
+if (String(newStatus).toLowerCase() !== 'confirmed') {
+  try {
+    fetch('/api/send-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: targetEmail,
+        subject,
+        body,
+      }),
+    }).catch((err) => {
+      console.warn('Status email network dispatch note:', err)
+    })
+  } catch (netErr) {
+    console.warn('Status email dispatch note:', netErr)
+  }
+}
 
     // 2. Log and dispatch local UI toast
     return this.logAndDispatch({

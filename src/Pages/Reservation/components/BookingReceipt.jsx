@@ -157,7 +157,7 @@ const generateEmailReceiptPDF = async () => {
 
 const handleDownloadPDF = async () => {
   try {
-    const pdf = await generateReceiptPDF()
+    const pdf = await generateEmailReceiptPDF()
 
     const filename =
       `PolChat-Reservation-${reservation?.reservation_id || 'Receipt'}.pdf`
