@@ -94,6 +94,69 @@ const canCheckout =
       onSelectReservation(bookedReservations[currentIndex + 1].reservation_id)
     }
   }
+const reservationStatus =
+  String(activeReservation?.reservation_status || '').toLowerCase()
+
+const isCancelled =
+  reservationStatus === 'cancelled' ||
+  reservationStatus === 'declined' ||
+  reservationStatus === 'rejected'
+
+const isCompleted =
+  reservationStatus === 'completed'
+
+const isConfirmed =
+  reservationStatus === 'confirmed' ||
+  reservationStatus === 'accepted' ||
+  reservationStatus === 'approved' ||
+  isCheckedOut ||
+  isCompleted
+
+const hasPaymentRecord = Boolean(
+  activeReservation?.has_paid_reservation ||
+  activeReservation?.payment_proof_url
+)
+
+const bookingJourneySteps = [
+  {
+    label: 'Reservation Submitted',
+    description: 'Your booking request was recorded.',
+    complete: Boolean(activeReservation),
+  },
+  {
+    label: 'Payment Recorded',
+    description:
+      activeReservation?.payment_type === 'cash'
+        ? 'Cash payment is scheduled at the resort desk.'
+        : 'Your payment information was submitted.',
+    complete: hasPaymentRecord,
+  },
+{
+  label: 'Reservation Confirmed',
+  description: isConfirmed
+    ? 'The resort approved your booking.'
+    : 'Waiting for resort staff to review and approve your booking.',
+  complete: isConfirmed,
+},
+  {
+    label: 'Checked Out',
+    description: 'The remaining balance was settled.',
+    complete: Boolean(isCheckedOut || isCompleted),
+  },
+  {
+    label: 'Stay Completed',
+    description: 'Your resort stay is complete.',
+    complete: isCompleted,
+  },
+]
+
+const firstIncompleteJourneyIndex =
+  bookingJourneySteps.findIndex((step) => !step.complete)
+
+const activeJourneyIndex =
+  firstIncompleteJourneyIndex === -1
+    ? bookingJourneySteps.length - 1
+    : firstIncompleteJourneyIndex
 
   return (
     <div className="myres-active-column">
@@ -169,21 +232,21 @@ const canCheckout =
   type="button"
   className="myres-btn-checkout-cta"
   onClick={() => {
-    if (canCheckout && onOpenCheckout) {
+    if (onOpenCheckout) {
       onOpenCheckout(activeReservation)
     }
   }}
-  disabled={!canCheckout}
+  disabled={isCheckedOut}
   title={
-    canCheckout
-      ? 'Check out and settle your remaining balance'
-      : 'Checkout becomes available at the end of your stay'
+    isCheckedOut
+      ? 'This reservation has already been checked out'
+      : 'Check out and settle your remaining balance'
   }
 >
   <span>
-    {canCheckout
-      ? 'Check Out & Settle Balance →'
-      : 'Checkout Available at End of Stay'}
+    {isCheckedOut
+      ? '✓ Already Checked Out'
+      : 'Check Out & Settle Balance →'}
   </span>
 </button>
           </div>
@@ -228,7 +291,87 @@ const canCheckout =
                 <span className="myres-active-tier-name">{getPackageName(activeReservation.duration_id)}</span>
               </div>
             </div>
+{/* Booking Journey Tracker */}
+<div className="myres-journey-card">
+  <div className="myres-journey-heading">
+    <div>
+      <span className="myres-journey-eyebrow">
+        YOUR BOOKING JOURNEY
+      </span>
 
+      <h3 className="myres-journey-title">
+        Track Your Reservation
+      </h3>
+    </div>
+
+    <span
+      className={`myres-journey-status ${
+        isCancelled
+          ? 'journey-status-cancelled'
+          : isCompleted
+            ? 'journey-status-complete'
+            : 'journey-status-active'
+      }`}
+    >
+      {isCancelled
+        ? 'CANCELLED'
+        : isCompleted
+          ? 'COMPLETED'
+          : 'IN PROGRESS'}
+    </span>
+  </div>
+
+  {isCancelled ? (
+    <div className="myres-journey-cancelled">
+      <strong>This reservation was cancelled.</strong>
+
+      <span>
+        You may create a new reservation whenever you are ready.
+      </span>
+    </div>
+  ) : (
+    <div className="myres-journey-steps">
+      {bookingJourneySteps.map((step, index) => {
+        const isActive =
+          index === activeJourneyIndex && !step.complete
+
+        return (
+          <div
+            key={step.label}
+            className={`myres-journey-step ${
+              step.complete
+                ? 'journey-step-complete'
+                : isActive
+                  ? 'journey-step-active'
+                  : 'journey-step-upcoming'
+            }`}
+          >
+            <div className="myres-journey-marker-column">
+              <div className="myres-journey-marker">
+                {step.complete ? (
+                  <span>✓</span>
+                ) : isActive ? (
+                  <span className="myres-journey-pulse" />
+                ) : (
+                  <span>{index + 1}</span>
+                )}
+              </div>
+
+              {index < bookingJourneySteps.length - 1 && (
+                <div className="myres-journey-line" />
+              )}
+            </div>
+
+            <div className="myres-journey-content">
+              <strong>{step.label}</strong>
+              <span>{step.description}</span>
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  )}
+</div>
             {/* Info Stack */}
             <div className="myres-active-body">
               <div className="myres-info-grid">

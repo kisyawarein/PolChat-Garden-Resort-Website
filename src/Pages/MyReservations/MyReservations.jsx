@@ -17,7 +17,7 @@ function MyReservations({ onNavigate }) {
   const [selectedPhotoUrl, setSelectedPhotoUrl] = useState(null)
   const [checkoutModalRes, setCheckoutModalRes] = useState(null)
   const [reviewPromptRes, setReviewPromptRes] = useState(null)
-
+  const [historyTab, setHistoryTab] = useState('reservations')
   const loadData = async () => {
   const [allReservations, allVisitations] = await Promise.all([
     DataService.getReservations({ force: true }),
@@ -275,117 +275,156 @@ const handleOpenFullImage = () => {
           onOpenCheckout={setCheckoutModalRes}
           onOpenReview={setReviewPromptRes}
         />
+{/* Right Column: Reservation and Ocular History */}
+<div className="myres-history-tabs-column">
+  <div className="myres-history-tabs">
+    <button
+      type="button"
+      className={`myres-history-tab ${
+        historyTab === 'reservations'
+          ? 'myres-history-tab-active'
+          : ''
+      }`}
+      onClick={() => setHistoryTab('reservations')}
+    >
+      Reservations
 
-        {/* Right Column: Past Reservations & History Table */}
-        <PastReservationsList
-          pastReservations={pastReservations}
-          selectedReservationId={activeReservation?.reservation_id}
-          nearestReservationId={nearestReservation?.reservation_id}
-          onSelectReservation={setSelectedReservationId}
-          onOpenReceipt={setSelectedReceipt}
-          onOpenReview={setReviewPromptRes}
-        />
-      </div>
-{/* Ocular / Visitation History */}
-<div className="myres-visitation-history">
-  <div className="catalog-panel-header-card">
-    <div className="myres-past-title-row">
-      <h2 className="catalog-panel-title">
-        Ocular / Visitation History
-      </h2>
-
-      <span className="myres-history-badge">
-        {userVisitations.length} Records
+      <span className="myres-history-tab-count">
+        {pastReservations.length}
       </span>
-    </div>
+    </button>
+
+    <button
+      type="button"
+      className={`myres-history-tab ${
+        historyTab === 'ocular'
+          ? 'myres-history-tab-active'
+          : ''
+      }`}
+      onClick={() => setHistoryTab('ocular')}
+    >
+      Ocular Visits
+
+      <span className="myres-history-tab-count">
+        {userVisitations.length}
+      </span>
+    </button>
   </div>
 
-  <div className="myres-table-panel-card">
-    <div className="myres-table-scroll-wrap">
-      <table className="myres-data-table">
-        <thead>
-          <tr>
-            <th>Visit ID</th>
-            <th>Visit Date</th>
-            <th>Time Slot</th>
-            <th>Guests</th>
-            <th>Status</th>
-          </tr>
-        </thead>
+  {historyTab === 'reservations' ? (
+    <PastReservationsList
+      pastReservations={pastReservations}
+      selectedReservationId={activeReservation?.reservation_id}
+      nearestReservationId={nearestReservation?.reservation_id}
+      onSelectReservation={setSelectedReservationId}
+      onOpenReceipt={setSelectedReceipt}
+      onOpenReview={setReviewPromptRes}
+    />
+  ) : (
+    <div className="myres-tabbed-ocular-panel">
+      <div className="catalog-panel-header-card">
+        <div className="myres-past-title-row">
+          <h2 className="catalog-panel-title">
+            Ocular / Visitation History
+          </h2>
 
-        <tbody>
-          {userVisitations.length === 0 ? (
-            <tr>
-              <td colSpan="5" className="myres-empty-cell">
-                No ocular visits found in your account history.
-              </td>
-            </tr>
-          ) : (
-            userVisitations.map((visit) => {
-              const startDate = visit.visitation_start_date
-                ? new Date(visit.visitation_start_date)
-                : null
+          <span className="myres-history-badge">
+            {userVisitations.length} Records
+          </span>
+        </div>
+      </div>
 
-              const endDate = visit.visitation_end_date
-                ? new Date(visit.visitation_end_date)
-                : null
+      <div className="myres-table-panel-card">
+        <div className="myres-table-scroll-wrap">
+          <table className="myres-data-table">
+            <thead>
+              <tr>
+                <th>Visit ID</th>
+                <th>Visit Date</th>
+                <th>Time Slot</th>
+                <th>Guests</th>
+                <th>Status</th>
+              </tr>
+            </thead>
 
-              const visitDate = startDate
-                ? startDate.toLocaleDateString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                  })
-                : 'N/A'
-
-              const visitTime =
-                startDate && endDate
-                  ? `${startDate.toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })} - ${endDate.toLocaleTimeString([], {
-                      hour: '2-digit',
-                      minute: '2-digit',
-                    })}`
-                  : visit.slot_type || 'N/A'
-
-              return (
-                <tr
-                  key={visit.visitation_id}
-                  className="myres-table-row"
-                >
-                  <td className="col-cell-edge myres-id-cell">
-                    #{visit.visitation_id}
-                  </td>
-
-                  <td className="myres-plain-text">
-                    {visitDate}
-                  </td>
-
-                  <td className="myres-plain-text">
-                    {visitTime}
-                  </td>
-
-                  <td className="myres-plain-text">
-                    {visit.guest_count} Pax
-                  </td>
-
-                  <td className="myres-status-cell">
-                    <span className="myres-plain-status-text">
-                      {visit.visitation_status
-                        ? visit.visitation_status.charAt(0).toUpperCase() +
-                          visit.visitation_status.slice(1)
-                        : 'Pending'}
-                    </span>
+            <tbody>
+              {userVisitations.length === 0 ? (
+                <tr>
+                  <td colSpan="5" className="myres-empty-cell">
+                    No ocular visits found in your account history.
                   </td>
                 </tr>
-              )
-            })
-          )}
-        </tbody>
-      </table>
+              ) : (
+                userVisitations.map((visit) => {
+                  const startDate = visit.visitation_start_date
+                    ? new Date(visit.visitation_start_date)
+                    : null
+
+                  const endDate = visit.visitation_end_date
+                    ? new Date(visit.visitation_end_date)
+                    : null
+
+                  const visitDate = startDate
+                    ? startDate.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                      })
+                    : 'N/A'
+
+                  const visitTime =
+                    startDate && endDate
+                      ? `${startDate.toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })} - ${endDate.toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}`
+                      : visit.slot_type || 'N/A'
+
+                  return (
+                    <tr
+                      key={visit.visitation_id}
+                      className="myres-table-row"
+                    >
+                      <td className="col-cell-edge myres-id-cell">
+                        #{visit.visitation_id}
+                      </td>
+
+                      <td className="myres-plain-text">
+                        {visitDate}
+                      </td>
+
+                      <td className="myres-plain-text">
+                        {visitTime}
+                      </td>
+
+                      <td className="myres-plain-text">
+                        {visit.guest_count} Pax
+                      </td>
+
+                      <td className="myres-status-cell">
+                        <span className="myres-plain-status-text">
+                          {visit.visitation_status
+                            ? visit.visitation_status
+                                .charAt(0)
+                                .toUpperCase() +
+                              visit.visitation_status.slice(1)
+                            : 'Pending'}
+                        </span>
+                      </td>
+                    </tr>
+                  )
+                })
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
-  </div>
+  )}
+</div>
 </div>
       {/* Checkout Balance Settlement Modal */}
       {checkoutModalRes && (

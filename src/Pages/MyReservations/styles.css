@@ -511,7 +511,207 @@
   font-weight: 800;
   line-height: 1.2;
 }
+/* =========================================
+   BOOKING JOURNEY TRACKER
+========================================= */
 
+.myres-journey-card {
+  margin: 18px 20px 8px;
+  padding: 20px;
+  background: linear-gradient(135deg, #fbfaf7 0%, #f1f4e8 100%);
+  border: 1px solid #d8d0c3;
+  border-radius: 16px;
+  box-shadow: 0 8px 24px rgba(67, 89, 59, 0.10);
+}
+
+.myres-journey-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  padding-bottom: 16px;
+  margin-bottom: 18px;
+  border-bottom: 1px solid rgba(88, 64, 46, 0.14);
+}
+
+.myres-journey-eyebrow {
+  display: block;
+  margin-bottom: 4px;
+  color: #8a915b;
+  font-size: 0.67rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.myres-journey-title {
+  margin: 0;
+  color: #43593b;
+  font-size: 1.05rem;
+  font-weight: 800;
+}
+
+.myres-journey-status {
+  flex-shrink: 0;
+  padding: 6px 11px;
+  border-radius: 999px;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.07em;
+}
+
+.journey-status-active {
+  color: #765416;
+  background: #fff2ca;
+  border: 1px solid #e8c76d;
+}
+
+.journey-status-complete {
+  color: #315928;
+  background: #e7f1df;
+  border: 1px solid #aac696;
+}
+
+.journey-status-cancelled {
+  color: #991b1b;
+  background: #fee2e2;
+  border: 1px solid #fecaca;
+}
+
+.myres-journey-steps {
+  display: flex;
+  flex-direction: column;
+}
+
+.myres-journey-step {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 12px;
+  min-height: 62px;
+}
+
+.myres-journey-marker-column {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.myres-journey-marker {
+  position: relative;
+  z-index: 2;
+  width: 29px;
+  height: 29px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 0.73rem;
+  font-weight: 800;
+}
+
+.myres-journey-line {
+  width: 2px;
+  flex: 1;
+  min-height: 28px;
+  background: #d8d0c3;
+}
+
+.journey-step-complete .myres-journey-marker {
+  color: white;
+  background: #43593b;
+  box-shadow: 0 0 0 4px rgba(67, 89, 59, 0.12);
+}
+
+.journey-step-complete .myres-journey-line {
+  background: #798257;
+}
+
+.journey-step-active .myres-journey-marker {
+  color: #58402e;
+  background: #f2d17e;
+  box-shadow: 0 0 0 5px rgba(242, 209, 126, 0.24);
+}
+
+.journey-step-upcoming .myres-journey-marker {
+  color: #8b8177;
+  background: #f4f1ec;
+  border: 1px solid #d8d0c3;
+}
+
+.myres-journey-content {
+  padding: 3px 0 15px;
+}
+
+.myres-journey-content strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #43593b;
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.myres-journey-content span {
+  display: block;
+  color: #786d63;
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.journey-step-upcoming .myres-journey-content {
+  opacity: 0.55;
+}
+
+.myres-journey-pulse {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #58402e;
+  animation: myresJourneyPulse 1.8s ease-in-out infinite;
+}
+
+@keyframes myresJourneyPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+
+  50% {
+    transform: scale(1.4);
+    opacity: 0.5;
+  }
+}
+
+.myres-journey-cancelled {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 14px;
+  color: #7f1d1d;
+  background: #fff1f2;
+  border: 1px solid #fecaca;
+  border-radius: 10px;
+}
+
+.myres-journey-cancelled strong {
+  font-size: 0.86rem;
+}
+
+.myres-journey-cancelled span {
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 640px) {
+  .myres-journey-card {
+    margin: 14px 12px 8px;
+    padding: 16px;
+  }
+
+  .myres-journey-heading {
+    flex-direction: column;
+    gap: 9px;
+  }
+}
 .myres-active-body {
   padding: 18px 20px;
   display: flex;
@@ -707,7 +907,7 @@
 }
 
 .myres-data-table th {
-  padding: 0;
+  padding: 12px 14px;
   color: #ffffff;
   font-size: 0.8rem;
   font-weight: 700;
@@ -716,6 +916,7 @@
   border-bottom: 1px solid #35492E;
   white-space: nowrap;
   user-select: none;
+  text-transform: none;
 }
 
 .myres-table-row {
@@ -1323,4 +1524,94 @@
   .myres-search-wrap { width: 100%; }
   .myres-info-grid { grid-template-columns: 1fr; }
   .myres-balance-card, .myres-checkout-row, .myres-deposit-card { flex-direction: column; align-items: stretch; }
+}
+/* Keep sortable Past Reservations header in normal title case */
+.myres-data-table .col-header-btn {
+  text-transform: none !important;
+  color: inherit;
+  font: inherit;
+}
+/* =========================================
+   RESERVATION / OCULAR HISTORY TABS
+========================================= */
+
+.myres-history-tabs-column {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.myres-history-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 6px;
+  background: #ffffff;
+  border: 1px solid #d8d0c3;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(88, 64, 46, 0.04);
+}
+
+.myres-history-tab {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 9px 14px;
+  color: #796656;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  font-family: inherit;
+  font-size: 0.84rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.myres-history-tab:hover {
+  color: #43593b;
+  background: #f4f8f0;
+}
+
+.myres-history-tab-active {
+  color: #ffffff;
+  background: #43593b;
+  border-color: #35492e;
+  box-shadow: 0 4px 12px rgba(67, 89, 59, 0.2);
+}
+
+.myres-history-tab-active:hover {
+  color: #ffffff;
+  background: #35492e;
+}
+
+.myres-history-tab-count {
+  min-width: 22px;
+  padding: 2px 7px;
+  color: #58402e;
+  background: #f2d17e;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.myres-tabbed-ocular-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+@media (max-width: 640px) {
+  .myres-history-tabs {
+    flex-direction: column;
+  }
+
+  .myres-history-tab {
+    width: 100%;
+  }
 }
