@@ -340,45 +340,11 @@ export const DataService = {
         }
       }
     }
-
-    // 3. Fetch fresh live customers from Supabase customer_accounts
-    const { data: customerRows, error } = await supabase
-      .from('customer_accounts')
-      .select('*')
-
-    if (error) {
-      console.error('Error querying customer_accounts for uniqueness check:', error)
-      throw error
-    }
-
-    if (Array.isArray(customerRows)) {
-      for (const c of customerRows) {
-        const cFirst = (c.first_name || '').trim().toLowerCase()
-        let cLast = (c.last_name || '').trim().toLowerCase()
-        if (cLast.includes('__auth__') || cLast.includes('__pw__') || cLast.includes('@')) {
-          cLast = cLast.split(' __auth__')[0].split(' __pw__')[0].split('__auth__')[0].split('@')[0].trim()
-        }
-
-        if (cleanFirst && cFirst && cFirst === cleanFirst) {
-          return {
-            hasConflict: true,
-            field: 'first_name',
-            message: `The first name "${(c.first_name || '').trim()}" is already taken by an existing account.`,
-          }
-        }
-
-        if (cleanLast && cLast && cLast === cleanLast) {
-          const displayLast = (c.last_name || '').split(' __AUTH__')[0].split(' __PW__')[0].trim()
-          return {
-            hasConflict: true,
-            field: 'last_name',
-            message: `The last name "${displayLast}" is already taken by an existing account.`,
-          }
-        }
-      }
-    }
-
-    return { hasConflict: false }
+return {
+  hasConflict: false,
+  field: null,
+  message: '',
+}    
   },
 
   async addCustomer(customer) {

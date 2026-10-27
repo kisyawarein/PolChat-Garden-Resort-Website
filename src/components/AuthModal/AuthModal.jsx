@@ -171,7 +171,7 @@ if (!emailPattern.test(cleanEmail)) {
 
       if (conflict && conflict.hasConflict) {
         setIsCheckingName(false)
-        setErrorMsg(`${conflict.message} Please use a unique first name, last name, and email or sign in.`)
+        setErrorMsg('This email address is already in use. Please sign in or use a different email.')
         return // STOP IMMEDIATELY: Do NOT send OTP, do NOT move to OTP screen
       }
     } catch (err) {
