@@ -28,7 +28,7 @@ function BookingReceipt({
   }
 
   const canvas = await html2canvas(receiptElement, {
-    scale: 1,
+    scale: 2,
     useCORS: true,
     backgroundColor: '#ffffff',
   })
@@ -157,7 +157,7 @@ const generateEmailReceiptPDF = async () => {
 
 const handleDownloadPDF = async () => {
   try {
-    const pdf = await generateEmailReceiptPDF()
+    const pdf = await generateReceiptPDF()
 
     const filename =
       `PolChat-Reservation-${reservation?.reservation_id || 'Receipt'}.pdf`
@@ -201,7 +201,7 @@ if (
     emailedReceiptRef.current = reservationId
     localStorage.setItem(emailKey, 'sending')
 
-      const pdf = await generateReceiptPDF()
+      const pdf = await generateEmailReceiptPDF()
       const pdfDataUri = pdf.output('datauristring')
       const pdfBase64 = pdfDataUri.split(',')[1]
 

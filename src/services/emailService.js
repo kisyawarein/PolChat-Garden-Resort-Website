@@ -122,7 +122,14 @@ if (!targetEmail) {
 
 // Do not send a second confirmation email after booking/payment.
 // BookingReceipt already sends the official receipt email with PDF.
-if (String(newStatus).toLowerCase() !== 'confirmed') {
+const normalizedStatus = String(newStatus).toLowerCase()
+
+const isConfirmationStatus =
+  normalizedStatus === 'confirmed' ||
+  normalizedStatus === 'approved' ||
+  normalizedStatus === 'accepted'
+
+if (!isConfirmationStatus) {
   try {
     fetch('/api/send-email', {
       method: 'POST',
