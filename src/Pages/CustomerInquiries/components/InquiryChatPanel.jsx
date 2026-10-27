@@ -9,13 +9,45 @@ function InquiryChatPanel({
   const [chats, setChats] = useState([])
   const [replyText, setReplyText] = useState('')
 
-  useEffect(() => {
-    if (inquiry) {
-      DataService.getChats(inquiry.inquiry_id).then((data) => {
-        setChats(data || [])
-      })
+// Load chats and keep the currently selected inquiry updated
+useEffect(() => {
+  let isMounted = true
+  let chatInterval = null
+
+  const loadChats = async () => {
+    if (!inquiry) {
+      if (isMounted) {
+        setChats([])
+      }
+      return
     }
-  }, [inquiry])
+
+    try {
+      const data = await DataService.getChats(inquiry.inquiry_id)
+
+      if (isMounted) {
+        setChats(data || [])
+      }
+    } catch (error) {
+      console.error('Failed to refresh admin inquiry chats:', error)
+    }
+  }
+
+  // Load immediately when an inquiry is selected
+  loadChats()
+
+  // Check for new customer/admin messages automatically
+  chatInterval = setInterval(loadChats, 2000)
+
+  return () => {
+    isMounted = false
+
+    if (chatInterval) {
+      clearInterval(chatInterval)
+    }
+  }
+}, [inquiry?.inquiry_id])
+
 
   if (!inquiry) {
     return (

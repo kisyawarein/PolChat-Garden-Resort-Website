@@ -142,10 +142,12 @@ function AuthModal({ onAdminLoggedIn }) {
       return
     }
 
-    if (!cleanEmail.includes('@') || !cleanEmail.includes('.')) {
-      setErrorMsg('Please enter a valid email address.')
-      return
-    }
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/
+
+if (!emailPattern.test(cleanEmail)) {
+  setErrorMsg('Please enter a valid email address, for example: name@gmail.com')
+  return
+}
 
     if (signupPassword.length < 6) {
       setErrorMsg('Password must be at least 6 characters.')
@@ -524,11 +526,11 @@ function AuthModal({ onAdminLoggedIn }) {
                   <div className="auth-field-group">
                     <label className="auth-label">Birthday</label>
                     <input
-                      type="date"
-                      className="auth-input-line"
-                      value={birthday}
-                      onChange={(e) => setBirthday(e.target.value)}
-                    />
+                    type="date"
+                     value={birthday}
+                     max={new Date().toISOString().split('T')[0]}
+                    onChange={(e) => setBirthday(e.target.value)}
+                      />
                   </div>
 
                   <div className="auth-field-group">

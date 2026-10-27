@@ -70,56 +70,41 @@ useEffect(() => {
     let isMounted = true
 
     const loadInquiries = async () => {
-      const allInquiries = await DataService.getInquiries()
-      if (!isMounted) return
+  const allInquiries = await DataService.getInquiries()
+  if (!isMounted) return
 
-      if (isAuthenticated && user) {
-        const userInqs = allInquiries.filter((i) => {
-          const idMatch = user.id && Number(i.customer_id) === Number(user.id)
-          const nameMatch = user.name && i.customer_name?.toLowerCase() === user.name.toLowerCase()
-          const usernameMatch = user.username && i.customer_name?.toLowerCase() === user.username.toLowerCase()
-          const emailMatch = user.email && i.customer_email && i.customer_email.trim().toLowerCase() === user.email.trim().toLowerCase()
-          return idMatch || nameMatch || usernameMatch || emailMatch
-        })
+  if (isAuthenticated && user) {
+    const userInqs = allInquiries.filter((i) => {
+      const idMatch =
+        user.id && Number(i.customer_id) === Number(user.id)
 
-        setCustomerInquiries(userInqs)
-        if (userInqs.length > 0) {
-          setActiveInquiry((prev) => {
-            if (prev && userInqs.some((q) => q.inquiry_id === prev.inquiry_id)) {
-              return prev
-            }
-            return userInqs[0]
-          })
-        } else {
-          setActiveInquiry(null)
-          setActiveChats([])
+      return idMatch
+    })
+
+    setCustomerInquiries(userInqs)
+
+    if (userInqs.length > 0) {
+      setActiveInquiry((prev) => {
+        if (
+          prev &&
+          userInqs.some((q) => q.inquiry_id === prev.inquiry_id)
+        ) {
+          return prev
         }
-      } else if (!isAuthenticated && guestEmail.trim()) {
-  const normalizedGuestEmail = guestEmail.trim().toLowerCase()
 
-  const emailInqs = allInquiries.filter(
-    (i) =>
-      i.guest_email &&
-      i.guest_email.trim().toLowerCase() === normalizedGuestEmail
-  )
-        setCustomerInquiries(emailInqs)
-        if (emailInqs.length > 0) {
-          setActiveInquiry((prev) => {
-            if (prev && emailInqs.some((q) => q.inquiry_id === prev.inquiry_id)) {
-              return prev
-            }
-            return emailInqs[0]
-          })
-        } else {
-          setActiveInquiry(null)
-          setActiveChats([])
-        }
-      } else {
-        setCustomerInquiries([])
-        setActiveInquiry(null)
-        setActiveChats([])
-      }
+        return userInqs[0]
+      })
+    } else {
+      setActiveInquiry(null)
+      setActiveChats([])
     }
+  } else {
+    // Guests must not retrieve inquiry history using only an email address.
+    setCustomerInquiries([])
+    setActiveInquiry(null)
+    setActiveChats([])
+  }
+}
 
     loadInquiries()
 
@@ -128,22 +113,46 @@ useEffect(() => {
     }
   }, [user, isAuthenticated, guestEmail])
 
-  // Load active chats when activeInquiry changes
-  useEffect(() => {
-    let isMounted = true
-    if (activeInquiry) {
-      DataService.getChats(activeInquiry.inquiry_id).then((chats) => {
-        if (isMounted) {
-          setActiveChats(chats || [])
-        }
-      })
-    } else {
-      setActiveChats([])
+// Load active chats and keep the current inquiry updated
+useEffect(() => {
+  let isMounted = true
+  let chatInterval = null
+
+  const loadChats = async () => {
+    if (!activeInquiry) {
+      if (isMounted) {
+        setActiveChats([])
+      }
+      return
     }
-    return () => {
-      isMounted = false
+
+    try {
+      const chats = await DataService.getChats(
+        activeInquiry.inquiry_id
+      )
+
+      if (isMounted) {
+        setActiveChats(chats || [])
+      }
+    } catch (error) {
+      console.error('Failed to refresh inquiry chats:', error)
     }
-  }, [activeInquiry])
+  }
+
+  // Load immediately
+  loadChats()
+
+  // Then automatically check for new messages
+  chatInterval = setInterval(loadChats, 2000)
+
+  return () => {
+    isMounted = false
+
+    if (chatInterval) {
+      clearInterval(chatInterval)
+    }
+  }
+}, [activeInquiry?.inquiry_id])
 
   // Submit Inquiry (Logged in or Guest with email) - Optimistic
   const handleCreateInquirySubmit = async (e) => {
@@ -287,13 +296,15 @@ useEffect(() => {
                   <div className="support-form-field">
                     <label className="support-field-label">Your Email Address *</label>
                     <input
-                      type="email"
-                      className="support-field-input"
-                      placeholder="e.g. yourname@email.com"
-                      value={guestEmail}
-                      onChange={(e) => setGuestEmail(e.target.value)}
-                      required
-                    />
+                    type="email"
+                    className="support-field-input"
+                    placeholder="e.g. yourname@email.com"
+                    value={guestEmail}
+                    onChange={(e) => setGuestEmail(e.target.value)}
+                    pattern="^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$"
+                     title="Please enter a valid email address, for example: name@gmail.com"
+                        required
+                      />
                     <span className="support-field-hint">We'll use this email to send you responses.</span>
                     {guestEmailRegistered && (
   <div className="support-inquiry-email-warning">

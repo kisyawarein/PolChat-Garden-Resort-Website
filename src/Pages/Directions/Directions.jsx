@@ -40,7 +40,9 @@ function Directions() {
 
               <div className="directions-meta-item">
                 <span className="directions-meta-label">Official Email</span>
-                <a href="mailto:polchat2k20@gmail.com" className="directions-meta-value">polchat2k20@gmail.com</a>
+  <span className="directions-meta-value">
+    polchat2k20@gmail.com
+  </span>
               </div>
               <div className="directions-meta-item">
                 <span className="directions-meta-label">Visiting / Ocular Hours</span>

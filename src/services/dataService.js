@@ -882,7 +882,7 @@ return {
     } catch (err) {
       console.error('Assign admin responder exception:', err)
     }
-    return this.getInquiries()
+   return this.getInquiries({ force: true })
   },
 
   async updateInquiryStatus(inquiryId, status) {
@@ -902,7 +902,7 @@ return {
     } catch (err) {
       console.error('Update inquiry status exception:', err)
     }
-    return this.getInquiries()
+    return this.getInquiries({ force: true })
   },
 
   async getChats(inquiryId) {
@@ -1449,10 +1449,10 @@ return {
       // 1. Cache checkout locally
       try {
 
-              // Verify that the reservation has reached its checkout date and time
-      const { data: reservation, error: reservationError } = await supabase
-        .from('resort_reservations')
-        .select('reservation_id, end_date, is_checked_out')
+       // Verify the reservation exists and has not already been checked out
+          const { data: reservation, error: reservationError } = await supabase
+       .from('resort_reservations')
+        .select('reservation_id, is_checked_out')
         .eq('reservation_id', reservationId)
         .maybeSingle()
 
@@ -1461,24 +1461,7 @@ return {
         return null
       }
 
-      if (!reservation?.end_date) {
-        console.error('Checkout blocked: reservation end date is missing.')
-        return null
-      }
-
-      const reservationEnd = new Date(reservation.end_date)
-
-      if (
-        Number.isNaN(reservationEnd.getTime()) ||
-        new Date() < reservationEnd
-      ) {
-        console.warn(
-          'Checkout blocked: checkout is only available at the end of the stay.'
-        )
-        return null
-      }
-
-      if (reservation.is_checked_out) {
+      if (reservation?.is_checked_out) {
         console.warn('Checkout blocked: reservation is already checked out.')
         return null
       }

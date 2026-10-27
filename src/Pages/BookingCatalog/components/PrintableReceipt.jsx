@@ -8,23 +8,97 @@ function PrintableReceipt({ item, onClose }) {
   const handlePrint = () => {
     window.print()
   }
+const handleViewPaymentProof = () => {
+  const proofUrl = item?.payment_proof_url
 
-  const handleDownloadPDF = async () => {
+  if (!proofUrl) {
+    console.warn('No payment proof available.')
+    return
+  }
+
   try {
-    const receiptElement = document.getElementById('printable-sheet')
+    // Open the tab immediately during the click event
+    const proofWindow = window.open('', '_blank')
 
-    if (!receiptElement) {
-      console.error('Receipt element not found.')
+    if (!proofWindow) {
+      console.error('Payment proof popup was blocked.')
       return
     }
 
-    const canvas = await html2canvas(receiptElement, {
+    proofWindow.document.title = 'Payment Proof'
+
+    // Hosted image URLs can open normally
+    if (!proofUrl.startsWith('data:')) {
+      proofWindow.opener = null
+      proofWindow.location.href = proofUrl
+      return
+    }
+
+    // Display Base64 payment proof directly in the new tab
+    proofWindow.document.body.style.margin = '0'
+    proofWindow.document.body.style.width = '100vw'
+    proofWindow.document.body.style.height = '100vh'
+    proofWindow.document.body.style.background = '#222'
+    proofWindow.document.body.style.display = 'flex'
+    proofWindow.document.body.style.alignItems = 'center'
+    proofWindow.document.body.style.justifyContent = 'center'
+    proofWindow.document.body.style.overflow = 'auto'
+
+    const proofImage = proofWindow.document.createElement('img')
+
+    proofImage.alt = 'Payment Proof'
+    proofImage.style.display = 'block'
+    proofImage.style.maxWidth = '100%'
+    proofImage.style.maxHeight = '100%'
+    proofImage.style.objectFit = 'contain'
+    proofImage.src = proofUrl
+
+    proofWindow.document.body.appendChild(proofImage)
+    proofWindow.document.close()
+  } catch (error) {
+    console.error('Failed to open payment proof:', error)
+  }
+}
+  const handleDownloadPDF = async () => {
+  const receiptElement = document.getElementById('printable-sheet')
+  const footerElement = receiptElement?.querySelector('.receipt-footer')
+
+  if (!receiptElement || !footerElement) {
+    console.error('Receipt or receipt footer element not found.')
+    return
+  }
+
+  const originalFooterDisplay = footerElement.style.display
+
+  try {
+    /*
+     * Capture the complete reminder and signature footer first.
+     * This will be placed intact on its own PDF page.
+     */
+    const footerCanvas = await html2canvas(footerElement, {
       scale: 2,
       useCORS: true,
       backgroundColor: '#ffffff',
+      logging: false,
     })
 
-    const imageData = canvas.toDataURL('image/png')
+    /*
+     * Temporarily remove the footer so the main receipt is captured
+     * without a partial copy of the reminders.
+     */
+    footerElement.style.display = 'none'
+
+    const mainCanvas = await html2canvas(receiptElement, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: '#ffffff',
+      logging: false,
+    })
+
+    /*
+     * Restore the footer immediately after both captures are complete.
+     */
+    footerElement.style.display = originalFooterDisplay
 
     const pdf = new jsPDF({
       orientation: 'portrait',
@@ -37,48 +111,89 @@ function PrintableReceipt({ item, onClose }) {
 
     const margin = 10
     const usableWidth = pageWidth - margin * 2
+    const usableHeight = pageHeight - margin * 2
 
-    const imageWidth = usableWidth
-    const imageHeight =
-      (canvas.height * imageWidth) / canvas.width
+    /*
+     * Add the main receipt content.
+     */
+    const mainImageData = mainCanvas.toDataURL('image/png')
+    const mainImageWidth = usableWidth
+    const mainImageHeight =
+      (mainCanvas.height * mainImageWidth) / mainCanvas.width
 
-    let heightLeft = imageHeight
-    let position = margin
+    let mainHeightLeft = mainImageHeight
+    let mainPosition = margin
 
     pdf.addImage(
-      imageData,
+      mainImageData,
       'PNG',
       margin,
-      position,
-      imageWidth,
-      imageHeight
+      mainPosition,
+      mainImageWidth,
+      mainImageHeight
     )
 
-    heightLeft -= pageHeight - margin * 2
+    mainHeightLeft -= usableHeight
 
-    while (heightLeft > 0) {
+    while (mainHeightLeft > 0) {
       pdf.addPage()
 
-      position =
-        margin - (imageHeight - heightLeft)
+      mainPosition =
+        margin - (mainImageHeight - mainHeightLeft)
 
       pdf.addImage(
-        imageData,
+        mainImageData,
         'PNG',
         margin,
-        position,
-        imageWidth,
-        imageHeight
+        mainPosition,
+        mainImageWidth,
+        mainImageHeight
       )
 
-      heightLeft -= pageHeight - margin * 2
+      mainHeightLeft -= usableHeight
     }
+
+    /*
+     * Start a fresh page for the complete reminders and signatures.
+     */
+    pdf.addPage()
+
+    const footerImageData = footerCanvas.toDataURL('image/png')
+
+    let footerImageWidth = usableWidth
+    let footerImageHeight =
+      (footerCanvas.height * footerImageWidth) / footerCanvas.width
+
+    /*
+     * Safety fallback in case the footer ever becomes taller than one page.
+     */
+    if (footerImageHeight > usableHeight) {
+      const scaleRatio = usableHeight / footerImageHeight
+      footerImageWidth *= scaleRatio
+      footerImageHeight *= scaleRatio
+    }
+
+    const footerX = (pageWidth - footerImageWidth) / 2
+
+    pdf.addImage(
+      footerImageData,
+      'PNG',
+      footerX,
+      margin,
+      footerImageWidth,
+      footerImageHeight
+    )
 
     pdf.save(
       `PolChat-Receipt-${item.reservation_id}.pdf`
     )
   } catch (error) {
     console.error('Failed to generate receipt PDF:', error)
+  } finally {
+    /*
+     * Ensure the footer is always restored, even if PDF generation fails.
+     */
+    footerElement.style.display = originalFooterDisplay
   }
 }
 
@@ -278,14 +393,22 @@ function PrintableReceipt({ item, onClose }) {
                 <span className="receipt-meta-label">Payment Proof:</span>
                 <span className="receipt-meta-val">
                   {item.payment_proof_url ? (
-                    <a
-                      href={item.payment_proof_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{ color: '#43593B', textDecoration: 'underline', fontWeight: '700' }}
-                    >
-                      View Screenshot ↗
-                    </a>
+                    <button
+  type="button"
+  onClick={handleViewPaymentProof}
+  style={{
+    background: 'none',
+    border: 'none',
+    padding: 0,
+    color: '#43593B',
+    textDecoration: 'underline',
+    fontWeight: '700',
+    cursor: 'pointer',
+    font: 'inherit',
+  }}
+>
+  View Screenshot ↗
+</button>
                   ) : (
                     item.payment_reference || 'GCash Verified'
                   )}

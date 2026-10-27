@@ -222,12 +222,43 @@ setUserVisitations(filteredVisitations)
       </div>
     )
   }
+const handleOpenFullImage = () => {
+  if (!selectedPhotoUrl) return
 
+  const imageWindow = window.open('', '_blank')
+
+  if (!imageWindow) {
+    console.error('Payment proof window was blocked.')
+    return
+  }
+
+  imageWindow.document.title = 'Payment Proof'
+  imageWindow.document.body.style.margin = '0'
+  imageWindow.document.body.style.background = '#222'
+  imageWindow.document.body.style.width = '100vw'
+  imageWindow.document.body.style.height = '100vh'
+  imageWindow.document.body.style.display = 'flex'
+  imageWindow.document.body.style.alignItems = 'center'
+  imageWindow.document.body.style.justifyContent = 'center'
+
+  const img = imageWindow.document.createElement('img')
+
+  img.src = selectedPhotoUrl
+  img.alt = 'Payment Proof'
+  img.style.maxWidth = '100%'
+  img.style.maxHeight = '100%'
+  img.style.objectFit = 'contain'
+
+  imageWindow.document.body.appendChild(img)
+}
   return (
     <div className="my-reservations-page">
       {/* Top Overview Summary Cards */}
       <div className="catalog-top-summary-wrap">
-        <MyReservationSummaryCards reservations={userReservations} />
+      <MyReservationSummaryCards
+  reservations={userReservations}
+  visitations={userVisitations}
+/>
       </div>
 
       {/* Main 2-Column Dashboard Layout (Left: Current Active Card with Switcher, Right: Past Reservations Table) */}
@@ -406,14 +437,14 @@ setUserVisitations(filteredVisitations)
               </div>
             </div>
             <div className="modal-card-footer modal-photo-footer">
-              <a
-                href={selectedPhotoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="modal-open-tab-link"
-              >
-                Open Full Image ↗
-              </a>
+            <button
+  type="button"
+  className="modal-open-tab-link"
+  onClick={handleOpenFullImage}
+>
+  Open Full Image ↗
+</button>
+
               <button
                 type="button"
                 className="modal-close-btn"
