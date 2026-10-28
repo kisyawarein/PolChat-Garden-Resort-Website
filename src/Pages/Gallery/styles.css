@@ -1,88 +1,161 @@
+/* =========================================================
+   POLCHAT GARDEN RESORT
+   GALLERY
+   ========================================================= */
+
 .gallery-page {
   width: 100%;
   margin: 0;
   padding: 0;
 }
 
-/* ==========================================================================
-   Section 1: Hero Background Picture
-   ========================================================================== */
+
+/* =========================================================
+   HERO
+   ========================================================= */
+
 .gallery-section-1 {
   position: relative;
+
   width: 100%;
   min-height: 650px;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   overflow: hidden;
-  background-color: var(--color-bark-dark, #3f2d20);
+
+  background-color:
+    var(--color-bark-dark, #3f2d20);
+
+  box-shadow:
+    0 12px 35px rgba(40, 30, 20, 0.12);
 }
 
 .gallery-hero-image {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
+
   width: 100%;
   height: 100%;
+
   object-fit: cover;
+
   z-index: 1;
+
+  transform: scale(1.01);
 }
 
 .gallery-hero-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
+
   width: 100%;
   height: 100%;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.15) 100%);
+
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.32) 0%,
+      rgba(0, 0, 0, 0.12) 55%,
+      rgba(0, 0, 0, 0.22) 100%
+    );
+
   z-index: 2;
 }
 
-/* ==========================================================================
-   Section 2: Title, Information Text & Staggered Brick Grid
-   ========================================================================== */
+
+/* =========================================================
+   GALLERY SECTION
+   ========================================================= */
+
 .gallery-section-2 {
   width: 100%;
   min-height: 100vh;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   padding: 80px 24px 120px;
-  background-color: var(--color-sand-light, #fbf3dc);
+
+  box-sizing: border-box;
+
+  background:
+    radial-gradient(
+      circle at top center,
+      rgba(124, 206, 23, 0.045),
+      transparent 32%
+    ),
+    var(--color-sand-light, #fbf3dc);
 }
 
 .gallery-section-2-container {
   width: 100%;
   max-width: 1380px;
+
   display: flex;
   flex-direction: column;
   align-items: center;
+
   gap: 50px;
 }
 
-/* Header with Huge Title and Info Grid */
+
+/* =========================================================
+   HEADER
+   ========================================================= */
+
 .gallery-header {
   display: flex;
   flex-direction: column;
   align-items: center;
+
   text-align: center;
+
   gap: 20px;
 }
 
 .gallery-title {
+  position: relative;
+
+  margin: 0;
+
   font-size: 3.5rem;
   font-weight: 900;
-  color: var(--color-forest, #43593B);
-  margin: 0;
+
+  color:
+    var(--color-forest, #43593B);
+
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
+.gallery-title::after {
+  content: '';
+
+  display: block;
+
+  width: 52px;
+  height: 3px;
+
+  margin: 14px auto 0;
+
+  border-radius: 999px;
+
+  background-color:
+    var(--color-lime, #7CCE17);
+}
+
 .gallery-info-grid {
   display: flex;
+
   align-items: center;
   justify-content: center;
+
   gap: 48px;
+
   flex-wrap: wrap;
 }
 
@@ -90,46 +163,62 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+
   gap: 4px;
 }
 
 .gallery-info-text {
   font-size: 0.95rem;
   font-weight: 800;
-  color: var(--color-bark, #58402E);
+
+  color:
+    var(--color-bark, #58402E);
+
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
 
-/* Staggered Brick Pattern Grid */
+
+/* =========================================================
+   PHOTO GRID
+   ========================================================= */
+
 .gallery-grid {
   width: 100%;
+
   display: flex;
   flex-direction: column;
-  gap: 16px;
+
+  gap: 18px;
 }
 
 .gallery-row {
   width: 100%;
+
   display: grid;
-  gap: 16px;
+
+  gap: 18px;
+
   box-sizing: border-box;
 }
 
-/* Specific column layouts */
 .gallery-row-1cols {
   grid-template-columns: 1fr;
 }
 
 .gallery-row-2cols {
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
 }
 
 .gallery-row-3cols {
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
 }
 
-/* Height variations for brick appearance */
+
+/* Gallery Row Heights */
+
 .gallery-row-height-large {
   height: 460px;
 }
@@ -142,94 +231,248 @@
   height: 290px;
 }
 
-/* Picture Card Base Styling - Plain Image */
+
+/* =========================================================
+   PHOTO CARD
+   ========================================================= */
+
 .gallery-picture-card {
   position: relative;
+
   width: 100%;
   height: 100%;
-  border-radius: 12px;
+
+  border:
+    1px solid rgba(67, 89, 59, 0.18);
+
+  border-radius: 18px;
+
   overflow: hidden;
   box-sizing: border-box;
+
   cursor: pointer;
+
   background-color: #1e1e1e;
-  border: 2px solid var(--color-bark, #58402E);
-  box-shadow: 0 4px 14px rgba(88, 64, 46, 0.08);
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+
+  box-shadow:
+    0 8px 24px rgba(67, 89, 59, 0.08),
+    0 2px 6px rgba(88, 64, 46, 0.05);
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease,
+    border-color 0.3s ease;
+}
+
+
+/* Soft photo overlay */
+
+.gallery-picture-card::after {
+  content: '';
+
+  position: absolute;
+
+  inset: 0;
+
+  pointer-events: none;
+
+  background:
+    linear-gradient(
+      to top,
+      rgba(30, 40, 22, 0.16),
+      transparent 42%
+    );
+
+  opacity: 0;
+
+  transition:
+    opacity 0.3s ease;
 }
 
 .gallery-picture-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--color-lime, #7CCE17);
-  box-shadow: 0 12px 28px rgba(67, 89, 59, 0.25);
+  transform: translateY(-6px);
+
+  border-color:
+    rgba(124, 206, 23, 0.65);
+
+  box-shadow:
+    0 18px 42px rgba(67, 89, 59, 0.18),
+    0 5px 12px rgba(88, 64, 46, 0.07);
+}
+
+.gallery-picture-card:hover::after {
+  opacity: 1;
 }
 
 .gallery-photo-img {
+  display: block;
+
   width: 100%;
   height: 100%;
+
   object-fit: cover;
-  transition: transform 0.4s ease;
-  display: block;
+
+  transition:
+    transform 0.55s ease,
+    filter 0.35s ease;
 }
 
-.gallery-picture-card:hover .gallery-photo-img {
-  transform: scale(1.04);
+.gallery-picture-card:hover
+.gallery-photo-img {
+  transform: scale(1.045);
+
+  filter:
+    saturate(1.04)
+    contrast(1.02);
 }
 
-/* ==========================================================================
-   Gallery Modal with Navigation Arrows
-   ========================================================================== */
+
+/* =========================================================
+   GALLERY MODAL
+   ========================================================= */
+
 .gallery-modal-backdrop {
   position: fixed;
+
   inset: 0;
-  background: rgba(18, 14, 10, 0.92);
-  backdrop-filter: blur(8px);
+
   z-index: 9999;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   padding: 20px;
-  animation: galleryModalFadeIn 0.2s ease;
+
   box-sizing: border-box;
+
+  background:
+    rgba(18, 14, 10, 0.92);
+
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  animation:
+    galleryModalFadeIn 0.22s ease;
 }
 
 @keyframes galleryModalFadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 .gallery-modal-container {
   position: relative;
+
   max-width: 92vw;
   max-height: 92vh;
+
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+
   box-sizing: border-box;
 }
 
-.gallery-modal-close-btn {
-  position: fixed;
-  top: 24px;
-  right: 24px;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  border: 1px solid rgba(242, 209, 126, 0.3);
-  background: rgba(88, 64, 46, 0.85);
-  color: #ffffff;
-  cursor: pointer;
-  z-index: 10001;
+
+/* =========================================================
+   MODAL IMAGE
+   ========================================================= */
+
+.gallery-modal-image-wrapper {
+  position: relative;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background-color 0.2s ease, transform 0.2s ease, border-color 0.2s ease;
+
+  max-width: 90vw;
+  max-height: 85vh;
+
+  box-sizing: border-box;
+}
+
+.gallery-modal-image {
+  display: block;
+
+  width: auto;
+  height: auto;
+
+  max-width: 90vw;
+  max-height: 85vh;
+
+  object-fit: contain;
+
+  border:
+    1px solid rgba(255, 255, 255, 0.12);
+
+  border-radius: 16px;
+
+  box-shadow:
+    0 28px 70px rgba(0, 0, 0, 0.65);
+
+  user-select: none;
+}
+
+
+/* =========================================================
+   MODAL CLOSE BUTTON
+   ========================================================= */
+
+.gallery-modal-close-btn {
+  position: fixed;
+
+  top: 24px;
+  right: 24px;
+
+  width: 44px;
+  height: 44px;
+
+  z-index: 10001;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border:
+    1px solid rgba(242, 209, 126, 0.30);
+
+  border-radius: 50%;
+
+  background:
+    rgba(88, 64, 46, 0.84);
+
+  color: #ffffff;
+
+  cursor: pointer;
+
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.25);
+
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease,
+    border-color 0.2s ease;
 }
 
 .gallery-modal-close-btn:hover {
-  background-color: var(--color-lime, #7CCE17);
+  background-color:
+    var(--color-lime, #7CCE17);
+
   color: #1e2816;
-  border-color: var(--color-lime, #7CCE17);
+
+  border-color:
+    var(--color-lime, #7CCE17);
+
   transform: scale(1.08);
 }
 
@@ -238,68 +481,103 @@
   height: 20px;
 }
 
+
+/* =========================================================
+   MODAL COUNTER
+   ========================================================= */
+
 .gallery-modal-counter {
   position: fixed;
+
   top: 28px;
   left: 28px;
+
+  z-index: 10001;
+
+  padding: 7px 14px;
+
+  border:
+    1px solid rgba(242, 209, 126, 0.25);
+
+  border-radius: 999px;
+
+  background:
+    rgba(67, 89, 59, 0.84);
+
+  color:
+    var(--color-sand, #F2D17E);
+
   font-size: 0.88rem;
   font-weight: 700;
+
   letter-spacing: 0.06em;
-  color: var(--color-sand, #F2D17E);
-  background: rgba(67, 89, 59, 0.85);
-  border: 1px solid rgba(242, 209, 126, 0.25);
-  padding: 6px 14px;
-  border-radius: 20px;
-  z-index: 10001;
+
+  box-shadow:
+    0 6px 20px rgba(0, 0, 0, 0.22);
+
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
-.gallery-modal-image-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  max-width: 90vw;
-  max-height: 85vh;
-  box-sizing: border-box;
-}
 
-.gallery-modal-image {
-  max-width: 90vw;
-  max-height: 85vh;
-  width: auto;
-  height: auto;
-  object-fit: contain;
-  border-radius: 8px;
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
-  user-select: none;
-  display: block;
-}
+/* =========================================================
+   MODAL NAVIGATION
+   ========================================================= */
 
-/* Navigation Arrow Buttons */
 .gallery-modal-nav-btn {
   position: fixed;
+
   top: 50%;
-  transform: translateY(-50%);
+
+  transform:
+    translateY(-50%);
+
   width: 52px;
   height: 52px;
-  border-radius: 50%;
-  border: 1px solid rgba(242, 209, 126, 0.35);
-  background: rgba(67, 89, 59, 0.85);
-  color: #ffffff;
+
+  z-index: 10001;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
+  border:
+    1px solid rgba(242, 209, 126, 0.35);
+
+  border-radius: 50%;
+
+  background:
+    rgba(67, 89, 59, 0.84);
+
+  color: #ffffff;
+
   cursor: pointer;
-  z-index: 10001;
-  transition: background-color 0.2s ease, transform 0.2s ease, border-color 0.2s ease, color 0.2s ease;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.35);
+
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+
+  transition:
+    background-color 0.2s ease,
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .gallery-modal-nav-btn:hover {
-  background-color: var(--color-lime, #7CCE17);
+  background-color:
+    var(--color-lime, #7CCE17);
+
   color: #1e2816;
-  border-color: var(--color-lime, #7CCE17);
-  transform: translateY(-50%) scale(1.1);
+
+  border-color:
+    var(--color-lime, #7CCE17);
+
+  transform:
+    translateY(-50%)
+    scale(1.1);
 }
 
 .gallery-modal-prev-btn {
@@ -315,10 +593,17 @@
   height: 24px;
 }
 
-/* ==========================================================================
-   Responsive Adjustments
-   ========================================================================== */
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
 @media (max-width: 1024px) {
+
+  .gallery-section-1 {
+    min-height: 520px;
+  }
+
   .gallery-title {
     font-size: 2.75rem;
   }
@@ -344,18 +629,49 @@
   }
 }
 
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
 @media (max-width: 768px) {
+
   .gallery-section-1 {
     min-height: 380px;
+  }
+
+  .gallery-section-2 {
+    min-height: auto;
+
+    padding:
+      60px 14px
+      80px;
+  }
+
+  .gallery-section-2-container {
+    gap: 34px;
   }
 
   .gallery-title {
     font-size: 2.25rem;
   }
 
-  .gallery-info-grid {
-    gap: 20px;
+  .gallery-title::after {
+    width: 44px;
   }
+
+  .gallery-info-grid {
+    gap:
+      10px
+      22px;
+  }
+
+  .gallery-info-text {
+    font-size: 0.8rem;
+  }
+
+
+  /* Convert grid to one-column mobile gallery */
 
   .gallery-row-height-large,
   .gallery-row-height-medium,
@@ -368,14 +684,41 @@
     grid-template-columns: 1fr;
   }
 
+  .gallery-grid,
+  .gallery-row {
+    gap: 14px;
+  }
+
   .gallery-picture-card {
-    min-height: 240px;
     height: 260px;
+    min-height: 240px;
+
+    border-radius: 14px;
+  }
+
+
+  /* Disable hover lift on touch-sized layouts */
+
+  .gallery-picture-card:hover {
+    transform: none;
+  }
+
+  .gallery-picture-card:hover
+  .gallery-photo-img {
+    transform: none;
+  }
+
+
+  /* Modal */
+
+  .gallery-modal-backdrop {
+    padding: 10px;
   }
 
   .gallery-modal-close-btn {
     top: 14px;
     right: 14px;
+
     width: 38px;
     height: 38px;
   }
@@ -383,8 +726,10 @@
   .gallery-modal-counter {
     top: 18px;
     left: 14px;
-    font-size: 0.8rem;
+
     padding: 4px 10px;
+
+    font-size: 0.8rem;
   }
 
   .gallery-modal-nav-btn {
@@ -408,5 +753,52 @@
   .gallery-modal-image {
     max-width: 95vw;
     max-height: 78vh;
+
+    border-radius: 12px;
+  }
+}
+
+
+/* =========================================================
+   VERY SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+  .gallery-section-2 {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .gallery-title {
+    font-size: 2rem;
+  }
+
+  .gallery-picture-card {
+    height: 240px;
+  }
+
+  .gallery-modal-nav-btn {
+    width: 38px;
+    height: 38px;
+  }
+}
+
+
+/* =========================================================
+   REDUCED MOTION ACCESSIBILITY
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .gallery-picture-card,
+  .gallery-photo-img,
+  .gallery-modal-close-btn,
+  .gallery-modal-nav-btn {
+    transition: none;
+  }
+
+  .gallery-modal-backdrop {
+    animation: none;
   }
 }

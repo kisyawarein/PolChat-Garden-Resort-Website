@@ -1,127 +1,217 @@
+/* =========================================================
+   POLCHAT GARDEN RESORT
+   FACILITIES PAGE
+   ========================================================= */
+
 .facilities-page {
   width: 100%;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
 
-/* ==========================================================================
-   Section 1: Hero Video Section
-   ========================================================================== */
+
+/* =========================================================
+   HERO
+   ========================================================= */
+
 .facilities-section-1 {
   position: relative;
+
   width: 100%;
-  min-height: 105vh;
+  min-height: 100vh;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   overflow: hidden;
+
+  box-shadow:
+    0 12px 35px rgba(40, 30, 20, 0.12);
 }
 
 .facilities-hero-video {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
+
   width: 100%;
   height: 100%;
+
   object-fit: cover;
+
   z-index: 1;
+
+  transform: scale(1.01);
 }
 
 .facilities-hero-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
+
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.45);
+
+  background:
+    linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.28) 0%,
+      rgba(0, 0, 0, 0.38) 55%,
+      rgba(0, 0, 0, 0.58) 100%
+    );
+
   z-index: 2;
 }
 
 .facilities-hero-content {
   position: relative;
+
   z-index: 3;
+
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+
   gap: 20px;
+
   text-align: center;
+
   padding: 24px;
 }
 
 .facilities-hero-title {
-  font-family: 'Pacifico', cursive;
-  font-size: 4rem;
-  font-weight: 200;
-  color: #ffffff;
   margin: 0;
+
+  font-family: 'Pacifico', cursive;
+
+  font-size: clamp(2.3rem, 5vw, 4rem);
+  font-weight: 200;
+
+  color: #ffffff;
+
   letter-spacing: 0.05em;
-  text-transform: none;
-  text-shadow: 0 3px 12px rgba(0, 0, 0, 0.6);
+
+  text-shadow:
+    0 4px 18px rgba(0, 0, 0, 0.65),
+    0 1px 2px rgba(0, 0, 0, 0.35);
 }
 
 .facilities-hero-info-row {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 40px;
+
+  gap: 32px;
+
   flex-wrap: wrap;
 }
 
 .facilities-hero-info-item {
-  font-size: 1.15rem;
+  font-family: 'Lora', serif;
+
+  font-size: 1.1rem;
   font-weight: 800;
-  color: var(--color-sand, #F2D17E);
+
+  color:
+    var(--color-sand, #F2D17E);
+
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+
+  text-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.7);
 }
 
-/* ==========================================================================
-   Section 2: Text Layout, 3 Pictures, Description & 6 Nav Buttons
-   ========================================================================== */
+
+/* =========================================================
+   FACILITIES INTRODUCTION
+   ========================================================= */
+
 .facilities-section-2 {
   width: 100%;
-  min-height: 90vh;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 80px 24px;
-  background-color: var(--color-sand-light, #fbf3dc);
-  border-bottom: 1px dashed rgba(88, 64, 46, 0.15);
+
+  padding: 90px 24px;
+
+  box-sizing: border-box;
+
+  background:
+    radial-gradient(
+      circle at top center,
+      rgba(124, 206, 23, 0.04),
+      transparent 34%
+    ),
+    var(--color-sand-light, #fbf3dc);
+
+  border-bottom:
+    1px solid rgba(88, 64, 46, 0.08);
 }
 
 .facilities-section-2-container {
   width: 100%;
   max-width: 1380px;
+
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 48px;
+
+  gap: 44px;
 }
 
 .facilities-section-2-header {
   display: flex;
   flex-direction: column;
   align-items: center;
+
+  max-width: 850px;
+
   text-align: center;
-  gap: 16px;
+
+  gap: 14px;
 }
 
 .facilities-section-2-title {
-  font-size: 2.5rem;
-  font-weight: 900;
-  color: var(--color-forest, #43593B);
+  position: relative;
+
   margin: 0;
-  letter-spacing: -0.01em;
+
+  font-size: clamp(2rem, 4vw, 2.7rem);
+  font-weight: 900;
+
+  color:
+    var(--color-forest, #43593B);
+
+  letter-spacing: 0.02em;
   text-transform: uppercase;
+}
+
+.facilities-section-2-title::after {
+  content: '';
+
+  display: block;
+
+  width: 50px;
+  height: 3px;
+
+  margin: 14px auto 0;
+
+  border-radius: 999px;
+
+  background-color:
+    var(--color-lime, #7CCE17);
 }
 
 .facilities-section-2-info-grid {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 48px;
+
+  gap: 40px;
+
   flex-wrap: wrap;
 }
 
@@ -129,162 +219,297 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+
   gap: 4px;
 }
 
 .facilities-section-2-info-text {
   font-family: 'Lora', serif;
-  font-size: 1.3rem;
+
+  font-size: 1.1rem;
   font-weight: 550;
-  color: var(--color-bark, #58402E);
-  letter-spacing: 0.03em;
-  text-transform: none;
+  line-height: 1.7;
+
+  color:
+    var(--color-bark, #58402E);
+
+  letter-spacing: 0.02em;
 }
 
+
+/* =========================================================
+   INTRODUCTION IMAGE CARDS
+   ========================================================= */
+
 .facilities-section-2-pictures-row {
+  width: 100%;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 28px;
-  width: 100%;
+
+  gap: 24px;
+
   flex-wrap: wrap;
 }
 
 .facilities-section-2-picture-card {
   flex: 1;
+
   min-width: 280px;
   max-width: 420px;
-  height: 270px;
-  background-color: #eadfae;
-  border: 2px solid var(--color-bark, #58402E);
-  border-radius: 8px;
+
+  height: 280px;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 16px rgba(88, 64, 46, 0.08);
+
   overflow: hidden;
+
+  background-color: #eadfae;
+
+  border:
+    1px solid rgba(67, 89, 59, 0.18);
+
+  border-radius: 18px;
+
+  box-shadow:
+    0 8px 24px rgba(67, 89, 59, 0.09),
+    0 2px 6px rgba(88, 64, 46, 0.04);
+
+  transition:
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.6s ease;
+}
+
+.facilities-section-2-picture-card:hover {
+  transform: translateY(-4px);
+
+  border-color:
+    rgba(124, 206, 23, 0.55);
+
+  box-shadow:
+    0 18px 42px rgba(67, 89, 59, 0.15);
 }
 
 .facilities-image {
   display: block;
+
   width: 100%;
   height: 100%;
+
   object-fit: cover;
+
+  transform: scale(1);
+
+  transition:
+    transform 1.4s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 1.2s ease;
+}
+
+.facilities-section-2-picture-card:hover
+.facilities-image,
+.facilities-section-4-picture-box:hover
+.facilities-image {
+  transform: scale(1.018);
+
+  filter:
+    saturate(1.025)
+    contrast(1.01);
 }
 
 .facilities-section-2-picture-label {
   font-size: 1.8rem;
   font-weight: 800;
-  color: var(--color-bark, #58402E);
+
+  color:
+    var(--color-bark, #58402E);
+
   opacity: 0.75;
+
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
 .facilities-section-2-description {
   max-width: 900px;
-  font-family: 'Lora', serif;
-  font-size: 1.3rem;
-  font-weight: 550;
-  line-height: 1.8;
-  color: var(--color-bark, #58402E);
-  text-transform: none;
-  text-align: center;
+
   margin: 0;
+
+  font-family: 'Lora', serif;
+
+  font-size: 1.1rem;
+  font-weight: 550;
+  line-height: 1.85;
+
+  color:
+    var(--color-bark, #58402E);
+
+  text-align: center;
 }
 
+
+/* =========================================================
+   FACILITY NAVIGATION BUTTONS
+   ========================================================= */
+
 .facilities-section-2-buttons-row {
+  width: 100%;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 16px;
+
+  gap: 12px;
+
   flex-wrap: wrap;
-  width: 100%;
 }
 
 .facilities-section-2-btn {
-  background-color: var(--color-forest, #43593B);
+  padding: 11px 22px;
+
+  border:
+    1px solid var(--color-forest, #43593B);
+
+  border-radius: 999px;
+
+  background-color:
+    var(--color-forest, #43593B);
+
   color: #ffffff;
-  border: 2px solid var(--color-forest, #43593B);
-  padding: 12px 24px;
-  border-radius: 9999px;
-  font-size: 0.95rem;
+
+  font-size: 0.88rem;
   font-weight: 800;
-  cursor: pointer;
+
   letter-spacing: 0.04em;
   text-transform: uppercase;
-  transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-  box-shadow: 0 4px 12px rgba(67, 89, 59, 0.2);
+
+  cursor: pointer;
+
+  box-shadow:
+    0 5px 14px rgba(67, 89, 59, 0.15);
+
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.35s ease;
 }
 
 .facilities-section-2-btn:hover {
-  background-color: var(--color-bark, #58402E);
-  border-color: var(--color-sand, #F2D17E);
+  background-color:
+    var(--color-bark, #58402E);
+
+  border-color:
+    var(--color-bark, #58402E);
+
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(88, 64, 46, 0.3);
+
+  box-shadow:
+    0 9px 22px rgba(88, 64, 46, 0.20);
 }
 
 .facilities-section-2-btn:active {
   transform: translateY(0);
 }
 
-/* ==========================================================================
-   Section 3: Full-width Background Picture Section
-   ========================================================================== */
+
+/* =========================================================
+   FULL-WIDTH FEATURE IMAGE
+   ========================================================= */
+
 .facilities-section-3 {
   width: 100%;
   min-height: 450px;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-sage-light, #f1f2e8);
-  border-bottom: 1px dashed rgba(67, 89, 59, 0.15);
+
+  overflow: hidden;
+
+  background-color:
+    var(--color-sage-light, #f1f2e8);
+
+  border-bottom:
+    1px solid rgba(67, 89, 59, 0.08);
 }
 
 .facilities-section-3-picture-box {
   width: 100%;
   height: 450px;
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   overflow: hidden;
+}
+
+.facilities-section-3-picture-box
+.facilities-image {
+  transition:
+    transform 2s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.facilities-section-3-picture-box:hover
+.facilities-image {
+  transform: scale(1.012);
 }
 
 .facilities-section-3-picture-label {
   font-size: 3rem;
   font-weight: 900;
-  color: var(--color-forest, #43593B);
+
+  color:
+    var(--color-forest, #43593B);
+
   opacity: 0.6;
+
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
-/* ==========================================================================
-   Section 4: 6 Large Pictures with Titles for Facilities
-   ========================================================================== */
+
+/* =========================================================
+   INDIVIDUAL FACILITIES
+   ========================================================= */
+
 .facilities-section-4 {
   width: 100%;
-  min-height: 100vh;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 90px 24px 110px;
-  background-color: var(--color-forest-light, #edf2eb);
+
+  padding: 100px 24px 120px;
+
+  box-sizing: border-box;
+
+  background-color:
+    var(--color-forest-light, #edf2eb);
 }
 
 .facilities-section-4-container {
   width: 100%;
-  max-width: 1380px;
+  max-width: 1280px;
+
   display: flex;
   flex-direction: column;
-  gap: 90px;
+
+  gap: 100px;
 }
 
 .facilities-section-4-facility-card {
   width: 100%;
+
   display: flex;
   flex-direction: column;
-  gap: 20px;
+
+  gap: 22px;
+
   scroll-margin-top: 100px;
 }
 
@@ -292,88 +517,193 @@
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 6px;
+
+  gap: 7px;
+
+  max-width: 900px;
 }
 
 .facilities-section-4-number {
-  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+
+  font-size: 0.82rem;
   font-weight: 800;
-  color: var(--color-lime, #7CCE17);
-  letter-spacing: 0.1em;
+
+  color:
+    var(--color-lime, #7CCE17);
+
+  letter-spacing: 0.14em;
   text-transform: uppercase;
 }
 
 .facilities-section-4-title {
-  font-size: 2.25rem;
-  font-weight: 900;
-  color: var(--color-forest, #43593B);
+  position: relative;
+
   margin: 0;
+
+  font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+  font-weight: 900;
+
+  color:
+    var(--color-forest, #43593B);
+
   letter-spacing: -0.01em;
   text-transform: uppercase;
 }
 
-.facilities-section-4-subtitle {
-  font-family: 'Lora', serif;
-  font-size: 1.3rem;
-  font-weight: 550;
-  color: var(--color-bark, #58402E);
-  margin: 0;
-  line-height: 1.6;
-  text-transform: none;
+.facilities-section-4-title::after {
+  content: '';
+
+  display: block;
+
+  width: 42px;
+  height: 3px;
+
+  margin-top: 10px;
+
+  border-radius: 999px;
+
+  background-color:
+    var(--color-lime, #7CCE17);
 }
+
+.facilities-section-4-subtitle {
+  max-width: 800px;
+
+  margin: 0;
+
+  font-family: 'Lora', serif;
+
+  font-size: 1.08rem;
+  font-weight: 550;
+  line-height: 1.7;
+
+  color:
+    var(--color-bark, #58402E);
+}
+
+
+/* =========================================================
+   INDIVIDUAL FACILITY IMAGES
+   ========================================================= */
 
 .facilities-section-4-picture-box {
   width: 100%;
-  height: clamp(280px, 40vw, 480px);
+
+  height:
+    clamp(320px, 42vw, 520px);
+
   min-height: 0;
-  background-color: #dce5da;
-  border: 2px solid var(--color-forest, #43593B);
-  border-radius: 12px;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 6px 24px rgba(67, 89, 59, 0.08);
+
   overflow: hidden;
+
+  background-color: #dce5da;
+
+  border:
+    1px solid rgba(67, 89, 59, 0.20);
+
+  border-radius: 20px;
+
+  box-shadow:
+    0 12px 34px rgba(67, 89, 59, 0.10);
+
+  transition:
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.6s ease;
+}
+
+.facilities-section-4-picture-box:hover {
+  transform: translateY(-4px);
+
+  border-color:
+    rgba(67, 89, 59, 0.35);
+
+  box-shadow:
+    0 20px 48px rgba(67, 89, 59, 0.15);
 }
 
 .facilities-section-4-picture-label {
   font-size: 2.5rem;
   font-weight: 800;
-  color: var(--color-forest, #43593B);
+
+  color:
+    var(--color-forest, #43593B);
+
   opacity: 0.7;
+
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
 
-/* ==========================================================================
-   Responsive Adjustments
-   ========================================================================== */
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
 @media (max-width: 1024px) {
+
+  .facilities-section-1 {
+    min-height: 90vh;
+  }
+
   .facilities-section-2-pictures-row {
     gap: 20px;
   }
 
   .facilities-section-2-picture-card {
     max-width: 100%;
-    height: 240px;
+    height: 250px;
+  }
+
+  .facilities-section-4-container {
+    gap: 80px;
   }
 
   .facilities-section-4-picture-box {
-    min-height: 380px;
+    height: 420px;
   }
 }
 
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
 @media (max-width: 768px) {
+
+  /* Hero */
+
+  .facilities-section-1 {
+    min-height: 78vh;
+  }
+
   .facilities-hero-title {
-    font-size: 1.85rem;
+    font-size: 2rem;
   }
 
   .facilities-hero-info-row {
-    gap: 20px;
+    gap: 18px;
   }
 
   .facilities-hero-info-item {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
+  }
+
+
+  /* Intro */
+
+  .facilities-section-2 {
+    padding: 60px 14px;
+  }
+
+  .facilities-section-2-container {
+    gap: 32px;
   }
 
   .facilities-section-2-title {
@@ -381,11 +711,26 @@
   }
 
   .facilities-section-2-info-grid {
-    gap: 20px;
+    gap: 18px;
+  }
+
+  .facilities-section-2-info-text {
+    font-size: 1rem;
+  }
+
+  .facilities-section-2-pictures-row {
+    gap: 16px;
   }
 
   .facilities-section-2-picture-card {
-    height: 200px;
+    flex-basis: 100%;
+
+    min-width: 0;
+    max-width: 100%;
+
+    height: 240px;
+
+    border-radius: 14px;
   }
 
   .facilities-section-2-picture-label {
@@ -393,47 +738,145 @@
   }
 
   .facilities-section-2-description {
-    font-size: 0.98rem;
+    font-size: 1rem;
+    line-height: 1.7;
   }
 
+
+  /* Buttons */
+
   .facilities-section-2-buttons-row {
-    gap: 10px;
+    gap: 9px;
   }
 
   .facilities-section-2-btn {
-    padding: 10px 18px;
-    font-size: 0.85rem;
+    padding: 9px 15px;
+
+    font-size: 0.78rem;
+  }
+
+
+  /* Feature image */
+
+  .facilities-section-3,
+  .facilities-section-3-picture-box {
+    min-height: 320px;
+    height: 320px;
   }
 
   .facilities-section-3-picture-label {
-    font-size: 2rem;
+    font-size: 1.8rem;
+  }
+
+
+  /* Facility list */
+
+  .facilities-section-4 {
+    padding: 70px 14px 85px;
+  }
+
+  .facilities-section-4-container {
+    gap: 65px;
+  }
+
+  .facilities-section-4-facility-card {
+    gap: 18px;
   }
 
   .facilities-section-4-title {
     font-size: 1.75rem;
   }
 
+  .facilities-section-4-subtitle {
+    font-size: 1rem;
+  }
+
   .facilities-section-4-picture-box {
-    min-height: 280px;
+    height: 300px;
+
+    border-radius: 14px;
   }
 
   .facilities-section-4-picture-label {
     font-size: 1.6rem;
   }
+
+
+  /* Avoid desktop lifting on touch layouts */
+
+  .facilities-section-2-picture-card:hover,
+  .facilities-section-4-picture-box:hover {
+    transform: none;
+  }
 }
 
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
 @media (max-width: 480px) {
+
+  .facilities-section-1 {
+    min-height: 72vh;
+  }
+
   .facilities-hero-info-row {
     flex-direction: column;
+
     gap: 8px;
   }
 
+  .facilities-section-2 {
+    padding:
+      50px 12px;
+  }
+
+  .facilities-section-2-picture-card {
+    height: 220px;
+  }
+
+  .facilities-section-2-btn {
+    padding:
+      8px 13px;
+
+    font-size: 0.74rem;
+  }
+
+  .facilities-section-3,
   .facilities-section-3-picture-box {
-    min-height: 300px;
+    min-height: 280px;
+    height: 280px;
   }
 
   .facilities-section-3-picture-label {
     font-size: 1.45rem;
+
     text-align: center;
+  }
+
+  .facilities-section-4 {
+    padding:
+      60px 12px
+      70px;
+  }
+
+  .facilities-section-4-picture-box {
+    height: 260px;
+  }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .facilities-image,
+  .facilities-section-2-picture-card,
+  .facilities-section-2-btn,
+  .facilities-section-4-picture-box {
+    transition: none;
   }
 }

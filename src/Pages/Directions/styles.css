@@ -1,260 +1,680 @@
+/* =========================================================
+   POLCHAT GARDEN RESORT
+   DIRECTIONS PAGE
+   ========================================================= */
+
 .directions-page {
   width: 100%;
   margin: 0;
   padding: 0;
+  overflow-x: hidden;
 }
 
-/* ==========================================================================
-   Section 1: Video Background with Hero Title
-   ========================================================================== */
+
+/* =========================================================
+   HERO
+   ========================================================= */
+
 .directions-section-1 {
   position: relative;
+
   width: 100%;
   min-height: 60vh;
+
   display: flex;
   align-items: flex-end;
   justify-content: center;
+
   overflow: hidden;
+
   padding-bottom: 50px;
+
+  box-shadow:
+    0 12px 35px rgba(40, 30, 20, 0.12);
 }
 
 .directions-hero-video {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
+
   width: 100%;
   height: 100%;
+
   object-fit: cover;
+
   z-index: 1;
+
+  transform: scale(1.01);
 }
 
 .directions-hero-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
+  inset: 0;
+
   width: 100%;
   height: 100%;
-  background: linear-gradient(to top, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.35) 50%, rgba(0, 0, 0, 0.5) 100%);
+
+  background:
+    linear-gradient(
+      to top,
+      rgba(0, 0, 0, 0.72) 0%,
+      rgba(0, 0, 0, 0.32) 52%,
+      rgba(0, 0, 0, 0.46) 100%
+    );
+
   z-index: 2;
 }
 
 .directions-hero-content {
   position: relative;
+
   z-index: 3;
+
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+
   text-align: center;
+
   padding: 0 24px;
 }
 
 .directions-hero-subtitle {
-  font-size: 0.95rem;
+  margin: 0 0 8px;
+
+  font-size: 0.85rem;
   font-weight: 800;
-  letter-spacing: 0.15em;
-  color: var(--color-lime, #7CCE17);
+
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  margin: 0 0 6px 0;
-  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.7);
+
+  color:
+    var(--color-lime, #7CCE17);
+
+  text-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.75);
 }
 
 .directions-hero-title {
-  font-family: 'Pacifico', cursive;
-  font-size: 4rem;
-  font-weight: 200;
-  color: #ffffff;
   margin: 0;
+
+  font-family: 'Pacifico', cursive;
+
+  font-size: clamp(2.3rem, 5vw, 4rem);
+  font-weight: 200;
+
+  color: #ffffff;
+
   letter-spacing: 0.05em;
-  text-transform: none;
-  text-shadow: 0 3px 12px rgba(0, 0, 0, 0.6);
+
+  text-shadow:
+    0 4px 18px rgba(0, 0, 0, 0.65),
+    0 1px 2px rgba(0, 0, 0, 0.35);
 }
 
-/* ==========================================================================
-   Section 2: Address Info Card & Embedded Google Maps Section
-   ========================================================================== */
+
+/* =========================================================
+   LOCATION SECTION
+   ========================================================= */
+
 .directions-section-2 {
   width: 100%;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 60px 24px 90px;
-  background-color: var(--color-forest-light, #edf2eb);
+
+  padding: 72px 24px 100px;
+
+  box-sizing: border-box;
+
+  background:
+    radial-gradient(
+      circle at top center,
+      rgba(124, 206, 23, 0.045),
+      transparent 36%
+    ),
+    var(--color-forest-light, #edf2eb);
 }
 
 .directions-section-2-container {
   width: 100%;
   max-width: 1200px;
+
   display: flex;
   flex-direction: column;
-  gap: 32px;
+
+  gap: 30px;
 }
 
-/* Address Information Card */
+
+/* =========================================================
+   LOCATION INFORMATION CARD
+   ========================================================= */
+
 .directions-info-card {
-  background: #ffffff;
-  border-radius: 16px;
-  border: 1px solid rgba(172, 173, 121, 0.4);
-  box-shadow: 0 10px 30px rgba(67, 89, 59, 0.1);
-  padding: 32px;
+  position: relative;
+
   display: flex;
   flex-direction: column;
+
   gap: 24px;
+
+  padding: 34px;
+
+  overflow: hidden;
+
+  background:
+    rgba(255, 255, 255, 0.96);
+
+  border:
+    1px solid rgba(67, 89, 59, 0.12);
+
+  border-radius: 20px;
+
+  box-shadow:
+    0 14px 40px rgba(67, 89, 59, 0.10),
+    0 3px 8px rgba(88, 64, 46, 0.04);
+
+  transition:
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
+
+
+/* Subtle accent line */
+
+.directions-info-card::before {
+  content: '';
+
+  position: absolute;
+
+  top: 0;
+  left: 32px;
+  right: 32px;
+
+  height: 3px;
+
+  border-radius: 0 0 999px 999px;
+
+  background:
+    linear-gradient(
+      90deg,
+      var(--color-forest, #43593B),
+      var(--color-lime, #7CCE17)
+    );
+
+  opacity: 0.9;
+}
+
+.directions-info-card:hover {
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 20px 48px rgba(67, 89, 59, 0.13),
+    0 4px 10px rgba(88, 64, 46, 0.05);
+}
+
+
+/* =========================================================
+   LOCATION HEADER
+   ========================================================= */
 
 .directions-pin-badge {
   display: inline-flex;
   align-items: center;
-  background: rgba(124, 206, 23, 0.15);
-  color: var(--color-forest, #43593B);
-  font-size: 0.8rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  padding: 4px 12px;
-  border-radius: 6px;
+
+  width: fit-content;
+
   margin-bottom: 8px;
+
+  padding: 5px 12px;
+
+  border:
+    1px solid rgba(124, 206, 23, 0.18);
+
+  border-radius: 999px;
+
+  background:
+    rgba(124, 206, 23, 0.11);
+
+  color:
+    var(--color-forest, #43593B);
+
+  font-size: 0.76rem;
+  font-weight: 800;
+
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
 }
 
 .directions-location-name {
-  font-size: 1.85rem;
+  position: relative;
+
+  margin: 0 0 8px;
+
+  font-size: clamp(1.55rem, 3vw, 1.95rem);
   font-weight: 900;
-  color: var(--color-forest, #43593B);
-  margin: 0 0 6px 0;
+
+  color:
+    var(--color-forest, #43593B);
+
+  letter-spacing: -0.01em;
 }
 
 .directions-full-address {
-  font-size: 1.15rem;
-  font-weight: 600;
-  color: var(--color-bark, #58402E);
   margin: 0;
+
+  max-width: 820px;
+
+  font-family: 'Lora', serif;
+
+  font-size: 1.05rem;
+  font-weight: 550;
+  line-height: 1.7;
+
+  color:
+    var(--color-bark, #58402E);
 }
+
+
+/* =========================================================
+   QUICK INFORMATION
+   ========================================================= */
 
 .directions-quick-meta {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 16px;
+
+  grid-template-columns:
+    repeat(
+      auto-fit,
+      minmax(220px, 1fr)
+    );
+
+  gap: 14px;
+
   padding: 20px;
-  background: #fbfbf7;
-  border-radius: 12px;
-  border: 1px solid rgba(172, 173, 121, 0.3);
+
+  background:
+    linear-gradient(
+      145deg,
+      #fbfbf7,
+      #f7f8f2
+    );
+
+  border:
+    1px solid rgba(172, 173, 121, 0.24);
+
+  border-radius: 14px;
 }
 
 .directions-meta-item {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+
+  gap: 5px;
+
+  padding: 6px 4px;
 }
 
 .directions-meta-label {
-  font-size: 0.78rem;
-  font-weight: 700;
+  font-size: 0.72rem;
+  font-weight: 800;
+
   text-transform: uppercase;
+
   color: #777777;
-  letter-spacing: 0.05em;
+
+  letter-spacing: 0.07em;
 }
 
 .directions-meta-value {
-  font-size: 0.98rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  color: var(--color-forest, #43593B);
+
+  color:
+    var(--color-forest, #43593B);
+
   text-decoration: none;
+
+  transition:
+    color 0.3s ease;
 }
 
 .directions-meta-value:hover {
-  color: var(--color-lime, #7CCE17);
+  color:
+    var(--color-lime, #7CCE17);
 }
+
+
+/* =========================================================
+   CALL TO ACTION BUTTONS
+   ========================================================= */
 
 .directions-cta-row {
   display: flex;
+
   flex-wrap: wrap;
-  gap: 14px;
+
+  gap: 12px;
 }
 
-.directions-maps-cta {
+.directions-maps-cta,
+.directions-copy-btn {
+  min-height: 44px;
+
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: var(--color-forest, #43593B);
-  color: #ffffff;
-  padding: 12px 24px;
+
+  padding: 10px 22px;
+
   border-radius: 999px;
+
+  font-size: 0.9rem;
   font-weight: 700;
-  font-size: 0.95rem;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.35s ease,
+    border-color 0.35s ease,
+    color 0.35s ease,
+    box-shadow 0.45s ease;
+}
+
+
+/* Google Maps */
+
+.directions-maps-cta {
+  border:
+    1px solid var(--color-forest, #43593B);
+
+  background:
+    var(--color-forest, #43593B);
+
+  color: #ffffff;
+
   text-decoration: none;
-  transition: all 0.25s ease;
+
+  box-shadow:
+    0 5px 14px rgba(67, 89, 59, 0.15);
 }
 
 .directions-maps-cta:hover {
-  background: var(--color-bark, #58402E);
+  background:
+    var(--color-bark, #58402E);
+
+  border-color:
+    var(--color-bark, #58402E);
+
   transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(67, 89, 59, 0.25);
+
+  box-shadow:
+    0 10px 24px rgba(88, 64, 46, 0.20);
 }
 
+
+/* Copy Address */
+
 .directions-copy-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: #ffffff;
-  color: var(--color-forest, #43593B);
-  border: 1.5px solid var(--color-forest, #43593B);
-  padding: 12px 22px;
-  border-radius: 999px;
-  font-weight: 700;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
+  border:
+    1px solid rgba(67, 89, 59, 0.70);
+
+  background:
+    rgba(255, 255, 255, 0.85);
+
+  color:
+    var(--color-forest, #43593B);
 }
 
 .directions-copy-btn:hover {
-  background: rgba(124, 206, 23, 0.15);
-  border-color: var(--color-lime, #7CCE17);
+  background:
+    rgba(124, 206, 23, 0.10);
+
+  border-color:
+    var(--color-lime, #7CCE17);
+
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 8px 20px rgba(67, 89, 59, 0.10);
 }
 
-/* Embedded Google Maps Container */
+.directions-maps-cta:active,
+.directions-copy-btn:active {
+  transform: translateY(0);
+}
+
+
+/* =========================================================
+   GOOGLE MAP
+   ========================================================= */
+
 .directions-map-wrapper {
+  position: relative;
+
   width: 100%;
   height: 560px;
-  background-color: #dce5da;
-  border: 2px solid var(--color-forest, #43593B);
-  border-radius: 16px;
+
   overflow: hidden;
-  box-shadow: 0 10px 32px rgba(67, 89, 59, 0.14);
+
+  background-color: #dce5da;
+
+  border:
+    1px solid rgba(67, 89, 59, 0.20);
+
+  border-radius: 20px;
+
+  box-shadow:
+    0 14px 40px rgba(67, 89, 59, 0.12);
+
+  transition:
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.directions-map-wrapper:hover {
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 20px 48px rgba(67, 89, 59, 0.16);
 }
 
 .directions-map-iframe {
+  display: block;
+
   width: 100%;
   height: 100%;
+
   border: 0;
-  display: block;
 }
 
-/* ==========================================================================
-   Responsive Adjustments
-   ========================================================================== */
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
 @media (max-width: 1024px) {
+
+  .directions-section-1 {
+    min-height: 56vh;
+  }
+
   .directions-map-wrapper {
     height: 460px;
   }
 }
 
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
 @media (max-width: 768px) {
-  .directions-hero-title {
-    font-size: 1.85rem;
+
+  .directions-section-1 {
+    min-height: 52vh;
+
+    padding-bottom: 38px;
   }
 
+  .directions-hero-content {
+    padding:
+      0 16px;
+  }
+
+  .directions-hero-subtitle {
+    font-size: 0.72rem;
+
+    letter-spacing: 0.14em;
+  }
+
+  .directions-hero-title {
+    font-size: 2rem;
+  }
+
+
+  /* Location */
+
   .directions-section-2 {
-    padding: 36px 16px 60px;
+    padding:
+      42px 14px
+      65px;
+  }
+
+  .directions-section-2-container {
+    gap: 22px;
   }
 
   .directions-info-card {
-    padding: 20px;
+    padding: 24px 20px;
+
+    border-radius: 16px;
+
+    gap: 20px;
+  }
+
+  .directions-info-card::before {
+    left: 20px;
+    right: 20px;
   }
 
   .directions-location-name {
     font-size: 1.45rem;
   }
 
+  .directions-full-address {
+    font-size: 0.98rem;
+  }
+
+
+  /* Quick info */
+
+  .directions-quick-meta {
+    grid-template-columns: 1fr;
+
+    padding: 16px;
+
+    gap: 8px;
+  }
+
+
+  /* Buttons */
+
+  .directions-cta-row {
+    gap: 10px;
+  }
+
+  .directions-maps-cta,
+  .directions-copy-btn {
+    flex: 1 1 180px;
+
+    padding:
+      10px 16px;
+
+    font-size: 0.85rem;
+  }
+
+
+  /* Map */
+
   .directions-map-wrapper {
     height: 360px;
+
+    border-radius: 16px;
+  }
+
+
+  /* Avoid desktop lift on touch layouts */
+
+  .directions-info-card:hover,
+  .directions-map-wrapper:hover,
+  .directions-maps-cta:hover,
+  .directions-copy-btn:hover {
+    transform: none;
+  }
+}
+
+
+/* =========================================================
+   SMALL MOBILE
+   ========================================================= */
+
+@media (max-width: 480px) {
+
+  .directions-section-1 {
+    min-height: 48vh;
+
+    padding-bottom: 32px;
+  }
+
+  .directions-section-2 {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  .directions-info-card {
+    padding:
+      22px 16px;
+  }
+
+  .directions-pin-badge {
+    font-size: 0.7rem;
+  }
+
+  .directions-cta-row {
+    flex-direction: column;
+  }
+
+  .directions-maps-cta,
+  .directions-copy-btn {
+    width: 100%;
+
+    flex: none;
+
+    box-sizing: border-box;
+  }
+
+  .directions-map-wrapper {
+    height: 320px;
+  }
+}
+
+
+/* =========================================================
+   REDUCED MOTION
+   ========================================================= */
+
+@media (prefers-reduced-motion: reduce) {
+
+  .directions-info-card,
+  .directions-map-wrapper,
+  .directions-maps-cta,
+  .directions-copy-btn,
+  .directions-meta-value {
+    transition: none;
   }
 }
