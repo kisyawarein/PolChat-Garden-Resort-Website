@@ -1228,6 +1228,7 @@ return {
 
       const payload = {
         customer_id: validCustomerId,
+
         guest_count: Number(reservationData.guest_count),
         duration_id: Number(reservationData.duration_id),
         start_date: reservationData.start_date,
@@ -1349,14 +1350,19 @@ return {
       }
 
       // Automatically dispatch email notification to the customer for confirmation or cancellation
-      if (
-        normalizedStatus === 'confirmed' ||
-        normalizedStatus === 'accepted' ||
-        normalizedStatus === 'approved' ||
-        normalizedStatus === 'cancelled' ||
-        normalizedStatus === 'declined' ||
-        normalizedStatus === 'rejected'
-      ) {
+if (
+  normalizedStatus === 'confirmed' ||
+  normalizedStatus === 'accepted' ||
+  normalizedStatus === 'approved' ||
+  normalizedStatus === 'arrived' ||
+  normalizedStatus === 'completed' ||
+  normalizedStatus === 'no_show' ||
+  normalizedStatus === 'did_not_arrive' ||
+  normalizedStatus === 'not_arrived' ||
+  normalizedStatus === 'cancelled' ||
+  normalizedStatus === 'declined' ||
+  normalizedStatus === 'rejected'
+) {
         const cachedRes = (_adminCache.reservations || []).find((r) => r.reservation_id === reservationId)
         const targetRes = data?.[0] || cachedRes || { reservation_id: reservationId, reservation_status: normalizedStatus }
         const customerName = targetRes.customer
@@ -1562,20 +1568,23 @@ return {
     }
   },
 
-  async createVisitation(visitationData) {
-    try {
-      const validCustomerId = await this.ensureCustomer({
-        customerId: visitationData.customer_id,
-        customerName: visitationData.customer_name || 'Customer Account',
-      })
+async createVisitation(visitationData) {
+  try {
+    const validCustomerId = await this.ensureCustomer({
+      customerId: visitationData.customer_id,
+      customerName: visitationData.customer_name || 'Customer Account',
+    })
 
-      const payload = {
-        customer_id: validCustomerId,
-        guest_count: Number(visitationData.guest_count),
-        visitation_start_date: visitationData.visitation_start_date,
-        visitation_end_date: visitationData.visitation_end_date,
-        visitation_status: visitationData.visitation_status || 'pending',
-      }
+    const payload = {
+      customer_id: validCustomerId,
+      customer_email: visitationData.customer_email || null,
+      guest_count: Number(visitationData.guest_count),
+      visitation_start_date: visitationData.visitation_start_date,
+      visitation_end_date: visitationData.visitation_end_date,
+      visitation_status: visitationData.visitation_status || 'pending',
+    }
+
+
 
       const { data, error } = await supabase
         .from('resort_visitations')
@@ -1597,25 +1606,104 @@ return {
     }
   },
 
-  async updateVisitationStatus(visitationId, newStatus) {
-    try {
-      const { error } = await supabase
-        .from('resort_visitations')
-        .update({ visitation_status: newStatus })
-        .eq('visitation_id', visitationId)
+  async updateVisitationStatus(
+  visitationId,
+  newStatus,
+  explicitEmail = null
+) {
+  try {
+    const normalizedStatus = String(newStatus || '')
+      .trim()
+      .toLowerCase()
 
-      if (error) {
-        console.error('Error updating visitation status:', error)
-      }
-      if (_adminCache.visitations) {
-        _adminCache.visitations = _adminCache.visitations.map((v) =>
-          v.visitation_id === visitationId ? { ...v, visitation_status: newStatus } : v
-        )
-      }
-    } catch (err) {
-      console.error('Update visitation status exception:', err)
+    const cachedVisitation =
+      (_adminCache.visitations || []).find(
+        (visitation) =>
+          visitation.visitation_id === visitationId
+      )
+
+    const { data, error } = await supabase
+      .from('resort_visitations')
+      .update({
+        visitation_status: normalizedStatus,
+      })
+      .eq('visitation_id', visitationId)
+      .select('*')
+
+    if (error) {
+      console.error(
+        'Error updating visitation status:',
+        error
+      )
+      return null
     }
-  },
+
+    const updatedVisitation =
+      data?.[0] ||
+      cachedVisitation || {
+        visitation_id: visitationId,
+        visitation_status: normalizedStatus,
+      }
+
+if (
+  normalizedStatus === 'confirmed' ||
+  normalizedStatus === 'approved' ||
+  normalizedStatus === 'accepted' ||
+  normalizedStatus === 'arrived' ||
+  normalizedStatus === 'completed' ||
+  normalizedStatus === 'no_show' ||
+  normalizedStatus === 'did_not_arrive' ||
+  normalizedStatus === 'not_arrived' ||
+  normalizedStatus === 'cancelled' ||
+  normalizedStatus === 'canceled' ||
+  normalizedStatus === 'declined' ||
+  normalizedStatus === 'rejected'
+) {
+      const resolvedEmail =
+        explicitEmail ||
+        updatedVisitation.customer_email ||
+        cachedVisitation?.customer_email ||
+        null
+
+      EmailService.sendVisitationStatusEmail({
+        visitation: {
+          ...updatedVisitation,
+          customer_name:
+            updatedVisitation.customer_name ||
+            cachedVisitation?.customer_name,
+          customer_email: resolvedEmail,
+        },
+        newStatus: normalizedStatus,
+        customerEmail: resolvedEmail,
+      }).catch((emailError) => {
+        console.warn(
+          'Background Ocular cancellation email note:',
+          emailError
+        )
+      })
+    }
+
+    if (_adminCache.visitations) {
+      _adminCache.visitations =
+        _adminCache.visitations.map((visitation) =>
+          visitation.visitation_id === visitationId
+            ? {
+                ...visitation,
+                visitation_status: normalizedStatus,
+              }
+            : visitation
+        )
+    }
+
+    return updatedVisitation
+  } catch (error) {
+    console.error(
+      'Update visitation status exception:',
+      error
+    )
+    return null
+  }
+},
 
   // ==========================================
   // 6. CUSTOMER REVIEWS

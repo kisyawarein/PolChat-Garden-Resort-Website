@@ -219,18 +219,20 @@ const handleUpdateVisitationStatus = async (visitationId, status) => {
     })
   )
 
-  await DataService.updateVisitationStatus(
-    visitationId,
-    normalizedStatus
-  )
+await DataService.updateVisitationStatus(
+  visitationId,
+  normalizedStatus,
+  target.customer_email
+)
 
   if (competingVisitations.length > 0) {
     await Promise.all(
       competingVisitations.map((v) =>
-        DataService.updateVisitationStatus(
-          v.visitation_id,
-          'cancelled'
-        )
+       DataService.updateVisitationStatus(
+  v.visitation_id,
+  'cancelled',
+  v.customer_email
+)
       )
     )
 

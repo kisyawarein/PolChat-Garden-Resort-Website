@@ -260,8 +260,10 @@ function OcularModal({
     const endTime = slot === 'morning' ? `${visitationDate}T11:00:00` : `${visitationDate}T16:00:00`
 
     try {
+
       const newVisit = await DataService.createVisitation({
         customer_id: user?.id || 101,
+        customer_email: user?.email || null,
         guest_count: Number(guestCount) || 2,
         visitation_start_date: startTime,
         visitation_end_date: endTime,

@@ -110,15 +110,86 @@ if (!targetEmail) {
     let subject = ''
     let body = ''
 
-    if (newStatus === 'confirmed' || newStatus === 'approved' || newStatus === 'accepted') {
-      subject = `Reservation Confirmed - PolChat Garden Resort [RES-#${resId}]`
-      body = `Dear ${guestName},\n\nWe are delighted to confirm your reservation at PolChat Garden Resort!\n\n--- BOOKING DETAILS ---\nReservation No: RES-#${resId}\nScheduled Date: ${dateStr}\nGuests: ${reservation.guest_count || 1} Pax\nStatus: CONFIRMED ✓\n\nResort Address: PolChat Garden, 346 Monaco Street Antipolo Calabarzon\nFor inquiries or directions, contact us at 0953 495 4389 or reply to polchat2k20@gmail.com.\n\nWe look forward to welcoming you to our garden oasis!\n\nPolChat Garden Resort Team`
-    } else if (newStatus === 'cancelled' || newStatus === 'declined' || newStatus === 'rejected') {
-      subject = `Reservation Cancelled - PolChat Garden Resort [RES-#${resId}]`
-      body = `Dear ${guestName},\n\nYour reservation RES-#${resId} scheduled for ${dateStr} has been cancelled.\n\nIf this cancellation was in error or if you wish to reschedule your visit, please reach out to our team directly at polchat2k20@gmail.com or call 0953 495 4389.\n\nThank you,\nPolChat Garden Resort Management`
-    } else {
-      return null
-    }
+if (
+  newStatus === 'confirmed' ||
+  newStatus === 'approved' ||
+  newStatus === 'accepted'
+) {
+  subject = `Reservation Confirmed - PolChat Garden Resort [RES-#${resId}]`
+
+  body =
+    `Dear ${guestName},\n\n` +
+    `We are delighted to confirm your reservation at PolChat Garden Resort!\n\n` +
+    `--- RESERVATION DETAILS ---\n` +
+    `Reservation No: RES-#${resId}\n` +
+    `Scheduled Date: ${dateStr}\n` +
+    `Guests: ${reservation.guest_count || 1} Pax\n` +
+    `Status: CONFIRMED\n\n` +
+    `Resort Address: PolChat Garden, 346 Monaco Street Antipolo Calabarzon\n` +
+    `For inquiries or directions, contact us at 0953 495 4389 or reply to polchat2k20@gmail.com.\n\n` +
+    `We look forward to welcoming you to our garden oasis!\n\n` +
+    `PolChat Garden Resort Team`
+} else if (
+  newStatus === 'arrived' ||
+  newStatus === 'completed'
+) {
+  subject =
+    `Welcome to PolChat Garden Resort [RES-#${resId}]`
+
+  body =
+    `Dear ${guestName},\n\n` +
+    `Thank you for arriving for your reservation at PolChat Garden Resort!\n\n` +
+    `--- RESERVATION DETAILS ---\n` +
+    `Reservation No: RES-#${resId}\n` +
+    `Scheduled Date: ${dateStr}\n` +
+    `Guests: ${reservation.guest_count || 1} Pax\n` +
+    `Status: ARRIVED\n\n` +
+    `We hope you and your guests enjoy your stay and have a wonderful time at the resort.\n\n` +
+    `If you need assistance during your stay, please approach our team and we will be happy to help.\n\n` +
+    `Enjoy your stay!\n\n` +
+    `PolChat Garden Resort Team`
+} else if (
+  newStatus === 'no_show' ||
+  newStatus === 'did_not_arrive' ||
+  newStatus === 'not_arrived'
+) {
+  subject =
+    `We Missed You - PolChat Garden Resort [RES-#${resId}]`
+
+  body =
+    `Dear ${guestName},\n\n` +
+    `Our team was expecting you for your reservation at PolChat Garden Resort, but you did not arrive during your scheduled booking.\n\n` +
+    `--- RESERVATION DETAILS ---\n` +
+    `Reservation No: RES-#${resId}\n` +
+    `Scheduled Date: ${dateStr}\n` +
+    `Guests: ${reservation.guest_count || 1} Pax\n` +
+    `Status: NO SHOW\n\n` +
+    `If your plans changed or you were unable to arrive, please contact our team if you need assistance with another booking.\n\n` +
+    `For assistance, contact PolChat Garden Resort at 0953 495 4389 or reply to polchat2k20@gmail.com.\n\n` +
+    `Thank you,\n` +
+    `PolChat Garden Resort Team`
+} else if (
+  newStatus === 'cancelled' ||
+  newStatus === 'declined' ||
+  newStatus === 'rejected'
+) {
+  subject =
+    `Reservation Cancelled - PolChat Garden Resort [RES-#${resId}]`
+
+  body =
+    `Dear ${guestName},\n\n` +
+    `Your reservation RES-#${resId} scheduled for ${dateStr} has been cancelled.\n\n` +
+    `--- RESERVATION DETAILS ---\n` +
+    `Reservation No: RES-#${resId}\n` +
+    `Scheduled Date: ${dateStr}\n` +
+    `Guests: ${reservation.guest_count || 1} Pax\n` +
+    `Status: CANCELLED\n\n` +
+    `If this cancellation was in error or if you wish to reschedule your visit, please reach out to our team at polchat2k20@gmail.com or call 0953 495 4389.\n\n` +
+    `Thank you,\n` +
+    `PolChat Garden Resort Management`
+} else {
+  return null
+}
 
 // Do not send a second confirmation email after booking/payment.
 // BookingReceipt already sends the official receipt email with PDF.
@@ -157,7 +228,266 @@ if (!isConfirmationStatus) {
       status: newStatus,
     })
   },
+async sendVisitationStatusEmail({
+  visitation,
+  newStatus,
+  customerEmail,
+}) {
+  if (!visitation) return null
 
+  const normalizedStatus = String(newStatus || '')
+    .trim()
+    .toLowerCase()
+
+  // Only send Ocular cancellation emails for now.
+const isConfirmed =
+  normalizedStatus === 'confirmed' ||
+  normalizedStatus === 'approved' ||
+  normalizedStatus === 'accepted'
+
+const isCancelled =
+  normalizedStatus === 'cancelled' ||
+  normalizedStatus === 'canceled' ||
+  normalizedStatus === 'declined' ||
+  normalizedStatus === 'rejected'
+
+const isArrived =
+  normalizedStatus === 'arrived' ||
+  normalizedStatus === 'completed'
+
+const isNoShow =
+  normalizedStatus === 'no_show' ||
+  normalizedStatus === 'did_not_arrive' ||
+  normalizedStatus === 'not_arrived'
+
+if (
+  !isConfirmed &&
+  !isCancelled &&
+  !isArrived &&
+  !isNoShow
+) {
+  return null
+}
+
+
+
+  let targetEmail = String(
+    customerEmail ||
+    visitation.customer_email ||
+    visitation.customer?.email ||
+    ''
+  ).trim()
+
+  // Fall back to the locally registered customer account.
+  if (!targetEmail && typeof window !== 'undefined') {
+    try {
+      const registeredUsers = JSON.parse(
+        localStorage.getItem(
+          'polchat_registered_users'
+        ) || '[]'
+      )
+
+      const customerName = String(
+        visitation.customer_name || ''
+      )
+        .trim()
+        .toLowerCase()
+
+      const found = registeredUsers.find((user) => {
+        if (
+          visitation.customer_id &&
+          Number(user.id) ===
+            Number(visitation.customer_id)
+        ) {
+          return true
+        }
+
+        const registeredName = String(
+          user.name ||
+          `${user.first_name || ''} ${
+            user.last_name || ''
+          }`
+        )
+          .trim()
+          .toLowerCase()
+
+        return (
+          registeredName &&
+          customerName &&
+          (
+            registeredName === customerName ||
+            customerName.includes(registeredName) ||
+            registeredName.includes(customerName)
+          )
+        )
+      })
+
+      if (found?.email) {
+        targetEmail = found.email.trim()
+      }
+    } catch (error) {
+      console.warn(
+        'Unable to resolve Ocular customer email:',
+        error
+      )
+    }
+  }
+
+  if (!targetEmail) {
+    console.warn(
+      'Ocular cancellation email skipped: no customer email address found.'
+    )
+    return null
+  }
+
+  const guestName =
+    visitation.customer_name ||
+    visitation.customer?.first_name ||
+    'Valued Guest'
+
+  const visitationId =
+    visitation.visitation_id || 'N/A'
+
+  const dateText = visitation.visitation_start_date
+    ? new Date(
+        visitation.visitation_start_date
+      ).toLocaleDateString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+      })
+    : 'the scheduled date'
+
+  const slotText =
+    visitation.slot_type ||
+    'the selected ocular timeslot'
+
+let subject = ''
+let body = ''
+
+if (isConfirmed) {
+  subject =
+    `Ocular Visit Confirmed - PolChat Garden Resort ` +
+    `[OCULAR-#${visitationId}]`
+
+  body =
+    `Dear ${guestName},\n\n` +
+    `Your ocular visit at PolChat Garden Resort has been confirmed.\n\n` +
+    `--- OCULAR VISIT DETAILS ---\n` +
+    `Ocular Visit No: OCULAR-#${visitationId}\n` +
+    `Scheduled Date: ${dateText}\n` +
+    `Timeslot: ${slotText}\n` +
+    `Visitors: ${visitation.guest_count || 1}\n` +
+    `Status: CONFIRMED\n\n` +
+    `Please arrive during your confirmed schedule.\n\n` +
+    `For assistance, contact PolChat Garden Resort at ` +
+    `0953 495 4389 or reply to polchat2k20@gmail.com.\n\n` +
+    `We look forward to welcoming you!\n\n` +
+    `PolChat Garden Resort Team`
+}
+
+if (isArrived) {
+  subject =
+    `Welcome to PolChat Garden Resort - ` +
+    `[OCULAR-#${visitationId}]`
+
+  body =
+    `Dear ${guestName},\n\n` +
+    `Thank you for arriving for your scheduled ocular visit at PolChat Garden Resort.\n\n` +
+    `--- OCULAR VISIT DETAILS ---\n` +
+    `Ocular Visit No: OCULAR-#${visitationId}\n` +
+    `Scheduled Date: ${dateText}\n` +
+    `Timeslot: ${slotText}\n` +
+    `Visitors: ${visitation.guest_count || 1}\n` +
+    `Status: ARRIVED\n\n` +
+    `We hope you enjoy your visit and have a pleasant time viewing the resort facilities.\n\n` +
+    `If you have questions during your visit, our team will be happy to assist you.\n\n` +
+    `Thank you for visiting PolChat Garden Resort!\n\n` +
+    `PolChat Garden Resort Team`
+}
+
+if (isNoShow) {
+  subject =
+    `We Missed You - PolChat Garden Resort ` +
+    `[OCULAR-#${visitationId}]`
+
+  body =
+    `Dear ${guestName},\n\n` +
+    `Our team was expecting you for your scheduled ocular visit at PolChat Garden Resort, but you did not arrive during your reserved schedule.\n\n` +
+    `--- OCULAR VISIT DETAILS ---\n` +
+    `Ocular Visit No: OCULAR-#${visitationId}\n` +
+    `Scheduled Date: ${dateText}\n` +
+    `Timeslot: ${slotText}\n` +
+    `Visitors: ${visitation.guest_count || 1}\n` +
+    `Status: NO SHOW\n\n` +
+    `If your plans changed, you are welcome to schedule another ocular visit for an available date and timeslot.\n\n` +
+    `For assistance, contact PolChat Garden Resort at ` +
+    `0953 495 4389 or reply to polchat2k20@gmail.com.\n\n` +
+    `Thank you,\n` +
+    `PolChat Garden Resort Team`
+}
+
+if (isCancelled) {
+  subject =
+    `Ocular Visit Cancelled - PolChat Garden Resort ` +
+    `[OCULAR-#${visitationId}]`
+
+  body =
+    `Dear ${guestName},\n\n` +
+    `Your ocular visit OCULAR-#${visitationId}, ` +
+    `scheduled for ${dateText} during ${slotText}, ` +
+    `has been cancelled.\n\n` +
+    `The requested schedule may no longer be available. ` +
+    `You may submit another ocular visit request for a ` +
+    `different date or timeslot.\n\n` +
+    `For assistance, contact PolChat Garden Resort at ` +
+    `0953 495 4389 or reply to polchat2k20@gmail.com.\n\n` +
+    `Thank you,\n` +
+    `PolChat Garden Resort Management`
+}
+
+if (!subject || !subject.trim() || !body || !body.trim()) {
+  console.warn(
+    'Ocular status email blocked because subject/body is empty:',
+    normalizedStatus
+  )
+  return null
+}
+
+  try {
+    fetch('/api/send-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: targetEmail,
+        subject,
+        body,
+      }),
+    }).catch((error) => {
+      console.warn(
+        'Ocular status email network dispatch note:',
+        error
+      )
+    })
+  } catch (error) {
+    console.warn(
+      'Ocular cancellation email dispatch note:',
+      error
+    )
+  }
+
+  return this.logAndDispatch({
+    type: `visitation_${normalizedStatus}`,
+    to: targetEmail,
+    subject,
+    body,
+    visitationId,
+    status: normalizedStatus,
+  })
+},
   /**
    * 3. Send Inquiry Reply Email Notification
    */
