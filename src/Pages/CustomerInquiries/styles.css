@@ -1023,3 +1023,231 @@
   .inq-modal-box { max-height: calc(100dvh - 32px); overflow-y: auto; }
   .inq-chat-meta-tags { overflow-wrap: anywhere; }
 }
+
+/* =========================================================
+   ADMIN INQUIRIES - FIXED HEIGHT HELPDESK LAYOUT
+   ========================================================= */
+
+/* Keep both columns within one manageable screen area */
+.inq-dashboard-layout {
+  align-items: stretch;
+  height: 650px;
+  min-height: 650px;
+}
+
+/* LEFT SIDE - ticket queue */
+.inq-left-column {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  height: 100%;
+}
+
+.inq-queue-header-card {
+  flex-shrink: 0;
+}
+
+.inq-tickets-list-card {
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.inq-tickets-scroll-area {
+  height: 100%;
+  max-height: none !important;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+  padding-right: 5px;
+}
+
+/* RIGHT SIDE - conversation */
+.inq-right-column {
+  min-height: 0;
+  height: 100%;
+}
+
+.inq-chat-panel-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.inq-chat-header-card {
+  flex-shrink: 0;
+}
+
+/* Message card fills remaining height */
+.inq-messages-stream-box {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Only messages scroll */
+.inq-messages-scroll-area {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto !important;
+  overflow-x: hidden;
+}
+
+/* Reply bar always stays visible */
+.inq-reply-bar {
+  flex-shrink: 0;
+  position: relative;
+  bottom: auto;
+
+  background: #ffffff;
+  border-top: 1px solid #e7ded4;
+  padding: 12px;
+  z-index: 5;
+}
+
+/* ADMIN INQUIRIES - SCROLLBARS */
+
+.inq-tickets-scroll-area::-webkit-scrollbar,
+.inq-messages-scroll-area::-webkit-scrollbar {
+  width: 7px;
+}
+
+.inq-tickets-scroll-area::-webkit-scrollbar-track,
+.inq-messages-scroll-area::-webkit-scrollbar-track {
+  background: #f5f2ed;
+}
+
+.inq-tickets-scroll-area::-webkit-scrollbar-thumb,
+.inq-messages-scroll-area::-webkit-scrollbar-thumb {
+  background: #b7aa9c;
+  border-radius: 999px;
+}
+
+.inq-tickets-scroll-area::-webkit-scrollbar-thumb:hover,
+.inq-messages-scroll-area::-webkit-scrollbar-thumb:hover {
+  background: #8d7a69;
+}
+/* =========================================================
+   ADMIN INQUIRIES - FINAL FIXED HELPDESK LAYOUT
+   ========================================================= */
+
+.customer-inquiries-page .inq-dashboard-layout {
+  display: grid !important;
+  grid-template-columns: minmax(320px, 36%) minmax(0, 64%) !important;
+  gap: 16px !important;
+
+  height: 650px !important;
+  min-height: 650px !important;
+  max-height: 650px !important;
+
+  align-items: stretch !important;
+}
+
+/* LEFT: inquiry ticket list */
+.customer-inquiries-page .inq-left-column {
+  display: flex !important;
+  flex-direction: column !important;
+
+  height: 650px !important;
+  min-height: 0 !important;
+  max-height: 650px !important;
+
+  overflow: hidden !important;
+}
+
+.customer-inquiries-page .inq-queue-header-card {
+  flex: 0 0 auto !important;
+}
+
+.customer-inquiries-page .inq-tickets-list-card {
+  flex: 1 1 auto !important;
+  min-height: 0 !important;
+  height: 0 !important;
+
+  overflow: hidden !important;
+}
+
+.customer-inquiries-page .inq-tickets-scroll-area {
+  height: 100% !important;
+  max-height: 100% !important;
+
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+/* RIGHT: selected inquiry */
+.customer-inquiries-page .inq-right-column {
+  height: 650px !important;
+  min-height: 0 !important;
+  max-height: 650px !important;
+
+  overflow: hidden !important;
+}
+
+.customer-inquiries-page .inq-chat-panel-container {
+  display: flex !important;
+  flex-direction: column !important;
+
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
+
+  overflow: hidden !important;
+}
+
+/* Keep ticket/chat header visible */
+.customer-inquiries-page .inq-chat-header-card {
+  flex: 0 0 auto !important;
+}
+
+/* Conversation card fills remaining space */
+.customer-inquiries-page .inq-messages-stream-box {
+  display: flex !important;
+  flex-direction: column !important;
+
+  flex: 1 1 auto !important;
+  height: 0 !important;
+  min-height: 0 !important;
+
+  overflow: hidden !important;
+}
+
+/* ONLY messages scroll */
+.customer-inquiries-page .inq-messages-scroll-area {
+  flex: 1 1 auto !important;
+
+  height: 0 !important;
+  min-height: 0 !important;
+  max-height: none !important;
+
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+
+  padding-bottom: 16px !important;
+}
+
+/* Reply stays visible */
+.customer-inquiries-page .inq-reply-bar {
+  flex: 0 0 auto !important;
+
+  position: relative !important;
+  bottom: auto !important;
+
+  width: 100% !important;
+  box-sizing: border-box !important;
+
+  padding: 12px !important;
+
+  background: #ffffff !important;
+  border-top: 1px solid #e7ded4 !important;
+
+  z-index: 20 !important;
+}
+
+/* Make input use remaining width */
+.customer-inquiries-page .inq-reply-input {
+  min-width: 0 !important;
+  flex: 1 !important;
+}

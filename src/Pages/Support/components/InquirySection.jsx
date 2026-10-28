@@ -159,11 +159,6 @@ useEffect(() => {
   const handleCreateInquirySubmit = async (e) => {
   e.preventDefault()
 
-  if (!isAuthenticated || !user) {
-  openAuthModal('signin')
-  return
-}
-
   setErrorNotice('')
 
   if (!inquiryLabel.trim() || !startingStatement.trim()) {
@@ -326,11 +321,11 @@ useEffect(() => {
       Send Us a Question
     </h3>
 
-    <p className="support-form-card-desc">
-      {isAuthenticated
-        ? `Posting as ${user?.name || user?.username || 'Customer'}`
-        : 'Please sign in to your PolChat account to submit an inquiry and chat with our management staff.'}
-    </p>
+<p className="support-form-card-desc">
+  {isAuthenticated
+    ? `Posting as ${user?.name || user?.username || 'Customer'}`
+    : 'Send us your question as a guest. Enter your name and email so our team can respond to you.'}
+</p>
 
     {successNotice && (
       <div className="support-inquiry-success-box">
@@ -347,27 +342,68 @@ useEffect(() => {
       </div>
     )}
 
-    {!isAuthenticated && (
-      <div
-        className="support-inquiry-email-warning"
-        style={{ marginBottom: '14px' }}
-      >
-        You must be signed in to your PolChat account before you can submit an inquiry.
-      </div>
-    )}
+<form
+  className="support-new-inquiry-form"
+  onSubmit={handleCreateInquirySubmit}
+>
+  
+{!isAuthenticated && (
+  <>
+    <div className="support-form-field">
+      <label className="support-field-label">
+        Your Name *
+      </label>
 
-    <form
-      className="support-new-inquiry-form"
-      onSubmit={(e) => {
-        if (!isAuthenticated) {
-          e.preventDefault()
-          openAuthModal('signin')
-          return
-        }
+      <input
+        type="text"
+        className="support-field-input"
+        placeholder="Enter your full name"
+        value={guestName}
+        onChange={(e) => setGuestName(e.target.value)}
+        required
+      />
+    </div>
 
-        handleCreateInquirySubmit(e)
-      }}
-    >
+    <div className="support-form-field">
+      <label className="support-field-label">
+        Your Email *
+      </label>
+
+      <input
+        type="email"
+        className="support-field-input"
+        placeholder="name@example.com"
+        value={guestEmail}
+        onChange={(e) => {
+          setGuestEmail(e.target.value)
+          setErrorNotice('')
+        }}
+        required
+      />
+
+      {guestEmailRegistered && (
+        <div
+          className="support-inquiry-email-warning"
+          style={{ marginTop: '8px' }}
+        >
+          <div>
+            This email is already registered to a PolChat
+            account. Please sign in to continue using this
+            email.
+          </div>
+
+          <button
+            type="button"
+            className="support-inline-login-btn"
+            onClick={() => openAuthModal('signin')}
+          >
+            Sign In to Account
+          </button>
+        </div>
+      )}
+    </div>
+  </>
+)}
       <div className="support-form-field">
         <label className="support-field-label">
           Inquiry Subject / Topic *
@@ -377,26 +413,8 @@ useEffect(() => {
           type="text"
           className="support-field-input"
           placeholder="e.g. Day Tour Rates, Pavilion Inclusions"
-          value={isAuthenticated ? inquiryLabel : ''}
-          readOnly={!isAuthenticated}
-          onFocus={() => {
-            if (!isAuthenticated) {
-              openAuthModal('signin')
-            }
-          }}
-          onClick={() => {
-            if (!isAuthenticated) {
-              openAuthModal('signin')
-            }
-          }}
-          onChange={(e) => {
-            if (!isAuthenticated) {
-              openAuthModal('signin')
-              return
-            }
-
-            setInquiryLabel(e.target.value)
-          }}
+value={inquiryLabel}
+onChange={(e) => setInquiryLabel(e.target.value)}
           required
         />
       </div>
@@ -410,47 +428,21 @@ useEffect(() => {
           className="support-field-textarea"
           rows="4"
           placeholder="Write your question or request here..."
-          value={isAuthenticated ? startingStatement : ''}
-          readOnly={!isAuthenticated}
-          onFocus={() => {
-            if (!isAuthenticated) {
-              openAuthModal('signin')
-            }
-          }}
-          onClick={() => {
-            if (!isAuthenticated) {
-              openAuthModal('signin')
-            }
-          }}
-          onChange={(e) => {
-            if (!isAuthenticated) {
-              openAuthModal('signin')
-              return
-            }
-
-            setStartingStatement(e.target.value)
-          }}
+value={startingStatement}
+onChange={(e) => setStartingStatement(e.target.value)}
           required
         />
       </div>
 
-      <button
-        type="submit"
-        className="support-submit-inquiry-btn"
-        disabled={isAuthenticated && isSubmitting}
-        onClick={(e) => {
-          if (!isAuthenticated) {
-            e.preventDefault()
-            openAuthModal('signin')
-          }
-        }}
-      >
-        {isSubmitting
-          ? 'Submitting...'
-          : isAuthenticated
-            ? 'Send Inquiry to Resort Admin'
-            : 'Sign In to Submit Inquiry'}
-      </button>
+<button
+  type="submit"
+  className="support-submit-inquiry-btn"
+  disabled={isSubmitting || (!isAuthenticated && guestEmailRegistered)}
+>
+  {isSubmitting
+    ? 'Submitting...'
+    : 'Send Inquiry to Resort Admin'}
+</button>
     </form>
 
     {!isAuthenticated && (
