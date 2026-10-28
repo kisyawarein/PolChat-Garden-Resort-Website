@@ -1,78 +1,235 @@
 import React from 'react'
 
-function ReviewAnalyticsSection({ reviews = [] }) {
-  const totalReviews = reviews.length
+function ReviewAnalyticsSection({
+  reviews = [],
+}) {
+  const safeReviews = Array.isArray(reviews)
+    ? reviews
+    : []
 
-  const star5 = reviews.filter((r) => Number(r.review_stars) === 5).length
-  const star4 = reviews.filter((r) => Number(r.review_stars) === 4).length
-  const star3 = reviews.filter((r) => Number(r.review_stars) === 3).length
-  const star2 = reviews.filter((r) => Number(r.review_stars) === 2).length
-  const star1 = reviews.filter((r) => Number(r.review_stars) === 1).length
+  /*
+   * Only valid ratings from 1 through 5 are included
+   * in rating and sentiment calculations.
+   */
+  const validRatings = safeReviews
+    .map((review) =>
+      Number(review.review_stars)
+    )
+    .filter(
+      (rating) =>
+        Number.isFinite(rating) &&
+        rating >= 1 &&
+        rating <= 5
+    )
+
+  const totalValidReviews =
+    validRatings.length
+
+  /*
+   * Real star distribution
+   */
+  const getStarCount = (stars) =>
+    validRatings.filter(
+      (rating) => rating === stars
+    ).length
 
   const starCounts = [
-    { stars: 5, count: star5, color: '#7CCE17' },
-    { stars: 4, count: star4, color: '#43593B' },
-    { stars: 3, count: star3, color: '#E6BF5C' },
-    { stars: 2, count: star2, color: '#ACAD79' },
-    { stars: 1, count: star1, color: '#58402E' },
+    {
+      stars: 5,
+      count: getStarCount(5),
+      color: '#7CCE17',
+    },
+    {
+      stars: 4,
+      count: getStarCount(4),
+      color: '#43593B',
+    },
+    {
+      stars: 3,
+      count: getStarCount(3),
+      color: '#E6BF5C',
+    },
+    {
+      stars: 2,
+      count: getStarCount(2),
+      color: '#ACAD79',
+    },
+    {
+      stars: 1,
+      count: getStarCount(1),
+      color: '#58402E',
+    },
   ]
 
+  /*
+   * Real average rating
+   */
   const averageRating =
-    totalReviews > 0
-      ? (reviews.reduce((acc, r) => acc + (Number(r.review_stars) || 0), 0) / totalReviews).toFixed(1)
+    totalValidReviews > 0
+      ? (
+          validRatings.reduce(
+            (total, rating) =>
+              total + rating,
+            0
+          ) / totalValidReviews
+        ).toFixed(1)
       : '0.0'
 
-  const positiveReviewsCount = star5 + star4
-  const positivePercentage = totalReviews > 0 ? Math.round((positiveReviewsCount / totalReviews) * 100) : 0
+  /*
+   * Positive feedback is defined here as
+   * ratings of 4 or 5 stars.
+   */
+  const positiveReviewsCount =
+    getStarCount(5) +
+    getStarCount(4)
+
+  const positivePercentage =
+    totalValidReviews > 0
+      ? Math.round(
+          (
+            positiveReviewsCount /
+            totalValidReviews
+          ) * 100
+        )
+      : 0
+
   const sentimentTag =
-    totalReviews === 0
+    totalValidReviews === 0
       ? 'No reviews in selected timeframe'
       : positivePercentage >= 80
-      ? `Excellent (${positivePercentage}% Positive Feedback)`
-      : positivePercentage >= 50
-      ? `Good (${positivePercentage}% Positive Feedback)`
-      : `Needs Attention (${positivePercentage}% Positive Feedback)`
+        ? `Excellent (${positivePercentage}% Positive Feedback)`
+        : positivePercentage >= 50
+          ? `Good (${positivePercentage}% Positive Feedback)`
+          : `Needs Attention (${positivePercentage}% Positive Feedback)`
+
+  /*
+   * Display stars from the actual rounded average.
+   *
+   * Zero reviews = zero stars.
+   * There is no fallback to five stars.
+   */
+  const displayedStars =
+    totalValidReviews > 0
+      ? Math.min(
+          5,
+          Math.max(
+            1,
+            Math.round(
+              Number(averageRating)
+            )
+          )
+        )
+      : 0
 
   return (
     <div className="analytics-section-card">
       <div className="analytics-section-header">
-        <h3 className="analytics-section-title">Customer Reviews & Sentiment Intelligence</h3>
-        <span className="analytics-section-pill">Guest Satisfaction</span>
+        <h3 className="analytics-section-title">
+          Customer Reviews & Sentiment
+          Intelligence
+        </h3>
+
+        <span className="analytics-section-pill">
+          Guest Satisfaction
+        </span>
       </div>
 
       <div className="analytics-grid-two-col">
-        {/* Left: Star Rating Distribution */}
+        {/* Star Rating Distribution */}
+
         <div className="analytics-panel-inner">
           <div className="analytics-inner-heading">
-            <h4>Star Rating Distribution (1 to 5 Stars)</h4>
+            <h4>
+              Star Rating Distribution
+              (1 to 5 Stars)
+            </h4>
           </div>
-          <div className="analytics-stars-breakdown">
-            {starCounts.map((s) => {
-              const pct = totalReviews > 0 ? Math.round((s.count / totalReviews) * 100) : 0
-              return (
-                <div key={s.stars} className="analytics-star-row">
-                  <span className="analytics-star-label">{'★'.repeat(s.stars)}</span>
-                  <div className="analytics-star-track">
-                    <div className="analytics-star-fill" style={{ width: `${pct}%`, backgroundColor: s.color }}></div>
-                  </div>
-                  <span className="analytics-star-count">{s.count} ({pct}%)</span>
-                </div>
-              )
-            })}
-          </div>
+
+          {totalValidReviews > 0 ? (
+            <div className="analytics-stars-breakdown">
+              {starCounts.map(
+                (starItem) => {
+                  const percentage =
+                    Math.round(
+                      (
+                        starItem.count /
+                        totalValidReviews
+                      ) * 100
+                    )
+
+                  return (
+                    <div
+                      key={starItem.stars}
+                      className="analytics-star-row"
+                    >
+                      <span className="analytics-star-label">
+                        {'★'.repeat(
+                          starItem.stars
+                        )}
+                      </span>
+
+                      <div className="analytics-star-track">
+                        <div
+                          className="analytics-star-fill"
+                          style={{
+                            width: `${percentage}%`,
+                            backgroundColor:
+                              starItem.color,
+                          }}
+                        />
+                      </div>
+
+                      <span className="analytics-star-count">
+                        {starItem.count}{' '}
+                        ({percentage}%)
+                      </span>
+                    </div>
+                  )
+                }
+              )}
+            </div>
+          ) : (
+            <div className="analytics-empty-state">
+              No valid guest ratings match
+              the selected timeframe.
+            </div>
+          )}
         </div>
 
-        {/* Right: Net Satisfaction Rating Banner */}
+        {/* Overall Satisfaction */}
+
         <div className="analytics-panel-inner">
           <div className="analytics-inner-heading">
-            <h4>Overall Resort Sentiment Score</h4>
+            <h4>
+              Overall Resort Satisfaction
+            </h4>
           </div>
+
           <div className="analytics-sentiment-box">
-            <div className="analytics-sentiment-score">{averageRating}</div>
-            <div className="analytics-sentiment-stars">{'★'.repeat(Math.max(1, Math.round(Number(averageRating) || 5)))}</div>
-            <div className="analytics-sentiment-tag">{sentimentTag}</div>
+            <div className="analytics-sentiment-score">
+              {averageRating}
+            </div>
+
+            <div className="analytics-sentiment-stars">
+              {displayedStars > 0
+                ? '★'.repeat(
+                    displayedStars
+                  )
+                : 'No rating'}
+            </div>
+
+            <div className="analytics-sentiment-tag">
+              {sentimentTag}
+            </div>
+
             <p className="analytics-sentiment-desc">
-              Based on {totalReviews} verified guest reviews in this timeframe. Day Tour, Overnight, and 22-Hour packages evaluated.
+              Based on{' '}
+              {totalValidReviews}{' '}
+              valid guest{' '}
+              {totalValidReviews === 1
+                ? 'review'
+                : 'reviews'}{' '}
+              in the selected timeframe.
             </p>
           </div>
         </div>

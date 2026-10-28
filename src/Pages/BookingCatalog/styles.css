@@ -3579,3 +3579,1082 @@
   background: #ffffff;
   color: #435f39;
 }
+/* =========================================================
+   POLCHAT ADMIN - MODERN BOOKING CATALOG POLISH
+   Safe visual override layer
+   ========================================================= */
+
+/* ---------------------------------------------------------
+   PAGE
+   --------------------------------------------------------- */
+
+.booking-catalog-page {
+  background:
+    radial-gradient(
+      circle at top right,
+      rgba(124, 206, 23, 0.04),
+      transparent 28%
+    ),
+    #f6f8f5;
+
+  padding: 88px 24px 32px;
+}
+
+
+/* ---------------------------------------------------------
+   MAIN HEADER
+   --------------------------------------------------------- */
+
+.booking-catalog-header-bar {
+  padding: 20px 22px;
+
+  border:
+    1px solid rgba(67, 89, 59, 0.12);
+
+  border-radius: 16px;
+
+  box-shadow:
+    0 10px 28px rgba(67, 89, 59, 0.07);
+
+  background: #ffffff;
+}
+
+.catalog-main-title {
+  color: #43593b;
+
+  font-size: 1.7rem;
+  font-weight: 800;
+
+  letter-spacing: -0.02em;
+}
+
+
+/* ---------------------------------------------------------
+   MAIN VIEW SWITCHER
+   --------------------------------------------------------- */
+
+.catalog-main-mode-switcher {
+  padding: 5px;
+
+  background: #f2f4ef;
+
+  border:
+    1px solid rgba(67, 89, 59, 0.14);
+
+  border-radius: 12px;
+
+  box-shadow:
+    0 3px 10px rgba(67, 89, 59, 0.05);
+}
+
+.catalog-main-mode-btn {
+  border-radius: 8px;
+
+  color: #58402e;
+
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.catalog-main-mode-btn:hover:not(.catalog-main-mode-btn-active) {
+  background: #ffffff;
+
+  border-color:
+    rgba(67, 89, 59, 0.12);
+
+  transform: translateY(-1px);
+}
+
+.catalog-main-mode-btn-active {
+  background: #43593b !important;
+
+  border-color: #43593b !important;
+
+  color: #ffffff !important;
+
+  box-shadow:
+    0 5px 14px rgba(67, 89, 59, 0.18);
+}
+
+.catalog-main-mode-count {
+  background: #c99427;
+
+  box-shadow:
+    0 2px 5px rgba(88, 64, 46, 0.12);
+}
+
+
+/* ---------------------------------------------------------
+   SUMMARY CARDS
+   --------------------------------------------------------- */
+
+.summary-cards-5grid .dash-stat-card {
+  border-radius: 14px;
+
+  box-shadow:
+    0 7px 20px rgba(47, 68, 39, 0.10);
+
+  transition:
+    transform 0.4s ease,
+    box-shadow 0.4s ease;
+}
+
+.summary-cards-5grid .dash-stat-card:hover {
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 13px 28px rgba(47, 68, 39, 0.15);
+}
+
+
+/* ---------------------------------------------------------
+   GENERAL ADMIN PANELS
+   --------------------------------------------------------- */
+
+.catalog-panel-header-card,
+.pending-queue-list-card,
+.consolidated-table-card,
+.booking-analytics-card,
+.calendar-nav-toolbar,
+.calendar-legend-bar,
+.calendar-matrix-card {
+  border:
+    1px solid rgba(67, 89, 59, 0.12);
+
+  border-radius: 15px;
+
+  box-shadow:
+    0 9px 26px rgba(67, 89, 59, 0.065);
+}
+
+
+/* ---------------------------------------------------------
+   PANEL HEADER
+   --------------------------------------------------------- */
+
+.catalog-panel-header-card {
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff,
+      #fafbf8
+    );
+
+  padding-left: 18px;
+  padding-right: 18px;
+}
+
+.catalog-panel-title {
+  color: #43593b;
+
+  font-weight: 800;
+
+  letter-spacing: -0.01em;
+}
+
+
+/* ---------------------------------------------------------
+   SEARCH
+   --------------------------------------------------------- */
+
+.schedule-search-input {
+  background: #ffffff;
+
+  border:
+    1px solid #d4ddd1;
+
+  border-radius: 9px;
+
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease,
+    background-color 0.3s ease;
+}
+
+.schedule-search-input:focus {
+  background: #ffffff;
+
+  border-color: #43593b;
+
+  box-shadow:
+    0 0 0 3px rgba(67, 89, 59, 0.08);
+}
+
+.schedule-search-svg {
+  color: #768c6d;
+}
+
+
+/* ---------------------------------------------------------
+   LIST / CALENDAR SWITCH
+   --------------------------------------------------------- */
+
+.schedule-mode-switcher {
+  background: #f5f7f3;
+
+  border:
+    1px solid #d4ddd1;
+
+  border-radius: 9px;
+}
+
+.schedule-mode-btn {
+  border-radius: 7px;
+
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.schedule-mode-btn-active {
+  background: #43593b;
+
+  color: #ffffff;
+
+  box-shadow:
+    0 4px 10px rgba(67, 89, 59, 0.16);
+}
+
+
+/* ---------------------------------------------------------
+   PRIORITY QUEUE
+   --------------------------------------------------------- */
+
+.pending-count-pill {
+  background: #fff5da;
+
+  color: #75510c;
+
+  border:
+    1px solid rgba(201, 148, 39, 0.35);
+
+  border-radius: 999px;
+}
+
+.pending-queue-list-card {
+  padding: 16px;
+
+  background: #ffffff;
+}
+
+.pending-queue-list {
+  padding: 10px !important;
+
+  scrollbar-width: thin;
+  scrollbar-color: #b8aa9b #f5f2ed;
+}
+
+
+/* ---------------------------------------------------------
+   MODERN PENDING CARDS
+   --------------------------------------------------------- */
+
+.pending-modern-card,
+.pending-item-card {
+  position: relative;
+
+  background: #ffffff;
+
+  border:
+    1px solid rgba(67, 89, 59, 0.12) !important;
+
+  border-radius: 14px !important;
+
+  box-shadow:
+    0 6px 18px rgba(67, 89, 59, 0.07);
+
+  transition:
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.4s ease,
+    border-color 0.4s ease;
+}
+
+.pending-modern-card:hover,
+.pending-item-card:hover {
+  transform: translateY(-3px);
+
+  border-color:
+    rgba(67, 89, 59, 0.24) !important;
+
+  box-shadow:
+    0 13px 30px rgba(67, 89, 59, 0.12);
+}
+
+.pending-modern-avatar {
+  width: 40px;
+  height: 40px;
+
+  background: #edf4e9;
+
+  border:
+    1px solid rgba(67, 89, 59, 0.10);
+
+  color: #43593b;
+
+  box-shadow:
+    0 3px 8px rgba(67, 89, 59, 0.06);
+}
+
+.pending-modern-schedule,
+.pending-details-grid {
+  background: #fafbf8;
+
+  border:
+    1px solid rgba(67, 89, 59, 0.10);
+
+  border-radius: 10px;
+}
+
+.pending-modern-deposit {
+  background: #f0f7eb;
+
+  border:
+    1px solid #d6e9ca;
+
+  border-radius: 9px;
+}
+
+
+/* ---------------------------------------------------------
+   PRIORITY ACTION BUTTONS
+   --------------------------------------------------------- */
+
+.pending-modern-primary-actions button,
+.pending-btn-approve,
+.pending-btn-cancel,
+.pending-btn-details,
+.pending-btn-photo {
+  border-radius: 8px;
+
+  transition:
+    transform 0.3s ease,
+    opacity 0.3s ease,
+    background-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.pending-modern-primary-actions button:hover,
+.pending-btn-approve:hover,
+.pending-btn-cancel:hover,
+.pending-btn-details:hover,
+.pending-btn-photo:hover {
+  transform: translateY(-1px);
+}
+
+
+/* ---------------------------------------------------------
+   ANALYTICS
+   --------------------------------------------------------- */
+
+.booking-analytics-card {
+  padding: 20px;
+
+  background: #ffffff;
+}
+
+.analytics-card-header {
+  border-bottom:
+    1px solid rgba(67, 89, 59, 0.10);
+}
+
+.analytics-card-title {
+  color: #43593b;
+}
+
+.analytics-sub-tag {
+  padding: 3px 8px;
+
+  background: #edf4e8;
+
+  border-radius: 999px;
+
+  color: #43593b;
+}
+
+.analytics-chart-toggle-group {
+  background: #f3f5f0;
+
+  border:
+    1px solid rgba(67, 89, 59, 0.12);
+
+  border-radius: 9px;
+}
+
+.analytics-toggle-btn {
+  border-radius: 7px;
+
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.analytics-toggle-active {
+  background: #43593b;
+
+  color: #ffffff;
+
+  box-shadow:
+    0 4px 10px rgba(67, 89, 59, 0.15);
+}
+
+
+/* ---------------------------------------------------------
+   ANALYTICS RANGE CHIPS
+   --------------------------------------------------------- */
+
+.analytics-range-chip {
+  background: #ffffff;
+
+  border:
+    1px solid rgba(67, 89, 59, 0.18);
+
+  border-radius: 7px;
+
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease;
+}
+
+.analytics-range-chip:hover {
+  background: #f2f6ef;
+}
+
+.analytics-range-chip-active {
+  background: #43593b;
+
+  border-color: #43593b;
+
+  color: #ffffff;
+}
+
+.analytics-custom-date-box {
+  background: #fafbf8;
+
+  border:
+    1px solid rgba(67, 89, 59, 0.12);
+
+  border-radius: 10px;
+}
+
+.analytics-date-input {
+  background: #ffffff;
+
+  border:
+    1px solid #d1dbce;
+
+  border-radius: 7px;
+
+  outline: none;
+
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.analytics-date-input:focus {
+  border-color: #43593b;
+
+  box-shadow:
+    0 0 0 3px rgba(67, 89, 59, 0.07);
+}
+
+
+/* ---------------------------------------------------------
+   ANALYTICS CHART BOX
+   --------------------------------------------------------- */
+
+.analytics-svg-wrapper {
+  background:
+    linear-gradient(
+      180deg,
+      #ffffff,
+      #fbfcfa
+    );
+
+  border:
+    1px solid rgba(67, 89, 59, 0.09);
+
+  border-radius: 11px;
+}
+
+.chart-hover-tooltip {
+  background: #43593b;
+
+  border:
+    1px solid rgba(124, 206, 23, 0.25);
+
+  border-radius: 8px;
+
+  box-shadow:
+    0 9px 22px rgba(67, 89, 59, 0.18);
+}
+
+
+/* ---------------------------------------------------------
+   PIE LEGEND
+   --------------------------------------------------------- */
+
+.pie-legend-row {
+  background: #fafbf8;
+
+  border:
+    1px solid rgba(67, 89, 59, 0.10);
+
+  border-radius: 8px;
+
+  transition:
+    background-color 0.3s ease,
+    transform 0.3s ease;
+}
+
+.pie-legend-row:hover,
+.pie-legend-row-hover {
+  background: #f1f5ee;
+
+  transform: translateX(2px);
+}
+
+
+/* ---------------------------------------------------------
+   TABLE
+   --------------------------------------------------------- */
+
+.consolidated-table-card {
+  overflow: visible;
+
+  background: #ffffff;
+}
+
+.consolidated-table-scroll {
+  border-radius: 14px;
+
+  scrollbar-width: thin;
+  scrollbar-color: #b8aa9b #f4f2ee;
+}
+
+.consolidated-data-table {
+  background: #ffffff;
+}
+
+.consolidated-data-table th.col-header-th,
+.consolidated-data-table thead th {
+  background: #43593b;
+
+  border-bottom:
+    2px solid #35492e;
+}
+
+.consolidated-data-table td {
+  border-bottom:
+    1px solid rgba(67, 89, 59, 0.08);
+
+  color: #58402e;
+
+  transition:
+    background-color 0.25s ease;
+}
+
+.consolidated-data-table tbody tr:nth-child(even) {
+  background: #fafbf8;
+}
+
+.consolidated-data-table tbody tr:hover {
+  background: #f1f5ee;
+}
+
+
+/* ---------------------------------------------------------
+   TABLE FILTER DROPDOWN
+   --------------------------------------------------------- */
+
+.col-dropdown-menu {
+  background: #ffffff;
+
+  border:
+    1px solid rgba(67, 89, 59, 0.14);
+
+  border-radius: 10px;
+
+  box-shadow:
+    0 14px 32px rgba(67, 89, 59, 0.16);
+}
+
+.col-dropdown-item {
+  border-radius: 7px;
+
+  transition:
+    background-color 0.25s ease,
+    color 0.25s ease;
+}
+
+.col-dropdown-item:hover {
+  background: #f2f6ef !important;
+
+  color: #43593b;
+}
+
+.col-dropdown-item-active {
+  background: #eaf2e5 !important;
+
+  color: #43593b;
+}
+
+
+/* ---------------------------------------------------------
+   STATUS BADGES
+   --------------------------------------------------------- */
+
+.consolidated-status-badge,
+.list-status-badge,
+.cal-badge-status {
+  border-radius: 999px;
+
+  box-shadow:
+    0 2px 5px rgba(67, 89, 59, 0.04);
+}
+
+
+/* ---------------------------------------------------------
+   CALENDAR TOOLBAR
+   --------------------------------------------------------- */
+
+.calendar-nav-toolbar {
+  padding: 15px 18px;
+
+  background: #ffffff;
+}
+
+.calendar-month-heading {
+  color: #43593b;
+}
+
+.calendar-nav-btn {
+  background: #ffffff;
+
+  border:
+    1px solid rgba(67, 89, 59, 0.20);
+
+  border-radius: 7px;
+
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    transform 0.3s ease;
+}
+
+.calendar-nav-btn:hover {
+  background: #f1f5ee;
+
+  transform: translateY(-1px);
+}
+
+.calendar-nav-btn-today {
+  background: #43593b;
+
+  border-color: #43593b;
+
+  color: #ffffff;
+}
+
+
+/* ---------------------------------------------------------
+   CALENDAR LEGEND
+   --------------------------------------------------------- */
+
+.calendar-legend-bar {
+  background: #ffffff;
+
+  border:
+    1px solid rgba(67, 89, 59, 0.12);
+
+  border-radius: 10px;
+}
+
+
+/* ---------------------------------------------------------
+   CALENDAR
+   --------------------------------------------------------- */
+
+.calendar-matrix-card {
+  background: #ffffff;
+
+  border-radius: 15px;
+}
+
+.calendar-weekdays-bar {
+  background: #43593b;
+}
+
+.cal-day-cell {
+  border-right:
+    1px solid rgba(67, 89, 59, 0.08);
+
+  border-bottom:
+    1px solid rgba(67, 89, 59, 0.08);
+
+  transition:
+    background-color 0.3s ease;
+}
+
+.cal-cell-empty {
+  background: #fafbf8;
+}
+
+.cal-cell-active:hover {
+  background: #f1f6ed;
+}
+
+.cal-cell-count-tag {
+  background: #43593b;
+
+  border-radius: 999px;
+}
+
+
+/* ---------------------------------------------------------
+   CALENDAR RESERVATION CARDS
+   --------------------------------------------------------- */
+
+.cal-badge-pill {
+  border-radius: 6px;
+
+  transition:
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.cal-badge-pill:hover {
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 4px 10px rgba(67, 89, 59, 0.08);
+}
+
+
+/* ---------------------------------------------------------
+   MODALS
+   --------------------------------------------------------- */
+
+.modal-backdrop {
+  background:
+    rgba(28, 38, 27, 0.68);
+
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.modal-dialog-card {
+  border:
+    1px solid rgba(67, 89, 59, 0.14);
+
+  border-radius: 18px;
+
+  box-shadow:
+    0 24px 60px rgba(28, 38, 27, 0.30);
+}
+
+.modal-card-header {
+  background: #fafbf8;
+
+  border-bottom:
+    1px solid rgba(67, 89, 59, 0.10);
+}
+
+.modal-card-title {
+  color: #43593b;
+}
+
+.modal-close-x {
+  background: #edf3e9;
+
+  color: #43593b;
+
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    transform 0.3s ease;
+}
+
+.modal-close-x:hover {
+  background: #43593b;
+
+  color: #ffffff;
+
+  transform: rotate(4deg);
+}
+
+.modal-sched-item,
+.modal-field-unit,
+.modal-charges-card {
+  background: #fafbf8;
+
+  border:
+    1px solid rgba(67, 89, 59, 0.11);
+
+  border-radius: 10px;
+}
+
+
+/* ---------------------------------------------------------
+   FORM INPUTS
+   --------------------------------------------------------- */
+
+.modal-number-input,
+.modal-decline-textarea {
+  background: #ffffff;
+
+  border:
+    1px solid #d0d9cd;
+
+  border-radius: 8px;
+
+  transition:
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.modal-number-input:focus {
+  border-color: #43593b;
+
+  outline: none;
+
+  box-shadow:
+    0 0 0 3px rgba(67, 89, 59, 0.08);
+}
+
+
+/* ---------------------------------------------------------
+   PHOTO VERIFICATION
+   --------------------------------------------------------- */
+
+.modal-photo-meta-bar {
+  background: #fafbf8;
+
+  border:
+    1px solid rgba(67, 89, 59, 0.12);
+
+  border-radius: 9px;
+}
+
+.modal-photo-img-wrap {
+  border:
+    1px solid rgba(67, 89, 59, 0.14);
+
+  border-radius: 12px;
+
+  box-shadow:
+    0 8px 24px rgba(30, 40, 30, 0.10);
+}
+
+
+/* ---------------------------------------------------------
+   RECEIPT MODAL
+   --------------------------------------------------------- */
+
+.receipt-modal-backdrop {
+  background:
+    rgba(40, 30, 20, 0.72);
+
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+}
+
+.receipt-modal-box {
+  border:
+    1px solid rgba(88, 64, 46, 0.15);
+
+  border-radius: 18px;
+
+  box-shadow:
+    0 26px 65px rgba(40, 30, 20, 0.34);
+}
+
+.receipt-modal-toolbar {
+  background: #faf9f6;
+
+  border-bottom:
+    1px solid rgba(88, 64, 46, 0.12);
+}
+
+.receipt-print-btn,
+.receipt-close-btn {
+  border-radius: 9px;
+
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    transform 0.3s ease;
+}
+
+.receipt-print-btn:hover,
+.receipt-close-btn:hover {
+  transform: translateY(-1px);
+}
+
+
+/* ---------------------------------------------------------
+   RECEIPT PAPER
+   Do not alter print geometry
+   --------------------------------------------------------- */
+
+.receipt-paper {
+  background: #ffffff;
+}
+
+.receipt-meta-grid,
+.receipt-reminders-card,
+.receipt-payment-proof-card {
+  border-radius: 10px;
+}
+
+
+/* ---------------------------------------------------------
+   ADMIN ACTION BUTTONS
+   --------------------------------------------------------- */
+
+.list-action-buttons button,
+.cal-day-details-dialog
+.modal-sched-item-actions button,
+.catalog-view-receipt-btn {
+  border-radius: 8px;
+
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+.list-action-buttons button:hover,
+.cal-day-details-dialog
+.modal-sched-item-actions button:hover,
+.catalog-view-receipt-btn:hover {
+  transform: translateY(-1px);
+
+  box-shadow:
+    0 4px 9px rgba(35, 45, 30, 0.12);
+}
+
+
+/* ---------------------------------------------------------
+   ACCESS DENIED
+   --------------------------------------------------------- */
+
+.access-denied-card {
+  border:
+    1px solid rgba(67, 89, 59, 0.14);
+
+  border-radius: 18px;
+
+  box-shadow:
+    0 16px 42px rgba(67, 89, 59, 0.11);
+}
+
+.access-denied-btn {
+  border-radius: 999px;
+
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    transform 0.3s ease;
+}
+
+.access-denied-btn:hover {
+  transform: translateY(-2px);
+}
+
+
+/* ---------------------------------------------------------
+   MOBILE
+   --------------------------------------------------------- */
+
+@media (max-width: 768px) {
+  .booking-catalog-page {
+    padding:
+      78px 14px
+      24px;
+  }
+
+  .booking-catalog-header-bar {
+    padding: 16px;
+
+    border-radius: 14px;
+  }
+
+  .catalog-main-title {
+    font-size: 1.4rem;
+  }
+
+  .catalog-main-mode-switcher {
+    width: 100%;
+
+    box-sizing: border-box;
+  }
+
+  .catalog-main-mode-btn {
+    flex: 1;
+
+    padding:
+      9px 12px;
+  }
+
+  .catalog-panel-header-card {
+    height: auto;
+    min-height: 0;
+
+    padding: 14px;
+  }
+
+  .schedule-search-wrap {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .schedule-mode-switcher {
+    width: 100%;
+  }
+
+  .schedule-mode-btn {
+    flex: 1;
+
+    justify-content: center;
+  }
+
+  .pending-modern-primary-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .pending-modern-schedule {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-info-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ---------------------------------------------------------
+   REDUCED MOTION
+   --------------------------------------------------------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .summary-cards-5grid .dash-stat-card,
+  .catalog-main-mode-btn,
+  .pending-modern-card,
+  .pending-item-card,
+  .calendar-nav-btn,
+  .cal-badge-pill,
+  .modal-close-x,
+  .receipt-print-btn,
+  .receipt-close-btn,
+  .list-action-buttons button,
+  .catalog-view-receipt-btn {
+    transition: none;
+  }
+}

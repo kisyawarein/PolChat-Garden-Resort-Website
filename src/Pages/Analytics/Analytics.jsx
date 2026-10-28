@@ -84,60 +84,238 @@ function Analytics() {
   }
 
   // Dynamic timeframe filter helper
-  const filterByTimeframe = (items, dateKeys = ['start_date', 'visitation_start_date', 'date_submitted', 'created_at', 'date_create']) => {
-    if (!items || !items.length) return []
-    const now = new Date()
-
-    return items.filter((item) => {
-      let rawDate = null
-      for (const k of dateKeys) {
-        if (item[k]) {
-          rawDate = item[k]
-          break
-        }
-      }
-      if (!rawDate) return true // Keep if no date available
-
-      const itemDate = new Date(rawDate)
-      if (isNaN(itemDate.getTime())) return true
-
-      switch (dateRange) {
-        case 'This Week': {
-          const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-          return itemDate >= sevenDaysAgo
-        }
-        case 'This Month': {
-          return itemDate.getFullYear() === now.getFullYear() && itemDate.getMonth() === now.getMonth()
-        }
-        case 'Last 3 Months': {
-          const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000)
-          return itemDate >= ninetyDaysAgo
-        }
-        case 'This Year': {
-          return itemDate.getFullYear() === now.getFullYear()
-        }
-        case 'Last 3 Years': {
-          const threeYearsAgo = new Date(now.getFullYear() - 3, 0, 1)
-          return itemDate >= threeYearsAgo
-        }
-        case 'Custom range': {
-          const start = new Date(customStart)
-          const end = new Date(customEnd)
-          end.setHours(23, 59, 59, 999)
-          return itemDate >= start && itemDate <= end
-        }
-        default:
-          return true
-      }
-    })
+// Dynamic timeframe filter helper
+const filterByTimeframe = (
+  items,
+  dateKeys = [
+    'start_date',
+    'visitation_start_date',
+    'date_submitted',
+    'created_at',
+    'date_create',
+  ]
+) => {
+  if (!Array.isArray(items) || items.length === 0) {
+    return []
   }
 
+  const parseDateValue = (value) => {
+    if (!value) return null
+
+    if (value instanceof Date) {
+      return Number.isNaN(value.getTime())
+        ? null
+        : value
+    }
+
+    if (typeof value === 'string') {
+      const trimmedValue = value.trim()
+
+      const dateOnlyMatch = trimmedValue.match(
+        /^(\d{4})-(\d{2})-(\d{2})$/
+      )
+
+      if (dateOnlyMatch) {
+        const [, year, month, day] =
+          dateOnlyMatch
+
+        const localDate = new Date(
+          Number(year),
+          Number(month) - 1,
+          Number(day)
+        )
+
+        return Number.isNaN(
+          localDate.getTime()
+        )
+          ? null
+          : localDate
+      }
+    }
+
+    const parsedDate = new Date(value)
+
+    return Number.isNaN(parsedDate.getTime())
+      ? null
+      : parsedDate
+  }
+
+  const startOfDay = (date) => {
+    const result = new Date(date)
+
+    result.setHours(0, 0, 0, 0)
+
+    return result
+  }
+
+  const endOfDay = (date) => {
+    const result = new Date(date)
+
+    result.setHours(23, 59, 59, 999)
+
+    return result
+  }
+
+  const now = new Date()
+
+  let start = null
+  let end = null
+
+  switch (dateRange) {
+    case 'This Week': {
+      const currentDay = now.getDay()
+
+      const daysSinceMonday =
+        currentDay === 0
+          ? 6
+          : currentDay - 1
+
+      start = startOfDay(now)
+
+      start.setDate(
+        start.getDate() -
+          daysSinceMonday
+      )
+
+      end = endOfDay(start)
+
+      end.setDate(
+        end.getDate() + 6
+      )
+
+      break
+    }
+
+    case 'This Month': {
+      start = startOfDay(
+        new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          1
+        )
+      )
+
+      end = endOfDay(
+        new Date(
+          now.getFullYear(),
+          now.getMonth() + 1,
+          0
+        )
+      )
+
+      break
+    }
+
+    case 'Last 3 Months': {
+      start = startOfDay(now)
+
+      start.setMonth(
+        start.getMonth() - 3
+      )
+
+      end = endOfDay(now)
+
+      break
+    }
+
+    case 'This Year': {
+      start = startOfDay(
+        new Date(
+          now.getFullYear(),
+          0,
+          1
+        )
+      )
+
+      end = endOfDay(
+        new Date(
+          now.getFullYear(),
+          11,
+          31
+        )
+      )
+
+      break
+    }
+
+    case 'Last 3 Years': {
+      start = startOfDay(now)
+
+      start.setFullYear(
+        start.getFullYear() - 3
+      )
+
+      end = endOfDay(now)
+
+      break
+    }
+
+    case 'Custom range': {
+      start = parseDateValue(
+        customStart
+      )
+
+      end = parseDateValue(
+        customEnd
+      )
+
+      if (start) {
+        start = startOfDay(start)
+      }
+
+      if (end) {
+        end = endOfDay(end)
+      }
+
+      break
+    }
+
+    default:
+      return items
+  }
+
+  return items.filter((item) => {
+    let itemDate = null
+
+    for (const dateKey of dateKeys) {
+      if (
+        item[dateKey] !== null &&
+        item[dateKey] !== undefined &&
+        item[dateKey] !== ''
+      ) {
+        itemDate = parseDateValue(
+          item[dateKey]
+        )
+
+        if (itemDate) break
+      }
+    }
+
+    // Undated or invalid records are not included
+    // in a date-filtered analytics report.
+    if (!itemDate) return false
+
+    if (
+      start &&
+      itemDate < start
+    ) {
+      return false
+    }
+
+    if (
+      end &&
+      itemDate > end
+    ) {
+      return false
+    }
+
+    return true
+  })
+}
   const filteredReservations = filterByTimeframe(reservations, ['start_date', 'created_at'])
   const filteredVisitations = filterByTimeframe(visitations, ['visitation_start_date', 'created_at'])
   const filteredCustomers = filterByTimeframe(customers, ['date_create', 'created_at'])
   const filteredReviews = filterByTimeframe(reviews, ['date_submitted', 'created_at'])
-
-  const getScale = () => 1.0
 
   if (!isAdmin) {
     return (
@@ -315,30 +493,27 @@ function Analytics() {
       </div>
 
       {/* Top 6 KPI Stat Cards */}
-      <AnalyticsKPIs
-        reservations={filteredReservations}
-        visitations={filteredVisitations}
-        customers={filteredCustomers}
-        reviews={filteredReviews}
-        scale={getScale()}
-      />
+<AnalyticsKPIs
+  reservations={filteredReservations}
+  visitations={filteredVisitations}
+  customers={filteredCustomers}
+  reviews={filteredReviews}
+/>
 
       {/* Main Analytics Sections */}
       <div className="analytics-sections-stack">
         {(activeCategory === 'all' || activeCategory === 'bookings') && (
-          <BookingAnalyticsSection
-            reservations={filteredReservations}
-            visitations={filteredVisitations}
-            scale={getScale()}
-          />
+<BookingAnalyticsSection
+  reservations={filteredReservations}
+  visitations={filteredVisitations}
+/>
         )}
 
         {(activeCategory === 'all' || activeCategory === 'customers') && (
-          <CustomerAnalyticsSection
-            customers={filteredCustomers}
-            reservations={filteredReservations}
-            scale={getScale()}
-          />
+<CustomerAnalyticsSection
+  customers={filteredCustomers}
+  reservations={filteredReservations}
+/>
         )}
 
         {(activeCategory === 'all' || activeCategory === 'reviews') && (
