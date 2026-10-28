@@ -1,4 +1,3 @@
-import { useAuth } from '../../context/AuthContext'
 import eventsVideo from '../../../resources/EventsRates_Video.mp4'
 import { getWebsiteImageUrl } from '../../services/imageService'
 import { useEffect, useState } from 'react'
@@ -16,7 +15,7 @@ const RESERVATION_TYPES = [
   {
     id: 'reservation-22hours',
     title: '22 hours',
-    time: '2:00 PM – 12:00 PM (Next Day)',
+    time: 'Day Start: 8:00 AM – 6:00 AM\nNight Start: 8:00 PM – 6:00 PM',
     label: '22-HR OVERNIGHT',
     image: 'homepage/portrait-treehouse.png',
   },
@@ -29,9 +28,48 @@ const RESERVATION_TYPES = [
   },
 ]
 
-function EventsRates({ onNavigate }) {
-  const { isAuthenticated, openAuthModal } = useAuth()
+const normalizeDurationName = (name) =>
+  String(name || '')
+    .replaceAll('_', ' ')
+    .trim()
+    .replace(/\b\w/g, (letter) => letter.toUpperCase())
 
+const mergeRates = (rawRates) => {
+  if (!Array.isArray(rawRates)) return []
+
+  const non22HourRates = []
+  const twentyTwoHourCandidates = []
+
+  rawRates.forEach((rate) => {
+    const formattedName = normalizeDurationName(rate.duration_name)
+    if (formattedName.toLowerCase().startsWith('22 hours')) {
+      twentyTwoHourCandidates.push({ ...rate, formattedName })
+    } else {
+      non22HourRates.push({ ...rate, formattedName })
+    }
+  })
+
+  if (twentyTwoHourCandidates.length > 0) {
+    // Prefer the updated 22 Hours Night record (or exact "22 Hours" record) if both exist
+    const preferred22Hours =
+      twentyTwoHourCandidates.find(
+        (r) => r.formattedName.toLowerCase() === '22 hours'
+      ) ||
+      twentyTwoHourCandidates.find((r) =>
+        r.formattedName.toLowerCase().includes('night')
+      ) ||
+      twentyTwoHourCandidates[0]
+
+    non22HourRates.push({
+      ...preferred22Hours,
+      formattedName: '22 Hours',
+    })
+  }
+
+  return non22HourRates
+}
+
+function EventsRates({ onNavigate }) {
   const [rates, setRates] = useState([])
   const [ratesLoading, setRatesLoading] = useState(true)
 
@@ -39,7 +77,7 @@ function EventsRates({ onNavigate }) {
     const loadRates = async () => {
       try {
         const data = await DataService.getDurationTypes()
-        setRates(data || [])
+        setRates(mergeRates(data || []))
       } catch (error) {
         console.error('Failed to load rates:', error)
         setRates([])
@@ -53,7 +91,7 @@ function EventsRates({ onNavigate }) {
 
   return (
     <div className="events-rates-page">
-      {/* Section 1: Video Background with "INFORMATION: CENTER" at bottom middle */}
+      {/* Section 1: Video Background */}
       <section className="events-rates-section-1">
         <video
           className="events-rates-hero-video"
@@ -68,7 +106,8 @@ function EventsRates({ onNavigate }) {
           <h1 className="events-rates-hero-title">Event & Rates</h1>
         </div>
       </section>
-{/* Rate Breakdown - uses the same pricing source as Book Now */}
+
+      {/* Rate Breakdown */}
       <section id="rate-breakdown" className="events-rates-breakdown">
         <div className="events-rates-breakdown-container">
           <h2 className="events-rates-breakdown-title">RATE BREAKDOWN</h2>
@@ -92,11 +131,7 @@ function EventsRates({ onNavigate }) {
                   key={rate.duration_id}
                   className="events-rates-breakdown-card"
                 >
-                  <h3>
-{String(rate.duration_name || '')
-.replaceAll('_', ' ')
-.replace(/\b\w/g, (letter) => letter.toUpperCase())}
-</h3>
+                  <h3>{rate.formattedName}</h3>
 
                   <div className="events-rates-breakdown-price">
                     ₱{Number(rate.duration_price || 0).toLocaleString('en-PH')}
@@ -111,7 +146,8 @@ function EventsRates({ onNavigate }) {
                     <p>
                       <span>Extra Guest</span>
                       <strong>
-                        ₱{Number(
+                        ₱
+                        {Number(
                           rate.duration_extra_pax_charge || 0
                         ).toLocaleString('en-PH')}
                       </strong>
@@ -120,7 +156,8 @@ function EventsRates({ onNavigate }) {
                     <p>
                       <span>Extension / Hour</span>
                       <strong>
-                        ₱{Number(
+                        ₱
+                        {Number(
                           rate.duration_extension_charge || 0
                         ).toLocaleString('en-PH')}
                       </strong>
@@ -129,9 +166,10 @@ function EventsRates({ onNavigate }) {
                     <p>
                       <span>Event Charge</span>
                       <strong>
-                        ₱{Number(
-                          rate.duration_event_rate || 0
-                        ).toLocaleString('en-PH')}
+                        ₱
+                        {Number(rate.duration_event_rate || 0).toLocaleString(
+                          'en-PH'
+                        )}
                       </strong>
                     </p>
 
@@ -149,8 +187,6 @@ function EventsRates({ onNavigate }) {
         </div>
       </section>
 
-
-
       {/* Section 2: 3 Tall Images Aligned in a Row with Titles Below */}
       <section className="events-rates-section-2">
         <div className="events-rates-section-2-container">
@@ -158,16 +194,21 @@ function EventsRates({ onNavigate }) {
             {RESERVATION_TYPES.map((type) => (
               <div key={type.id} className="events-rates-reservation-card">
                 <div className="events-rates-tall-picture-box">
-                    <img
-                      className="events-rates-image"
-                      src={getWebsiteImageUrl(type.image)}
-                      alt={`${type.title} resort package`}
-                      loading="lazy"
-                    />
+                  <img
+                    className="events-rates-image"
+                    src={getWebsiteImageUrl(type.image)}
+                    alt={`${type.title} resort package`}
+                    loading="lazy"
+                  />
                 </div>
                 <div className="events-rates-card-info">
                   <h2 className="events-rates-card-title">{type.title}</h2>
-                  <span className="events-rates-card-time">{type.time}</span>
+                  <span
+                    className="events-rates-card-time"
+                    style={{ whiteSpace: 'pre-line', display: 'block' }}
+                  >
+                    {type.time}
+                  </span>
                 </div>
               </div>
             ))}
@@ -175,72 +216,47 @@ function EventsRates({ onNavigate }) {
         </div>
       </section>
 
-      {/* Section 3: Similar to Homepage Section 5 (2-Row Zigzag) with Wider Images */}
+      {/* Section 3: Exclusive Packages */}
       <section className="events-rates-section-3">
         <div className="events-rates-section-3-container">
-          {/* Row 1: Image Left, Content Right */}
-          <div className="events-rates-section-3-row">
-            <div className="events-rates-section-3-picture-box">
-              <img
-                className="events-rates-image"
-                src={getWebsiteImageUrl('homepage/day_pool_kubo.png')}
-                alt="Pool and kubo at PolChat Garden Resort"
-                loading="lazy"
-              />
-            </div>
-            <div className="events-rates-section-3-content">
-              <h2 className="events-rates-section-3-title">STANDARD RATES</h2>
-              <div className="events-rates-section-3-info-grid">
-                <div className="events-rates-section-3-info-column">
-                  <span className="events-rates-section-3-info-text">WEEKDAY RATES</span>
-                  <span className="events-rates-section-3-info-text">SPECIAL DISCOUNTS</span>
-                </div>
-                <div className="events-rates-section-3-info-column">
-                  <span className="events-rates-section-3-info-text">WEEKEND & HOLIDAYS</span>
-                  <span className="events-rates-section-3-info-text">PEAK SEASON RATES</span>
-                </div>
-                <div className="events-rates-section-3-info-column">
-                  <span className="events-rates-section-3-info-text">POOL & AMENITIES</span>
-                  <span className="events-rates-section-3-info-text">PAVILION ACCESS</span>
-                </div>
-              </div>
-             <a href="#rate-breakdown" className="events-rates-section-3-link">
-                VIEW RATE BREAKDOWN
-                </a>
-            </div>
-          </div>
-
-          {/* Row 2: Content Left, Image Right */}
           <div className="events-rates-section-3-row events-rates-section-3-row-reverse">
             <div className="events-rates-section-3-content">
-              <h2 className="events-rates-section-3-title">EXCLUSIVE PACKAGES</h2>
+              <h2 className="events-rates-section-3-title">
+                EXCLUSIVE PACKAGES
+              </h2>
               <div className="events-rates-section-3-info-grid">
                 <div className="events-rates-section-3-info-column">
-                  <span className="events-rates-section-3-info-text">PRIVATE RESORT RENTAL</span>
-                  <span className="events-rates-section-3-info-text">ALL FACILITY ACCESS</span>
+                  <span className="events-rates-section-3-info-text">
+                    PRIVATE RESORT RENTAL
+                  </span>
+                  <span className="events-rates-section-3-info-text">
+                    ALL FACILITY ACCESS
+                  </span>
                 </div>
                 <div className="events-rates-section-3-info-column">
-                  <span className="events-rates-section-3-info-text">OVERNIGHT CABIN STAYS</span>
-                  <span className="events-rates-section-3-info-text">TREE HOUSE ACCESS</span>
+                  <span className="events-rates-section-3-info-text">
+                    OVERNIGHT CABIN STAYS
+                  </span>
+                  <span className="events-rates-section-3-info-text">
+                    TREE HOUSE ACCESS
+                  </span>
                 </div>
                 <div className="events-rates-section-3-info-column">
-                  <span className="events-rates-section-3-info-text">CATERING SETUP AREA</span>
-                  <span className="events-rates-section-3-info-text">AUDIO & LIGHTING READY</span>
+                  <span className="events-rates-section-3-info-text">
+                    CATERING SETUP AREA
+                  </span>
+                  <span className="events-rates-section-3-info-text">
+                    AUDIO & LIGHTING READY
+                  </span>
                 </div>
               </div>
-<button
-  type="button"
-  className="events-rates-section-3-link events-rates-inquire-button"
-  onClick={() => {
-    if (!isAuthenticated) {
-      openAuthModal('signup')
-    } else {
-      onNavigate('reservation')
-    }
-  }}
->
-  INQUIRE FOR RESERVATIONS
-</button>
+              <button
+                type="button"
+                className="events-rates-section-3-link events-rates-inquire-button"
+                onClick={() => onNavigate('support')}
+              >
+                INQUIRE FOR RESERVATIONS
+              </button>
             </div>
             <div className="events-rates-section-3-picture-box">
               <img
@@ -253,20 +269,18 @@ function EventsRates({ onNavigate }) {
           </div>
         </div>
       </section>
-      
 
-      {/* Section 4: Replicated Layout from Image (EVENTS Headline + 2 Staggered Blocks) */}
-      {/* Section 4: Replicated Layout from Image (EVENTS Headline + 2 Staggered Blocks) */}
+      {/* Section 4: EVENTS Headline + 2 Staggered Blocks */}
       <section className="events-rates-section-4">
         <div className="events-rates-section-4-container">
-          {/* Headline */}
           <h2 className="events-rates-section-4-main-title">EVENTS</h2>
 
           {/* Block 1 */}
           <div className="events-rates-section-4-block">
-            {/* Left Column: Title above tall large picture */}
             <div className="events-rates-section-4-col-large">
-              <h3 className="events-rates-section-4-sample-title">FAMILY GATHERING</h3>
+              <h3 className="events-rates-section-4-sample-title">
+                FAMILY GATHERING
+              </h3>
               <div className="events-rates-section-4-pic-large">
                 <img
                   className="events-rates-image"
@@ -277,7 +291,6 @@ function EventsRates({ onNavigate }) {
               </div>
             </div>
 
-            {/* Right Column: Medium picture above paragraph */}
             <div className="events-rates-section-4-col-medium">
               <div className="events-rates-section-4-pic-medium">
                 <img
@@ -288,14 +301,18 @@ function EventsRates({ onNavigate }) {
                 />
               </div>
               <p className="events-rates-section-4-paragraph">
-               Every celebration is special, and we want to help you make it memorable. Whether you're spending time with family, celebrating a birthday, or gathering with friends, PolChat Garden Resort offers a peaceful place to enjoy your special moments. Relax, have fun, and create memories together in a beautiful natural setting.
+                Every celebration is special, and we want to help you make it
+                memorable. Whether you&apos;re spending time with family,
+                celebrating a birthday, or gathering with friends, PolChat
+                Garden Resort offers a peaceful place to enjoy your special
+                moments. Relax, have fun, and create memories together in a
+                beautiful natural setting.
               </p>
             </div>
           </div>
 
           {/* Block 2 (Mirrored) */}
           <div className="events-rates-section-4-block">
-            {/* Left Column: Medium picture above paragraph */}
             <div className="events-rates-section-4-col-medium">
               <div className="events-rates-section-4-pic-medium">
                 <img
@@ -309,16 +326,17 @@ function EventsRates({ onNavigate }) {
                 Feel the magic and mystery distinct to each destination with
                 imaginative and authentic celebrations tailored to the
                 occasion. Whether hosting a landmark celebration that ignites a
-                love for life and a deep appreciation of culture, or marking
-                a milestone with a private ceremony, PolChat&apos;s dedicated
+                love for life and a deep appreciation of culture, or marking a
+                milestone with a private ceremony, PolChat&apos;s dedicated
                 event teams craft extraordinary shared experiences and nights to
                 remember – bespoke to the wishes of the guest.
               </p>
             </div>
 
-            {/* Right Column: Title above tall large picture */}
             <div className="events-rates-section-4-col-large">
-              <h3 className="events-rates-section-4-sample-title">COMPANY GATHERING</h3>
+              <h3 className="events-rates-section-4-sample-title">
+                COMPANY GATHERING
+              </h3>
               <div className="events-rates-section-4-pic-large">
                 <img
                   className="events-rates-image"
