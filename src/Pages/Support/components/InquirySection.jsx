@@ -18,6 +18,7 @@ function InquirySection() {
   const [replyText, setReplyText] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [successNotice, setSuccessNotice] = useState('')
+  const [errorNotice, setErrorNotice] = useState('')
 
   // Reset state when auth changes (e.g. logging out or switching accounts)
   useEffect(() => {
@@ -156,70 +157,113 @@ useEffect(() => {
 
   // Submit Inquiry (Logged in or Guest with email) - Optimistic
   const handleCreateInquirySubmit = async (e) => {
-    e.preventDefault()
-    if (!inquiryLabel.trim() || !startingStatement.trim()) return
+  e.preventDefault()
 
-    if (!isAuthenticated && !guestEmail.trim()) {
-      return
-    if (!isAuthenticated && guestEmailRegistered) {
+  if (!isAuthenticated || !user) {
+  openAuthModal('signin')
+  return
+}
+
+  setErrorNotice('')
+
+  if (!inquiryLabel.trim() || !startingStatement.trim()) {
+    setErrorNotice('Please complete the inquiry subject and message.')
     return
   }
+
+  if (!isAuthenticated) {
+    const cleanGuestEmail = guestEmail.trim().toLowerCase()
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/
+
+    if (!cleanGuestEmail) {
+      setErrorNotice('Please enter your email address.')
+      return
     }
 
-    const customerId = user ? user.id : null
-    const customerDisplayName = user
-      ? (user.name || user.username)
-      : `${guestName.trim() || 'Guest'} (${guestEmail.trim()})`
-
-    const optimisticInquiry = {
-      inquiry_id: `temp_${Date.now()}`,
-      inquiry_label: inquiryLabel.trim(),
-      customer_id: customerId,
-      customer_name: customerDisplayName,
-      created_at: new Date().toISOString(),
-      date_created: new Date().toISOString().split('T')[0],
-      inquiry_status: 'open',
-      is_resolved: false,
+    if (!emailPattern.test(cleanGuestEmail)) {
+      setErrorNotice(
+        'Please enter a valid email address, for example: name@gmail.com'
+      )
+      return
     }
 
-    const optimisticChat = {
-      chat_id: `chat_${Date.now()}`,
-      inquiry_id: optimisticInquiry.inquiry_id,
-      sender: 'customer',
-      sender_name: customerDisplayName,
-      message: startingStatement.trim(),
-      created_at: new Date().toISOString(),
+    if (guestEmailRegistered) {
+      setErrorNotice(
+        'This email is already registered to a PolChat account. Please sign in to continue with this email.'
+      )
+      return
     }
-
-    // Instant optimistic update
-    setCustomerInquiries((prev) => [optimisticInquiry, ...prev])
-    setActiveInquiry(optimisticInquiry)
-    setActiveChats([optimisticChat])
-    setInquiryLabel('')
-    setStartingStatement('')
-    setSuccessNotice('Your inquiry has been submitted! PolChat staff will review and respond.')
-
-    setTimeout(() => {
-      setSuccessNotice('')
-    }, 5000)
-
-    // Sync in background
-    DataService.createInquiry({
-      label: optimisticInquiry.inquiry_label,
-      message: optimisticChat.message,
-      customerId: customerId,
-      customerName: customerDisplayName,
-      guestName: !isAuthenticated ? guestName.trim() : null,
-      guestEmail: !isAuthenticated ? guestEmail.trim() : (user?.email || null),
-    }).then((res) => {
-      if (res?.newInquiry) {
-        setCustomerInquiries((prev) =>
-          prev.map((i) => (i.inquiry_id === optimisticInquiry.inquiry_id ? res.newInquiry : i))
-        )
-        setActiveInquiry(res.newInquiry)
-      }
-    })
   }
+
+  const customerId = user ? user.id : null
+
+  const customerDisplayName = user
+    ? (user.name || user.username)
+    : `${guestName.trim() || 'Guest'} (${guestEmail.trim()})`
+
+  const optimisticInquiry = {
+    inquiry_id: `temp_${Date.now()}`,
+    inquiry_label: inquiryLabel.trim(),
+    customer_id: customerId,
+    customer_name: customerDisplayName,
+    created_at: new Date().toISOString(),
+    date_created: new Date().toISOString().split('T')[0],
+    inquiry_status: 'open',
+    is_resolved: false,
+  }
+
+  const optimisticChat = {
+    chat_id: `chat_${Date.now()}`,
+    inquiry_id: optimisticInquiry.inquiry_id,
+    sender: 'customer',
+    sender_name: customerDisplayName,
+    message: startingStatement.trim(),
+    created_at: new Date().toISOString(),
+  }
+
+  setCustomerInquiries((prev) => [
+    optimisticInquiry,
+    ...prev,
+  ])
+
+  setActiveInquiry(optimisticInquiry)
+  setActiveChats([optimisticChat])
+  setInquiryLabel('')
+  setStartingStatement('')
+
+  setSuccessNotice(
+    'Your inquiry has been submitted! PolChat staff will review and respond.'
+  )
+
+  setTimeout(() => {
+    setSuccessNotice('')
+  }, 5000)
+
+  DataService.createInquiry({
+    label: optimisticInquiry.inquiry_label,
+    message: optimisticChat.message,
+    customerId,
+    customerName: customerDisplayName,
+    guestName: !isAuthenticated
+      ? guestName.trim()
+      : null,
+    guestEmail: !isAuthenticated
+      ? guestEmail.trim().toLowerCase()
+      : (user?.email || null),
+  }).then((res) => {
+    if (res?.newInquiry) {
+      setCustomerInquiries((prev) =>
+        prev.map((i) =>
+          i.inquiry_id === optimisticInquiry.inquiry_id
+            ? res.newInquiry
+            : i
+        )
+      )
+
+      setActiveInquiry(res.newInquiry)
+    }
+  })
+}
 
   // Customer Send Follow-up Message - Optimistic
   const handleSendFollowUp = (e) => {
@@ -251,7 +295,17 @@ useEffect(() => {
     })
   }
 
+  const requireInquiryLogin = () => {
+  if (!isAuthenticated) {
+    openAuthModal('signin')
+    return true
+  }
+
+  return false
+}
+
   return (
+    
     <section id="inquiries" className="support-inquiry-section">
       <div className="support-inquiry-container">
         {/* Section Heading */}
@@ -266,190 +320,200 @@ useEffect(() => {
         {/* 2-Column Layout */}
         <div className="support-inquiry-grid">
           {/* Column 1: Submit Form or Locked Email Card */}
-          <div className="support-inquiry-form-card">
-            {!isAuthenticated ? (
-              <div className="support-locked-inquiry-wrap">
-                <div className="support-locked-header-row">
-                  <span className="support-locked-badge" style={{ display: 'inline-flex', alignItems: 'center', gap: '5px' }}>
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                    </svg>
-                    <span>GUEST INQUIRY FORM</span>
+         <div className="support-inquiry-form-card">
+  <div>
+    <h3 className="support-form-card-title">
+      Send Us a Question
+    </h3>
+
+    <p className="support-form-card-desc">
+      {isAuthenticated
+        ? `Posting as ${user?.name || user?.username || 'Customer'}`
+        : 'Please sign in to your PolChat account to submit an inquiry and chat with our management staff.'}
+    </p>
+
+    {successNotice && (
+      <div className="support-inquiry-success-box">
+        <span>{successNotice}</span>
+      </div>
+    )}
+
+    {errorNotice && (
+      <div
+        className="support-inquiry-email-warning"
+        style={{ marginBottom: '12px' }}
+      >
+        {errorNotice}
+      </div>
+    )}
+
+    {!isAuthenticated && (
+      <div
+        className="support-inquiry-email-warning"
+        style={{ marginBottom: '14px' }}
+      >
+        You must be signed in to your PolChat account before you can submit an inquiry.
+      </div>
+    )}
+
+    <form
+      className="support-new-inquiry-form"
+      onSubmit={(e) => {
+        if (!isAuthenticated) {
+          e.preventDefault()
+          openAuthModal('signin')
+          return
+        }
+
+        handleCreateInquirySubmit(e)
+      }}
+    >
+      <div className="support-form-field">
+        <label className="support-field-label">
+          Inquiry Subject / Topic *
+        </label>
+
+        <input
+          type="text"
+          className="support-field-input"
+          placeholder="e.g. Day Tour Rates, Pavilion Inclusions"
+          value={isAuthenticated ? inquiryLabel : ''}
+          readOnly={!isAuthenticated}
+          onFocus={() => {
+            if (!isAuthenticated) {
+              openAuthModal('signin')
+            }
+          }}
+          onClick={() => {
+            if (!isAuthenticated) {
+              openAuthModal('signin')
+            }
+          }}
+          onChange={(e) => {
+            if (!isAuthenticated) {
+              openAuthModal('signin')
+              return
+            }
+
+            setInquiryLabel(e.target.value)
+          }}
+          required
+        />
+      </div>
+
+      <div className="support-form-field">
+        <label className="support-field-label">
+          Your Message *
+        </label>
+
+        <textarea
+          className="support-field-textarea"
+          rows="4"
+          placeholder="Write your question or request here..."
+          value={isAuthenticated ? startingStatement : ''}
+          readOnly={!isAuthenticated}
+          onFocus={() => {
+            if (!isAuthenticated) {
+              openAuthModal('signin')
+            }
+          }}
+          onClick={() => {
+            if (!isAuthenticated) {
+              openAuthModal('signin')
+            }
+          }}
+          onChange={(e) => {
+            if (!isAuthenticated) {
+              openAuthModal('signin')
+              return
+            }
+
+            setStartingStatement(e.target.value)
+          }}
+          required
+        />
+      </div>
+
+      <button
+        type="submit"
+        className="support-submit-inquiry-btn"
+        disabled={isAuthenticated && isSubmitting}
+        onClick={(e) => {
+          if (!isAuthenticated) {
+            e.preventDefault()
+            openAuthModal('signin')
+          }
+        }}
+      >
+        {isSubmitting
+          ? 'Submitting...'
+          : isAuthenticated
+            ? 'Send Inquiry to Resort Admin'
+            : 'Sign In to Submit Inquiry'}
+      </button>
+    </form>
+
+    {!isAuthenticated && (
+      <div className="support-locked-footer-login">
+        <span>Already have an account?</span>
+
+        <button
+          type="button"
+          className="support-inline-login-btn"
+          onClick={() => openAuthModal('signin')}
+        >
+          Sign In to Account
+        </button>
+      </div>
+    )}
+
+    {customerInquiries.length > 0 && (
+      <div className="support-past-inquiries-block">
+        <h4 className="support-past-title">
+          Your Inquiry Threads
+        </h4>
+
+        <div className="support-past-list">
+          {customerInquiries.map((inq) => {
+            const isActive =
+              activeInquiry?.inquiry_id === inq.inquiry_id
+
+            return (
+              <button
+                key={inq.inquiry_id}
+                type="button"
+                className={`support-past-item ${
+                  isActive
+                    ? 'support-past-item-active'
+                    : ''
+                }`}
+                onClick={() => setActiveInquiry(inq)}
+              >
+                <div className="support-past-header">
+                  <span className="support-past-label">
+                    {inq.inquiry_label}
+                  </span>
+
+                  <span
+                    className={`support-status-chip support-chip-${inq.inquiry_status}`}
+                  >
+                    {inq.inquiry_status}
                   </span>
                 </div>
-                <h3 className="support-form-card-title">Send Us a Question</h3>
-                <p className="support-form-card-desc">
-                  Please enter your email address so our management staff can reply to your inquiry.
-                </p>
 
-                {successNotice && (
-                  <div className="support-inquiry-success-box">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                    <span>{successNotice}</span>
-                  </div>
-                )}
-
-                <form onSubmit={handleCreateInquirySubmit} className="support-new-inquiry-form">
-                  <div className="support-form-field">
-                    <label className="support-field-label">Your Email Address *</label>
-                    <input
-                    type="email"
-                    className="support-field-input"
-                    placeholder="e.g. yourname@email.com"
-                    value={guestEmail}
-                    onChange={(e) => setGuestEmail(e.target.value)}
-                    pattern="^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$"
-                     title="Please enter a valid email address, for example: name@gmail.com"
-                        required
-                      />
-                    <span className="support-field-hint">We'll use this email to send you responses.</span>
-                    {guestEmailRegistered && (
-  <div className="support-inquiry-email-warning">
-    This email is already registered to a PolChat account. Please sign in to continue with this email.
+                <span className="support-past-responder">
+                  {inq.admin_responder
+                    ? `Staff: ${inq.admin_responder}`
+                    : 'Waiting for Staff'}
+                </span>
+              </button>
+            )
+          })}
+        </div>
+      </div>
+    )}
   </div>
-)}
-                  </div>
-
-                  <div className="support-form-field">
-                    <label className="support-field-label">Your Full Name</label>
-                    <input
-                      type="text"
-                      className="support-field-input"
-                      placeholder="e.g. Juan Dela Cruz"
-                      value={guestName}
-                      onChange={(e) => setGuestName(e.target.value)}
-                    />
-                  </div>
-
-                  <div className="support-form-field">
-                    <label className="support-field-label">Inquiry Subject / Topic *</label>
-                    <input
-                      type="text"
-                      className="support-field-input"
-                      placeholder="e.g. Day Tour Rates, Pavilion Inclusions"
-                      value={inquiryLabel}
-                      onChange={(e) => setInquiryLabel(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="support-form-field">
-                    <label className="support-field-label">Your Message *</label>
-                    <textarea
-                      className="support-field-textarea"
-                      rows="3"
-                      placeholder="Write your question or request here..."
-                      value={startingStatement}
-                      onChange={(e) => setStartingStatement(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="support-submit-inquiry-btn"
-                    disabled={isSubmitting || guestEmailRegistered}
-                  >
-                    {isSubmitting ? 'Sending...' : 'Submit Inquiry with Email'}
-                  </button>
-                </form>
-
-                <div className="support-locked-footer-login">
-                  <span>Already have an account?</span>
-                  <button
-                    type="button"
-                    className="support-inline-login-btn"
-                    onClick={() => openAuthModal('signin')}
-                  >
-                    Sign In to Account
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div>
-                <h3 className="support-form-card-title">Submit a New Inquiry</h3>
-                <p className="support-form-card-desc">
-                  Posting as <strong>{user?.name || user?.username}</strong> ({user?.email || 'Customer Account'})
-                </p>
-
-                {successNotice && (
-                  <div className="support-inquiry-success-box">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <polyline points="20 6 9 17 4 12" />
-                    </svg>
-                    <span>{successNotice}</span>
-                  </div>
-                )}
-
-                <form onSubmit={handleCreateInquirySubmit} className="support-new-inquiry-form">
-                  <div className="support-form-field">
-                    <label className="support-field-label">Inquiry Subject / Label *</label>
-                    <input
-                      type="text"
-                      className="support-field-input"
-                      placeholder="e.g. Pavilion Booking, Payment Confirmation"
-                      value={inquiryLabel}
-                      onChange={(e) => setInquiryLabel(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <div className="support-form-field">
-                    <label className="support-field-label">Starting Statement / Question *</label>
-                    <textarea
-                      className="support-field-textarea"
-                      rows="4"
-                      placeholder="State your question or request in detail..."
-                      value={startingStatement}
-                      onChange={(e) => setStartingStatement(e.target.value)}
-                      required
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="support-submit-inquiry-btn"
-                    disabled={isSubmitting}
-                  >
-                    {isSubmitting ? 'Submitting...' : 'Send Inquiry to Resort Admin'}
-                  </button>
-                </form>
-              </div>
-            )}
-
-            {/* Past Inquiries Quick Selector (if available) */}
-            {customerInquiries.length > 0 && (
-              <div className="support-past-inquiries-block">
-                <h4 className="support-past-title">Your Inquiry Threads</h4>
-                <div className="support-past-list">
-                  {customerInquiries.map((inq) => {
-                    const isActive = activeInquiry?.inquiry_id === inq.inquiry_id
-                    return (
-                      <button
-                        key={inq.inquiry_id}
-                        type="button"
-                        className={`support-past-item ${isActive ? 'support-past-item-active' : ''}`}
-                        onClick={() => setActiveInquiry(inq)}
-                      >
-                        <div className="support-past-header">
-                          <span className="support-past-label">{inq.inquiry_label}</span>
-                          <span className={`support-status-chip support-chip-${inq.inquiry_status}`}>
-                            {inq.inquiry_status}
-                          </span>
-                        </div>
-                        <span className="support-past-responder">
-                          {inq.admin_responder ? `Staff: ${inq.admin_responder}` : 'Waiting for Staff'}
-                        </span>
-                      </button>
-                    )
-                  })}
-                </div>
-              </div>
-            )}
-          </div>
+</div>
 
           {/* Column 2: Live Chat Thread with Admin */}
           <div className="support-inquiry-chat-card">
