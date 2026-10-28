@@ -110,86 +110,15 @@ if (!targetEmail) {
     let subject = ''
     let body = ''
 
-if (
-  newStatus === 'confirmed' ||
-  newStatus === 'approved' ||
-  newStatus === 'accepted'
-) {
-  subject = `Reservation Confirmed - PolChat Garden Resort [RES-#${resId}]`
-
-  body =
-    `Dear ${guestName},\n\n` +
-    `We are delighted to confirm your reservation at PolChat Garden Resort!\n\n` +
-    `--- RESERVATION DETAILS ---\n` +
-    `Reservation No: RES-#${resId}\n` +
-    `Scheduled Date: ${dateStr}\n` +
-    `Guests: ${reservation.guest_count || 1} Pax\n` +
-    `Status: CONFIRMED\n\n` +
-    `Resort Address: PolChat Garden, 346 Monaco Street Antipolo Calabarzon\n` +
-    `For inquiries or directions, contact us at 0953 495 4389 or reply to polchat2k20@gmail.com.\n\n` +
-    `We look forward to welcoming you to our garden oasis!\n\n` +
-    `PolChat Garden Resort Team`
-} else if (
-  newStatus === 'arrived' ||
-  newStatus === 'completed'
-) {
-  subject =
-    `Welcome to PolChat Garden Resort [RES-#${resId}]`
-
-  body =
-    `Dear ${guestName},\n\n` +
-    `Thank you for arriving for your reservation at PolChat Garden Resort!\n\n` +
-    `--- RESERVATION DETAILS ---\n` +
-    `Reservation No: RES-#${resId}\n` +
-    `Scheduled Date: ${dateStr}\n` +
-    `Guests: ${reservation.guest_count || 1} Pax\n` +
-    `Status: ARRIVED\n\n` +
-    `We hope you and your guests enjoy your stay and have a wonderful time at the resort.\n\n` +
-    `If you need assistance during your stay, please approach our team and we will be happy to help.\n\n` +
-    `Enjoy your stay!\n\n` +
-    `PolChat Garden Resort Team`
-} else if (
-  newStatus === 'no_show' ||
-  newStatus === 'did_not_arrive' ||
-  newStatus === 'not_arrived'
-) {
-  subject =
-    `We Missed You - PolChat Garden Resort [RES-#${resId}]`
-
-  body =
-    `Dear ${guestName},\n\n` +
-    `Our team was expecting you for your reservation at PolChat Garden Resort, but you did not arrive during your scheduled booking.\n\n` +
-    `--- RESERVATION DETAILS ---\n` +
-    `Reservation No: RES-#${resId}\n` +
-    `Scheduled Date: ${dateStr}\n` +
-    `Guests: ${reservation.guest_count || 1} Pax\n` +
-    `Status: NO SHOW\n\n` +
-    `If your plans changed or you were unable to arrive, please contact our team if you need assistance with another booking.\n\n` +
-    `For assistance, contact PolChat Garden Resort at 0953 495 4389 or reply to polchat2k20@gmail.com.\n\n` +
-    `Thank you,\n` +
-    `PolChat Garden Resort Team`
-} else if (
-  newStatus === 'cancelled' ||
-  newStatus === 'declined' ||
-  newStatus === 'rejected'
-) {
-  subject =
-    `Reservation Cancelled - PolChat Garden Resort [RES-#${resId}]`
-
-  body =
-    `Dear ${guestName},\n\n` +
-    `Your reservation RES-#${resId} scheduled for ${dateStr} has been cancelled.\n\n` +
-    `--- RESERVATION DETAILS ---\n` +
-    `Reservation No: RES-#${resId}\n` +
-    `Scheduled Date: ${dateStr}\n` +
-    `Guests: ${reservation.guest_count || 1} Pax\n` +
-    `Status: CANCELLED\n\n` +
-    `If this cancellation was in error or if you wish to reschedule your visit, please reach out to our team at polchat2k20@gmail.com or call 0953 495 4389.\n\n` +
-    `Thank you,\n` +
-    `PolChat Garden Resort Management`
-} else {
-  return null
-}
+    if (newStatus === 'confirmed' || newStatus === 'approved' || newStatus === 'accepted') {
+      subject = `Reservation Confirmed - PolChat Garden Resort [RES-#${resId}]`
+      body = `Dear ${guestName},\n\nWe are delighted to confirm your reservation at PolChat Garden Resort!\n\n--- BOOKING DETAILS ---\nReservation No: RES-#${resId}\nScheduled Date: ${dateStr}\nGuests: ${reservation.guest_count || 1} Pax\nStatus: CONFIRMED ✓\n\nResort Address: PolChat Garden, 346 Monaco Street Antipolo Calabarzon\nFor inquiries or directions, contact us at 0953 495 4389 or reply to polchat2k20@gmail.com.\n\nWe look forward to welcoming you to our garden oasis!\n\nPolChat Garden Resort Team`
+    } else if (newStatus === 'cancelled' || newStatus === 'declined' || newStatus === 'rejected') {
+      subject = `Reservation Cancelled - PolChat Garden Resort [RES-#${resId}]`
+      body = `Dear ${guestName},\n\nYour reservation RES-#${resId} scheduled for ${dateStr} has been cancelled.\n\nIf this cancellation was in error or if you wish to reschedule your visit, please reach out to our team directly at polchat2k20@gmail.com or call 0953 495 4389.\n\nThank you,\nPolChat Garden Resort Management`
+    } else {
+      return null
+    }
 
 // Do not send a second confirmation email after booking/payment.
 // BookingReceipt already sends the official receipt email with PDF.
@@ -491,6 +420,85 @@ if (!subject || !subject.trim() || !body || !body.trim()) {
   /**
    * 3. Send Inquiry Reply Email Notification
    */
+  /**
+ * Notify the resort admin when a new inquiry is submitted.
+ */
+async sendNewInquiryAdminEmail({
+  inquiry,
+  message,
+  customerName,
+  guestName,
+  guestEmail,
+}) {
+  if (!inquiry) return null
+
+  const adminEmail = 'polchat2k20@gmail.com'
+
+  const inquiryId =
+    inquiry.inquiry_id || 'N/A'
+
+  const senderName =
+    guestName ||
+    customerName ||
+    inquiry.guest_name ||
+    inquiry.customer_name ||
+    'Guest'
+
+  const senderEmail =
+    guestEmail ||
+    inquiry.guest_email ||
+    inquiry.customer_email ||
+    ''
+
+  const inquiryLabel =
+    inquiry.inquiry_label ||
+    'General Inquiry'
+
+  const safeMessage =
+    String(message || '').trim()
+
+  const subject =
+    `New PolChat Inquiry #${inquiryId} - ${inquiryLabel}`
+
+  const body =
+    `A new inquiry has been submitted through the PolChat Garden Resort website.\n\n` +
+    `--- INQUIRY DETAILS ---\n` +
+    `Inquiry No: #${inquiryId}\n` +
+    `Guest/Customer: ${senderName}\n` +
+    `Email: ${senderEmail || 'Registered customer'}\n` +
+    `Subject: ${inquiryLabel}\n\n` +
+    `Message:\n${safeMessage || 'No message provided.'}\n\n` +
+    `Please log in to the PolChat Admin dashboard to review and respond to this inquiry.\n\n` +
+    `PolChat Garden Resort`
+
+  try {
+    await fetch('/api/send-email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: adminEmail,
+        subject,
+        body,
+      }),
+    })
+  } catch (err) {
+    console.warn(
+      'Admin inquiry notification email failed:',
+      err
+    )
+  }
+
+  return this.logAndDispatch({
+    type: 'new_inquiry_admin',
+    to: adminEmail,
+    subject,
+    body,
+    inquiryId,
+    silentToast: true,
+  })
+},
   async sendInquiryReplyEmail({ inquiry, replyMessage, customerEmail, adminName = 'PolChat Staff' }) {
     if (!inquiry) return null
 

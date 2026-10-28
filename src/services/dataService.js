@@ -805,6 +805,23 @@ const newInquiry = {
   customer_name: customerName,
 }
 
+// Notify admin once after the inquiry and initial message
+// have successfully been created.
+try {
+  await EmailService.sendNewInquiryAdminEmail({
+    inquiry: newInquiry,
+    message,
+    customerName,
+    guestName,
+    guestEmail,
+  })
+} catch (emailErr) {
+  console.warn(
+    'New inquiry admin notification failed:',
+    emailErr
+  )
+}
+
 // Keep inquiry cache synchronized with the newly created inquiry
 if (_adminCache.inquiries) {
   _adminCache.inquiries = [
