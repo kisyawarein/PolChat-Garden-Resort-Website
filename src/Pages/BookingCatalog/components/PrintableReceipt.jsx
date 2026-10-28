@@ -390,29 +390,15 @@ const handleViewPaymentProof = () => {
                 </span>
               </div>
               <div className="receipt-meta-item">
-                <span className="receipt-meta-label">Payment Proof:</span>
-                <span className="receipt-meta-val">
-                  {item.payment_proof_url ? (
-                    <button
-  type="button"
-  onClick={handleViewPaymentProof}
-  style={{
-    background: 'none',
-    border: 'none',
-    padding: 0,
-    color: '#43593B',
-    textDecoration: 'underline',
-    fontWeight: '700',
-    cursor: 'pointer',
-    font: 'inherit',
-  }}
->
-  View Screenshot ↗
-</button>
-                  ) : (
-                    item.payment_reference || 'GCash Verified'
-                  )}
-                </span>
+                <span className="receipt-meta-label">
+    Payment Proof:
+  </span>
+
+  <span className="receipt-meta-val">
+    {item.payment_proof_url
+      ? 'Attached Below'
+      : item.payment_reference || 'Not Required'}
+  </span>
               </div>
             </div>
           </div>
@@ -453,6 +439,33 @@ const handleViewPaymentProof = () => {
               </div>
             </div>
           </div>
+
+              {/* Embedded GCash Payment Proof */}
+{item.payment_proof_url && item.payment_type === 'gcash' && (
+  <div className="receipt-section receipt-payment-proof-section">
+    <h3 className="receipt-section-title">
+      PAYMENT PROOF
+    </h3>
+
+    <div className="receipt-payment-proof-card">
+      <div className="receipt-payment-proof-heading">
+        <strong>GCash Payment Screenshot</strong>
+        <span>
+          Submitted by customer for payment verification
+        </span>
+      </div>
+
+      <div className="receipt-payment-proof-image-wrap">
+        <img
+          src={item.payment_proof_url}
+          alt="GCash Payment Proof"
+          className="receipt-payment-proof-image"
+        />
+      </div>
+    </div>
+  </div>
+)}
+
 
           {/* Itemized Payment Breakdown */}
           <div className="receipt-section">

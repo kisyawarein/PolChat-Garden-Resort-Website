@@ -2586,3 +2586,57 @@
   transform: translateY(-1px);
 }
 
+
+/* Embedded payment proof inside receipt */
+.receipt-payment-proof-section {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.receipt-payment-proof-card {
+  padding: 14px;
+  background-color: #FAF8F5;
+  border: 1px solid #D8D0C3;
+  border-radius: 10px;
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+.receipt-payment-proof-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 12px;
+}
+
+.receipt-payment-proof-heading strong {
+  color: #43593B;
+  font-size: 0.88rem;
+}
+
+.receipt-payment-proof-heading span {
+  color: #796656;
+  font-size: 0.72rem;
+}
+
+.receipt-payment-proof-image-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 10px;
+  background-color: #ffffff;
+  border: 1px solid #EDE8DE;
+  border-radius: 8px;
+  box-sizing: border-box;
+}
+
+.receipt-payment-proof-image {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 420px;
+  object-fit: contain;
+  border-radius: 6px;
+}
