@@ -162,7 +162,7 @@ function Footer({ onNavigate }) {
               className="footer-bottom-button"
               onClick={() => handleLinkClick('support')}
             >
-              Privacy Policy
+              FAQs
             </button>
             <span className="footer-bottom-divider">•</span>
             <button
@@ -170,7 +170,7 @@ function Footer({ onNavigate }) {
               className="footer-bottom-button"
               onClick={() => handleLinkClick('support')}
             >
-              Terms of Service
+              Help
             </button>
             <span className="footer-bottom-divider">•</span>
             <button
@@ -178,7 +178,7 @@ function Footer({ onNavigate }) {
               className="footer-bottom-button"
               onClick={() => handleLinkClick('support')}
             >
-              Resort Guidelines
+              Inquiry
             </button>
           </div>
         </div>
