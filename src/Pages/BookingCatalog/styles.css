@@ -2557,7 +2557,7 @@
   .cal-day-details-dialog .modal-card-body { overflow-y: auto; }}
 /* Admin Booking Actions Column */
 .col-w-actions {
-  width: 120px;
+  width: 190px;
 }
 
 .cell-actions-td {
@@ -2639,4 +2639,943 @@
   max-height: 420px;
   object-fit: contain;
   border-radius: 6px;
+}
+
+/* =========================================================
+   ADMIN CALENDAR - STATUS COLOR CODING
+   ========================================================= */
+
+/* PENDING - ORANGE */
+.cal-badge-pill.cal-status-pending {
+  background: #fef3c7 !important;
+  border-left: 5px solid #f59e0b !important;
+  color: #92400e !important;
+}
+
+/* CONFIRMED / APPROVED - GREEN */
+.cal-badge-pill.cal-status-confirmed {
+  background: #dcfce7 !important;
+  border-left: 5px solid #16a34a !important;
+  color: #166534 !important;
+}
+
+/* ARRIVED - BLUE */
+.cal-badge-pill.cal-status-arrived {
+  background: #dbeafe !important;
+  border-left: 5px solid #2563eb !important;
+  color: #1e40af !important;
+}
+
+/* NO SHOW / DID NOT ARRIVE - RED */
+.cal-badge-pill.cal-status-no-show {
+  background: #fee2e2 !important;
+  border-left: 5px solid #dc2626 !important;
+  color: #991b1b !important;
+}
+
+/* CANCELLED - BLACK */
+.cal-badge-pill.cal-status-cancelled {
+  background: #111827 !important;
+  border-left: 5px solid #000000 !important;
+  color: #ffffff !important;
+  opacity: 0.85;
+}
+
+/* Status text inside each calendar booking */
+.cal-badge-status {
+  display: inline-flex;
+  align-items: center;
+  width: fit-content;
+  margin-top: 3px;
+  padding: 2px 6px;
+  border: 1px solid currentColor;
+  border-radius: 999px;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+/* =========================================================
+   ADMIN CALENDAR - PREVENT RIGHT SIDE / SATURDAY CLIPPING
+   ========================================================= */
+
+.booking-calendar-view {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+.calendar-matrix-card {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.calendar-weekdays-bar,
+.calendar-days-grid {
+  width: 100%;
+  min-width: 0;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  box-sizing: border-box;
+}
+
+.cal-day-cell {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.cal-cell-badges {
+  width: 100%;
+  min-width: 0;
+}
+
+.cal-badge-pill {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.cal-badge-type,
+.cal-badge-user {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cal-badge-status {
+  flex-shrink: 0;
+}
+
+/* ADMIN CALENDAR - READABLE BOOKING CARDS */
+
+.cal-badge-pill {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 3px;
+  padding: 5px 6px;
+  min-width: 0;
+}
+
+.cal-badge-top-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  width: 100%;
+  min-width: 0;
+}
+
+.cal-badge-top-row .cal-badge-type {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.cal-badge-top-row .cal-badge-status {
+  flex-shrink: 0;
+  margin-top: 0;
+}
+
+.cal-badge-user-full {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+/* FINAL ADMIN CALENDAR RESERVATION CARD LAYOUT */
+
+.cal-reservation-card-content {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: flex-start !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  gap: 3px !important;
+}
+
+.cal-reservation-card-content .cal-reservation-type {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: visible !important;
+  text-overflow: clip !important;
+  white-space: nowrap !important;
+  font-weight: 800 !important;
+}
+
+.cal-reservation-card-content .cal-badge-user {
+  display: block !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+
+.cal-reservation-card-content .cal-reservation-status {
+  display: inline-flex !important;
+  width: auto !important;
+  max-width: 100% !important;
+  flex-shrink: 0 !important;
+  margin-top: 1px !important;
+}
+
+/* LIST VIEW ADMIN ACTIONS */
+
+.list-action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.list-action-buttons button {
+  white-space: nowrap;
+}
+
+/* =========================================================
+   LIST VIEW - ADMIN ACTION BUTTONS
+   ========================================================= */
+
+.cell-actions-td {
+  min-width: 190px;
+  width: 190px;
+}
+
+.list-action-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.list-action-buttons button {
+  border: none;
+  border-radius: 7px;
+  padding: 7px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.list-action-buttons button:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+/* Confirm */
+.list-action-buttons .booking-btn-approve {
+  background: #16a34a;
+  color: #ffffff;
+}
+
+/* Arrived */
+.list-action-buttons .booking-btn-arrived {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+/* No Show */
+.list-action-buttons .booking-btn-no-show {
+  background: #dc2626;
+  color: #ffffff;
+}
+
+/* Cancel */
+.list-action-buttons .booking-btn-cancel {
+  background: #111827;
+  color: #ffffff;
+}
+
+/* Receipt */
+.list-action-buttons .catalog-view-receipt-btn {
+  background: #3f5f35;
+  color: #ffffff;
+}
+
+/* Completed / terminal ocular status */
+.list-action-buttons .cell-plain-text {
+  display: block;
+  width: 100%;
+  font-size: 12px;
+  white-space: normal;
+  line-height: 1.3;
+}
+
+/* =========================================================
+   CALENDAR POPUP - MATCH STATUS ACTION COLORS
+   ========================================================= */
+
+.cal-day-details-dialog .modal-sched-item-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.cal-day-details-dialog .modal-sched-item-actions button {
+  border: none;
+  border-radius: 7px;
+  padding: 7px 11px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.cal-day-details-dialog .modal-sched-item-actions button:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+/* CONFIRM - GREEN */
+.cal-day-details-dialog .booking-btn-approve {
+  background: #16a34a !important;
+  color: #ffffff !important;
+}
+
+/* ARRIVED - BLUE */
+.cal-day-details-dialog .booking-btn-arrived {
+  background: #2563eb !important;
+  color: #ffffff !important;
+}
+
+/* NO SHOW - RED */
+.cal-day-details-dialog .booking-btn-no-show {
+  background: #dc2626 !important;
+  color: #ffffff !important;
+}
+
+/* CANCELLED - BLACK */
+.cal-day-details-dialog .booking-btn-cancel {
+  background: #111827 !important;
+  color: #ffffff !important;
+}
+
+/* RECEIPT - RESORT GREEN */
+.cal-day-details-dialog .booking-btn-receipt {
+  background: #3f5f35 !important;
+  color: #ffffff !important;
+}
+
+/* STATUS FILTER DROPDOWN - FORCE VERTICAL OPTIONS */
+
+.col-dropdown-menu {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+}
+
+.col-dropdown-menu .col-dropdown-item {
+  display: block !important;
+  width: 100% !important;
+  text-align: left !important;
+  white-space: nowrap;
+  margin: 0 !important;
+}
+/* FINAL STATUS DROPDOWN ALIGNMENT */
+
+.col-dropdown-menu.col-dropdown-right {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  padding: 6px !important;
+  gap: 0 !important;
+}
+
+.col-dropdown-menu.col-dropdown-right .col-dropdown-item {
+  display: block !important;
+  width: 100% !important;
+  min-width: 0 !important;
+  margin: 0 !important;
+  padding: 10px 14px !important;
+
+  background: transparent !important;
+  border: none !important;
+  border-radius: 6px !important;
+
+  text-align: left !important;
+  white-space: nowrap !important;
+  box-sizing: border-box !important;
+}
+
+.col-dropdown-menu.col-dropdown-right .col-dropdown-item:hover {
+  background: #f3eee6 !important;
+}
+
+.col-dropdown-menu.col-dropdown-right .col-dropdown-item-active {
+  background: #eee6da !important;
+}
+/* LIST VIEW - KEEP FILTER DROPDOWNS VISIBLE */
+
+.consolidated-table-card,
+.consolidated-table-scroll {
+  overflow-x: auto;
+}
+
+.consolidated-data-table th.col-relative-th {
+  position: relative;
+  overflow: visible !important;
+}
+
+.col-dropdown-menu {
+  position: absolute;
+  z-index: 9999;
+  min-width: 180px;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+}
+
+.col-dropdown-menu .col-dropdown-item {
+  display: block !important;
+  width: 100% !important;
+  padding: 10px 14px !important;
+  margin: 0 !important;
+  text-align: left !important;
+  white-space: nowrap !important;
+}
+/* LIST VIEW - SMALLER COLUMN HEADER TEXT */
+
+.consolidated-data-table .col-header-th,
+.consolidated-data-table .col-header-text,
+.consolidated-data-table .col-header-btn {
+  font-size: 12px !important;
+}
+
+.consolidated-data-table .col-header-btn {
+  gap: 4px !important;
+}
+
+.consolidated-data-table .col-chevron-icon {
+  width: 10px;
+  height: 10px;
+  flex-shrink: 0;
+}
+
+/* LIST VIEW - FINAL COLUMN WIDTHS */
+
+.col-w-id {
+  width: 115px !important;
+}
+
+.col-w-cust {
+  width: 190px !important;
+}
+
+.col-w-type {
+  width: 150px !important;
+}
+
+.col-w-date {
+  width: 185px !important;
+}
+
+.col-w-pax {
+  width: 120px !important;
+}
+
+.col-w-payment {
+  width: 120px !important;
+}
+
+.col-w-status {
+  width: 115px !important;
+}
+
+.col-w-actions {
+  width: 210px !important;
+}
+
+/* Keep header text compact and readable */
+.consolidated-data-table .col-header-th,
+.consolidated-data-table .col-header-text,
+.consolidated-data-table .col-header-btn {
+  font-size: 12px !important;
+}
+
+/* Give each header a little breathing room */
+.consolidated-data-table th {
+  padding-left: 10px !important;
+  padding-right: 10px !important;
+}
+/* =========================================================
+   LIST VIEW - STICKY TABLE HEADER
+   ========================================================= */
+
+.consolidated-data-table thead {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.consolidated-data-table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 101;
+  background: #3f5f35;
+}
+
+/* =========================================================
+   LIST VIEW - STATUS BADGES
+   ========================================================= */
+
+.list-status-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 5px 9px;
+  border-radius: 999px;
+
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+/* PENDING - ORANGE */
+.list-status-pending {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #f59e0b;
+}
+
+/* CONFIRMED / APPROVED - GREEN */
+.list-status-confirmed,
+.list-status-approved {
+  background: #dcfce7;
+  color: #166534;
+  border: 1px solid #16a34a;
+}
+
+/* ARRIVED - BLUE */
+.list-status-arrived,
+.list-status-completed {
+  background: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #2563eb;
+}
+
+/* NO SHOW - RED */
+.list-status-no_show,
+.list-status-did_not_arrive,
+.list-status-not_arrived {
+  background: #fee2e2;
+  color: #991b1b;
+  border: 1px solid #dc2626;
+}
+
+/* CANCELLED - BLACK */
+.list-status-cancelled,
+.list-status-canceled {
+  background: #111827;
+  color: #ffffff;
+  border: 1px solid #000000;
+}
+/* =========================================================
+   PRIORITY PENDING QUEUE - MODERN CARDS
+   ========================================================= */
+
+.pending-modern-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 16px !important;
+  background: #ffffff;
+  border: 1px solid #e7dfd3 !important;
+  border-radius: 14px !important;
+  box-shadow: 0 4px 14px rgba(62, 47, 35, 0.06);
+  overflow: hidden;
+}
+
+/* Colored accent on left */
+.pending-modern-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 4px;
+}
+
+/* Resort = Green */
+.pending-modern-resort::before {
+  background: #65a30d;
+}
+
+/* Ocular = Gold */
+.pending-modern-ocular::before {
+  background: #f59e0b;
+}
+
+/* Top row */
+.pending-modern-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.pending-modern-tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.pending-modern-amount-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.pending-modern-amount-label {
+  color: #8a7969;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Customer */
+.pending-modern-customer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.pending-modern-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+
+  border-radius: 50%;
+  background: #eef4ea;
+  color: #3f5f35;
+
+  font-size: 15px;
+  font-weight: 800;
+}
+
+.pending-modern-customer-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.pending-modern-customer-text .pending-cust-name {
+  overflow: hidden;
+  color: #432b1e;
+  font-size: 16px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pending-modern-customer-text .pending-cust-phone {
+  margin-top: 2px;
+  color: #8a7969;
+  font-size: 12px;
+}
+
+/* Schedule detail box */
+.pending-modern-schedule {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+
+  padding: 12px;
+
+  background: #faf8f5;
+  border: 1px solid #eee6dc;
+  border-radius: 10px;
+}
+
+.pending-modern-schedule-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+
+.pending-modern-icon {
+  width: 18px;
+  flex-shrink: 0;
+
+  font-size: 13px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.pending-modern-schedule-row > div {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.pending-modern-field-label {
+  color: #8a7969;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.pending-modern-field-value {
+  margin-top: 2px;
+  overflow: hidden;
+
+  color: #493528;
+  font-size: 12px;
+  line-height: 1.3;
+
+  text-overflow: ellipsis;
+}
+
+/* Deposit highlight */
+.pending-modern-deposit {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  padding: 9px 11px;
+
+  background: #f0f7eb;
+  border: 1px solid #d6e9ca;
+  border-radius: 8px;
+
+  color: #3f5f35;
+  font-size: 12px;
+}
+
+/* Main admin actions */
+.pending-modern-primary-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.pending-modern-primary-actions button {
+  min-height: 38px;
+
+  border: none;
+  border-radius: 8px;
+
+  font-size: 12px;
+  font-weight: 800;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.pending-modern-primary-actions button:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* Confirm */
+.pending-modern-primary-actions .pending-btn-approve {
+  background: #3f6b35 !important;
+  color: #ffffff !important;
+}
+
+/* Decline */
+.pending-modern-primary-actions .pending-btn-cancel {
+  background: #ffffff !important;
+  color: #991b1b !important;
+  border: 1px solid #dc2626 !important;
+}
+
+/* Secondary actions */
+.pending-modern-secondary-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding-top: 2px;
+}
+
+.pending-modern-secondary-actions button {
+  padding: 4px 8px;
+
+  background: transparent !important;
+  border: none !important;
+
+  color: #5f5147 !important;
+
+  font-size: 11px;
+  font-weight: 700;
+  text-decoration: underline;
+
+  cursor: pointer;
+}
+
+.pending-modern-secondary-actions button:hover {
+  color: #3f5f35 !important;
+}
+
+/* Smaller screens */
+@media (max-width: 1200px) {
+  .pending-modern-schedule {
+    grid-template-columns: 1fr;
+  }
+}
+/* =========================================================
+   PRIORITY QUEUE - GIVE MODERN CARDS ENOUGH ROOM
+   ========================================================= */
+
+.pending-queue-list {
+  max-height: 520px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  padding: 10px !important;
+}
+
+.pending-queue-list-card {
+  height: auto !important;
+  min-height: 0 !important;
+}
+
+.pending-modern-card {
+  height: auto !important;
+  min-height: 0 !important;
+  flex-shrink: 0 !important;
+  margin-bottom: 12px !important;
+}
+
+/* Make the left column comfortable for the richer cards */
+.catalog-left-column {
+  min-width: 0;
+}
+
+/* Nice scrollbar for the pending queue */
+.pending-queue-list::-webkit-scrollbar {
+  width: 7px;
+}
+
+.pending-queue-list::-webkit-scrollbar-track {
+  background: #f5f2ed;
+  border-radius: 10px;
+}
+
+.pending-queue-list::-webkit-scrollbar-thumb {
+  background: #b8aa9b;
+  border-radius: 10px;
+}
+
+.pending-queue-list::-webkit-scrollbar-thumb:hover {
+  background: #8e7c6b;
+}
+/* =========================================================
+   BOOKING CATALOG - MAIN VIEW TABS
+   ========================================================= */
+
+.catalog-main-mode-switcher {
+  display: inline-flex;
+  align-items: stretch;
+  gap: 4px;
+
+  margin: 18px 0;
+  padding: 5px;
+
+  background: #f4efe8;
+  border: 1px solid #ddcfbf;
+  border-radius: 12px;
+
+  box-shadow: 0 2px 8px rgba(76, 55, 38, 0.06);
+}
+
+.catalog-main-mode-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  min-height: 42px;
+  padding: 10px 20px;
+
+  background: transparent;
+  color: #654a37;
+
+  border: 1px solid transparent;
+  border-radius: 8px;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.catalog-main-mode-btn:hover:not(.catalog-main-mode-btn-active) {
+  background: #ffffff;
+  border-color: #dfd4c7;
+}
+
+.catalog-main-mode-btn-active {
+  background: #435f39 !important;
+  color: #ffffff !important;
+  border-color: #435f39 !important;
+
+  box-shadow: 0 2px 6px rgba(45, 67, 38, 0.22);
+}
+
+.catalog-main-mode-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+
+  background: #d99b21;
+  color: #ffffff;
+
+  border-radius: 999px;
+
+  font-size: 11px;
+  font-weight: 800;
+}
+
+/* Make count stand out on active tab */
+.catalog-main-mode-btn-active .catalog-main-mode-count {
+  background: #ffffff;
+  color: #435f39;
 }

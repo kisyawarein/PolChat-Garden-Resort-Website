@@ -25,7 +25,62 @@ function PriorityPendingList({
         return 'Resort Package'
     }
   }
+const formatDisplayDate = (dateStr) => {
+  if (!dateStr || dateStr === 'N/A') return 'Date not specified'
 
+  const [year, month, day] = dateStr.split('-').map(Number)
+
+  if (!year || !month || !day) return dateStr
+
+  return new Date(year, month - 1, day).toLocaleDateString(
+    'en-US',
+    {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    }
+  )
+}
+
+const formatDisplayTime = (timeStr) => {
+  if (!timeStr) return ''
+
+  const [hours, minutes] = timeStr.split(':').map(Number)
+
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) {
+    return timeStr
+  }
+
+  return new Date(
+    2000,
+    0,
+    1,
+    hours,
+    minutes
+  ).toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+  })
+}
+
+const getScheduleTime = (item) => {
+  const start = formatDisplayTime(item.startTime)
+  const end = formatDisplayTime(item.endTime)
+
+  if (start && end) {
+    return `${start} - ${end}`
+  }
+
+  if (start) {
+    return start
+  }
+
+  if (item.itemType === 'ocular') {
+    return item.event || 'Timeslot not specified'
+  }
+
+  return item.package || 'Time not specified'
+}
   // Pending reservations, newest first
   const pendingReservations = reservations
     .filter((r) => r.reservation_status === 'pending')
@@ -159,50 +214,58 @@ function PriorityPendingList({
     setDeclineReason('')
   }
 
-  const renderPendingCard = (item) => (
-    <div
-      key={item.uniqueKey}
-      className="pending-item-card"
-    >
-      {/* Type & Amount */}
-      <div className="pending-item-top">
-        <div
-          style={{
-            display: 'flex',
-            gap: '6px',
-            alignItems: 'center',
-          }}
+ const renderPendingCard = (item) => (
+  <article
+    key={item.uniqueKey}
+    className={`pending-item-card pending-modern-card pending-modern-${item.itemType}`}
+  >
+    {/* Type, payment method, amount */}
+    <div className="pending-modern-top">
+      <div className="pending-modern-tags">
+        <span
+          className={`pending-type-tag tag-${item.itemType}`}
         >
-          <span
-            className={`pending-type-tag tag-${item.itemType}`}
-          >
-            {item.itemType === 'resort'
-              ? 'Resort Stay'
-              : 'Ocular Visit'}
-          </span>
-
-          {item.itemType === 'resort' && (
-            <span
-              className={`pending-payment-pill ${
-                item.paymentType === 'cash'
-                  ? 'cash-pill'
-                  : 'gcash-pill'
-              }`}
-            >
-              {item.paymentType === 'cash'
-                ? '💵 Cash'
-                : '📱 GCash'}
-            </span>
-          )}
-        </div>
-
-        <span className="pending-amount-tag">
-          {item.amount}
+          {item.itemType === 'resort'
+            ? 'Resort Stay'
+            : 'Ocular Visit'}
         </span>
+
+        {item.itemType === 'resort' && (
+          <span
+            className={`pending-payment-pill ${
+              item.paymentType === 'cash'
+                ? 'cash-pill'
+                : 'gcash-pill'
+            }`}
+          >
+            {item.paymentType === 'cash'
+              ? 'Cash'
+              : 'GCash'}
+          </span>
+        )}
       </div>
 
-      {/* Customer */}
-      <div className="pending-cust-info">
+      <div className="pending-modern-amount-wrap">
+        <span className="pending-modern-amount-label">
+          {item.itemType === 'resort' ? 'Total' : 'Fee'}
+        </span>
+
+        <strong className="pending-amount-tag">
+          {item.amount}
+        </strong>
+      </div>
+    </div>
+
+    {/* Customer */}
+    <div className="pending-modern-customer">
+      <div className="pending-modern-avatar">
+        {String(item.title || 'C')
+          .trim()
+          .charAt(0)
+          .toUpperCase()}
+      </div>
+
+      <div className="pending-modern-customer-text">
         <strong className="pending-cust-name">
           {item.title}
         </strong>
@@ -211,120 +274,144 @@ function PriorityPendingList({
           {item.phone}
         </span>
       </div>
-
-      {/* Details */}
-      <div className="pending-details-grid">
-        <div className="pending-meta-row">
-          <span className="pending-meta-label">
-            Date:
-          </span>
-          <span className="pending-meta-val">
-            {item.date}
-          </span>
-        </div>
-
-        <div className="pending-meta-row">
-          <span className="pending-meta-label">
-            Tier:
-          </span>
-          <span className="pending-meta-val">
-            {item.package}
-          </span>
-        </div>
-
-        <div className="pending-meta-row">
-          <span className="pending-meta-label">
-            Pax:
-          </span>
-          <span className="pending-meta-val">
-            {item.pax}
-          </span>
-        </div>
-
-        {item.itemType === 'resort' && (
-          <div className="pending-meta-row">
-            <span className="pending-meta-label">
-              50% Deposit:
-            </span>
-
-            <span
-              className="pending-meta-val"
-              style={{ color: '#43593B' }}
-            >
-              ₱
-              {item.downpaymentAmount?.toLocaleString()}{' '}
-              (
-              {item.paymentType === 'cash'
-                ? 'Pay at Desk'
-                : 'Verified via GCash'}
-              )
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* Actions */}
-      <div className="pending-actions-stack">
-        <div className="pending-actions-main-row">
-          <button
-            type="button"
-            className="pending-btn-approve"
-            onClick={() => {
-              if (item.itemType === 'resort') {
-                onUpdateReservationStatus(
-                  item.id,
-                  'confirmed'
-                )
-              } else {
-                onUpdateVisitationStatus(
-                  item.id,
-                  'confirmed'
-                )
-              }
-            }}
-          >
-            Approve
-          </button>
-
-          <button
-            type="button"
-            className="pending-btn-cancel"
-            onClick={() =>
-              handleOpenDeclineModal(item)
-            }
-          >
-            Decline
-          </button>
-        </div>
-
-        <div className="pending-actions-sub-row">
-          <button
-            type="button"
-            className="pending-btn-details"
-            onClick={() =>
-              setSelectedDetailsItem(item)
-            }
-          >
-            <span>Details</span>
-          </button>
-
-          {item.itemType === 'resort' &&
-            (item.photoUrl ||
-              item.raw?.payment_proof_url) && (
-              <button
-                type="button"
-                className="pending-btn-photo"
-                onClick={() =>
-                  setSelectedPhotoItem(item)
-                }
-              >
-                <span>View Photo</span>
-              </button>
-            )}
-        </div>
-      </div>
     </div>
-  )
+
+    {/* Schedule */}
+    <div className="pending-modern-schedule">
+
+      <div className="pending-modern-schedule-row">
+        <span className="pending-modern-icon">📅</span>
+
+        <div>
+          <span className="pending-modern-field-label">
+            Scheduled date
+          </span>
+
+          <strong className="pending-modern-field-value">
+            {formatDisplayDate(item.date)}
+          </strong>
+        </div>
+      </div>
+
+      <div className="pending-modern-schedule-row">
+        <span className="pending-modern-icon">🕘</span>
+
+        <div>
+          <span className="pending-modern-field-label">
+            Time
+          </span>
+
+          <strong className="pending-modern-field-value">
+            {getScheduleTime(item)}
+          </strong>
+        </div>
+      </div>
+
+      <div className="pending-modern-schedule-row">
+        <span className="pending-modern-icon">👥</span>
+
+        <div>
+          <span className="pending-modern-field-label">
+            Headcount
+          </span>
+
+          <strong className="pending-modern-field-value">
+            {item.pax}
+          </strong>
+        </div>
+      </div>
+
+      <div className="pending-modern-schedule-row">
+        <span className="pending-modern-icon">
+          {item.itemType === 'resort' ? '🏡' : '👁'}
+        </span>
+
+        <div>
+          <span className="pending-modern-field-label">
+            {item.itemType === 'resort'
+              ? 'Package'
+              : 'Visit slot'}
+          </span>
+
+          <strong className="pending-modern-field-value">
+            {item.itemType === 'resort'
+              ? item.package
+              : item.event}
+          </strong>
+        </div>
+      </div>
+
+    </div>
+
+    {/* Deposit */}
+    {item.itemType === 'resort' && (
+      <div className="pending-modern-deposit">
+        <span>Required 50% deposit</span>
+
+        <strong>
+          PHP{' '}
+          {Number(
+            item.downpaymentAmount || 0
+          ).toLocaleString()}
+        </strong>
+      </div>
+    )}
+
+    {/* Main actions */}
+    <div className="pending-modern-primary-actions">
+      <button
+        type="button"
+        className="pending-btn-approve"
+        onClick={() => {
+          if (item.itemType === 'resort') {
+            onUpdateReservationStatus(
+              item.id,
+              'confirmed'
+            )
+          } else {
+            onUpdateVisitationStatus(
+              item.id,
+              'confirmed'
+            )
+          }
+        }}
+      >
+        Confirm
+      </button>
+
+      <button
+        type="button"
+        className="pending-btn-cancel"
+        onClick={() => handleOpenDeclineModal(item)}
+      >
+        Decline
+      </button>
+    </div>
+
+    {/* Secondary actions */}
+    <div className="pending-modern-secondary-actions">
+      <button
+        type="button"
+        className="pending-btn-details"
+        onClick={() => setSelectedDetailsItem(item)}
+      >
+        View details
+      </button>
+
+      {item.itemType === 'resort' &&
+        (item.photoUrl ||
+          item.raw?.payment_proof_url) && (
+          <button
+            type="button"
+            className="pending-btn-photo"
+            onClick={() => setSelectedPhotoItem(item)}
+          >
+            View payment proof
+          </button>
+        )}
+    </div>
+  </article>
+)
 
   return (
     <div className="pending-queue-section">

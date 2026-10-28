@@ -9,10 +9,12 @@ function ListView({
   onUpdateReservationPayment,
   onUpdateVisitationStatus,
   onOpenReceipt,
+  pendingOnly = false,
+  title = 'All Reservations & Schedules',
 }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [typeFilter, setTypeFilter] = useState('all') // 'all' | 'resort' | 'ocular'
-  const [statusFilter, setStatusFilter] = useState('all') // 'all' | 'pending' | 'confirmed' | 'cancelled'
+  const [statusFilter, setStatusFilter] = useState('all') // 'all' | 'pending' | 'confirmed' | 'arrived' | 'no_show' | 'cancelled'
   const [paymentFilter, setPaymentFilter] = useState('all') // 'all' | 'dep_pending' | 'dep_paid' | 'pending_bal' | 'full_paid' | 'free'
   const [sortField, setSortField] = useState('date') // 'date' | 'customerName' | 'guestCount'
   const [sortDirection, setSortDirection] = useState('desc') // 'asc' | 'desc'
@@ -83,7 +85,16 @@ function ListView({
   // Filter the consolidated list
   const filteredList = consolidatedList.filter((item) => {
     // Status filter
-    const matchesStatus = statusFilter === 'all' || item.status === statusFilter
+  const normalizedItemStatus = String(
+  item.status || 'pending'
+)
+  .trim()
+  .toLowerCase()
+
+const matchesStatus = pendingOnly
+  ? normalizedItemStatus === 'pending'
+  : statusFilter === 'all' ||
+    normalizedItemStatus === statusFilter
 
     // Type filter
     const matchesType = typeFilter === 'all' || item.itemType === typeFilter
@@ -165,7 +176,9 @@ function ListView({
     <div className="schedule-list-section">
       {/* List Header Container Card */}
       <div className="catalog-panel-header-card">
-        <h2 className="catalog-panel-title">All Reservations & Schedules</h2>
+        <h2 className="catalog-panel-title">
+  {title}
+</h2>
 
         <div className="catalog-header-controls">
           {/* Search bar */}
@@ -214,10 +227,50 @@ function ListView({
               </button>
             )}
           </div>
+{/* Pending Queue Type Switcher */}
+{pendingOnly && (
+  <div className="schedule-mode-switcher">
+    <button
+      type="button"
+      className={`schedule-mode-btn ${
+        typeFilter === 'all'
+          ? 'schedule-mode-btn-active'
+          : ''
+      }`}
+      onClick={() => setTypeFilter('all')}
+    >
+      <span>All Pending</span>
+    </button>
+
+    <button
+      type="button"
+      className={`schedule-mode-btn ${
+        typeFilter === 'resort'
+          ? 'schedule-mode-btn-active'
+          : ''
+      }`}
+      onClick={() => setTypeFilter('resort')}
+    >
+      <span>Reservations</span>
+    </button>
+
+    <button
+      type="button"
+      className={`schedule-mode-btn ${
+        typeFilter === 'ocular'
+          ? 'schedule-mode-btn-active'
+          : ''
+      }`}
+      onClick={() => setTypeFilter('ocular')}
+    >
+      <span>Ocular</span>
+    </button>
+  </div>
+)}
 
           {/* List and Calendar View Mode Switcher */}
-          {setViewMode && (
-            <div className="schedule-mode-switcher">
+{setViewMode && !pendingOnly && (
+  <div className="schedule-mode-switcher">
               <button
                 type="button"
                 className={`schedule-mode-btn ${viewMode === 'list' ? 'schedule-mode-btn-active' : ''}`}
@@ -273,16 +326,16 @@ function ListView({
       <div className="consolidated-table-card">
         <div className="consolidated-table-scroll">
           <table className="consolidated-data-table">
-            <colgroup>
-              <col className="col-w-id" />
-              <col className="col-w-cust" />
-              <col className="col-w-type" />
-              <col className="col-w-date" />
-              <col className="col-w-pax" />
-              <col className="col-w-payment" />
-              <col className="col-w-status" />
-              <col className="col-w-actions" />
-            </colgroup>
+<colgroup>
+  <col className="col-w-id" />
+  <col className="col-w-cust" />
+  <col className="col-w-type" />
+  <col className="col-w-date" />
+  <col className="col-w-pax" />
+  <col className="col-w-payment" />
+  <col className="col-w-status" />
+  <col className="col-w-actions" />
+</colgroup>
             <thead ref={tableHeaderRef}>
               <tr>
                 {/* Column I: Booking ID */}
@@ -453,62 +506,123 @@ function ListView({
                   )}
                 </th>
 
-                {/* Column VII: Status (Right-aligned dropdown to prevent overflow) */}
-                <th className="col-header-th col-relative-th">
-                  <button
-                    type="button"
-                    className={`col-header-btn ${statusFilter !== 'all' ? 'col-btn-filtered' : ''}`}
-                    onClick={() => toggleDropdown('status')}
-                  >
-                    <span>Status</span>
-                    {renderChevron(openDropdown === 'status')}
-                  </button>
+{/* Column VII: Status */}
+<th className="col-header-th col-relative-th">
+  {pendingOnly ? (
+    <span className="col-header-text">
+      Status
+    </span>
+  ) : (
+    <>
+      <button
+        type="button"
+        className={`col-header-btn ${
+          statusFilter !== 'all'
+            ? 'col-btn-filtered'
+            : ''
+        }`}
+        onClick={() => toggleDropdown('status')}
+      >
+        <span>Status</span>
+        {renderChevron(openDropdown === 'status')}
+      </button>
 
-                  {openDropdown === 'status' && (
-                    <div className="col-dropdown-menu col-dropdown-right">
-                      <button
-                        type="button"
-                        className={`col-dropdown-item ${statusFilter === 'all' ? 'col-dropdown-item-active' : ''}`}
-                        onClick={() => {
-                          setStatusFilter('all')
-                          setOpenDropdown(null)
-                        }}
-                      >
-                        All Statuses
-                      </button>
-                      <button
-                        type="button"
-                        className={`col-dropdown-item ${statusFilter === 'pending' ? 'col-dropdown-item-active' : ''}`}
-                        onClick={() => {
-                          setStatusFilter('pending')
-                          setOpenDropdown(null)
-                        }}
-                      >
-                        Pending
-                      </button>
-                      <button
-                        type="button"
-                        className={`col-dropdown-item ${statusFilter === 'confirmed' ? 'col-dropdown-item-active' : ''}`}
-                        onClick={() => {
-                          setStatusFilter('confirmed')
-                          setOpenDropdown(null)
-                        }}
-                      >
-                        Confirmed
-                      </button>
-                      <button
-                        type="button"
-                        className={`col-dropdown-item ${statusFilter === 'cancelled' ? 'col-dropdown-item-active' : ''}`}
-                        onClick={() => {
-                          setStatusFilter('cancelled')
-                          setOpenDropdown(null)
-                        }}
-                      >
-                        Cancelled
-                      </button>
-                    </div>
-                  )}
-                </th>
+      {openDropdown === 'status' && (
+        <div className="col-dropdown-menu col-dropdown-right">
+          <button
+            type="button"
+            className={`col-dropdown-item ${
+              statusFilter === 'all'
+                ? 'col-dropdown-item-active'
+                : ''
+            }`}
+            onClick={() => {
+              setStatusFilter('all')
+              setOpenDropdown(null)
+            }}
+          >
+            All Statuses
+          </button>
+
+          <button
+            type="button"
+            className={`col-dropdown-item ${
+              statusFilter === 'pending'
+                ? 'col-dropdown-item-active'
+                : ''
+            }`}
+            onClick={() => {
+              setStatusFilter('pending')
+              setOpenDropdown(null)
+            }}
+          >
+            Pending
+          </button>
+
+          <button
+            type="button"
+            className={`col-dropdown-item ${
+              statusFilter === 'confirmed'
+                ? 'col-dropdown-item-active'
+                : ''
+            }`}
+            onClick={() => {
+              setStatusFilter('confirmed')
+              setOpenDropdown(null)
+            }}
+          >
+            Confirmed
+          </button>
+
+          <button
+            type="button"
+            className={`col-dropdown-item ${
+              statusFilter === 'arrived'
+                ? 'col-dropdown-item-active'
+                : ''
+            }`}
+            onClick={() => {
+              setStatusFilter('arrived')
+              setOpenDropdown(null)
+            }}
+          >
+            Arrived
+          </button>
+
+          <button
+            type="button"
+            className={`col-dropdown-item ${
+              statusFilter === 'no_show'
+                ? 'col-dropdown-item-active'
+                : ''
+            }`}
+            onClick={() => {
+              setStatusFilter('no_show')
+              setOpenDropdown(null)
+            }}
+          >
+            No Show
+          </button>
+
+          <button
+            type="button"
+            className={`col-dropdown-item ${
+              statusFilter === 'cancelled'
+                ? 'col-dropdown-item-active'
+                : ''
+            }`}
+            onClick={() => {
+              setStatusFilter('cancelled')
+              setOpenDropdown(null)
+            }}
+          >
+            Cancelled
+          </button>
+        </div>
+      )}
+    </>
+  )}
+</th>
                 {/* Column VIII: Actions */}
 <th className="col-header-th">
   <span className="col-header-text">
@@ -521,7 +635,7 @@ function ListView({
             <tbody>
               {filteredList.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="consolidated-empty-cell">
+                  <td colSpan="8" className="consolidated-empty-cell">
                     No bookings found matching the selected filters.
                   </td>
                 </tr>
@@ -571,30 +685,134 @@ function ListView({
                       </span>
                     </td>
 
-                    {/* Column VII: Status */}
-                    <td className="cell-status-td">
-                      <span className="cell-plain-text">
-                        {item.status ? item.status.charAt(0).toUpperCase() + item.status.slice(1) : 'Pending'}
-                      </span>
-                    </td>
-                    {/* Column VIII: Actions */}
-<td className="cell-actions-td">
-  {item.itemType === 'resort' ? (
-    <button
-      type="button"
-      className="catalog-view-receipt-btn"
-      onClick={() => {
-        if (onOpenReceipt) {
-          onOpenReceipt(item.raw)
-        }
-      }}
-    >
-      View Receipt
-    </button>
-  ) : (
-    <span className="cell-plain-text">—</span>
-  )}
+{/* Column VII: Status */}
+<td className="cell-status-td">
+  <span
+    className={`list-status-badge list-status-${String(
+      item.status || 'pending'
+    )
+      .trim()
+      .toLowerCase()
+      .replace(/\s+/g, '_')}`}
+  >
+    {item.status === 'no_show'
+      ? 'NO SHOW'
+      : String(item.status || 'pending')
+          .replace(/_/g, ' ')
+          .toUpperCase()}
+  </span>
 </td>
+                    {/* Column VIII: Actions */}
+{/* Column VIII: Actions */}
+<td className="cell-actions-td">
+  <div className="list-action-buttons">
+
+    {/* PENDING */}
+    {item.status === 'pending' && (
+      <>
+        <button
+          type="button"
+          className="booking-btn-approve"
+          onClick={() => {
+            if (item.itemType === 'resort') {
+              onUpdateReservationStatus(item.id, 'confirmed')
+            } else {
+              onUpdateVisitationStatus(item.id, 'confirmed')
+            }
+          }}
+        >
+          Confirm
+        </button>
+
+        <button
+          type="button"
+          className="booking-btn-cancel"
+          onClick={() => {
+            if (item.itemType === 'resort') {
+              onUpdateReservationStatus(item.id, 'cancelled')
+            } else {
+              onUpdateVisitationStatus(item.id, 'cancelled')
+            }
+          }}
+        >
+          Cancel
+        </button>
+      </>
+    )}
+
+    {/* CONFIRMED */}
+    {item.status === 'confirmed' && (
+      <>
+        <button
+          type="button"
+          className="booking-btn-arrived"
+          onClick={() => {
+            if (item.itemType === 'resort') {
+              onUpdateReservationStatus(item.id, 'arrived')
+            } else {
+              onUpdateVisitationStatus(item.id, 'arrived')
+            }
+          }}
+        >
+          Arrived
+        </button>
+
+        <button
+          type="button"
+          className="booking-btn-no-show"
+          onClick={() => {
+            if (item.itemType === 'resort') {
+              onUpdateReservationStatus(item.id, 'no_show')
+            } else {
+              onUpdateVisitationStatus(item.id, 'no_show')
+            }
+          }}
+        >
+          No Show
+        </button>
+
+        <button
+          type="button"
+          className="booking-btn-cancel"
+          onClick={() => {
+            if (item.itemType === 'resort') {
+              onUpdateReservationStatus(item.id, 'cancelled')
+            } else {
+              onUpdateVisitationStatus(item.id, 'cancelled')
+            }
+          }}
+        >
+          Cancel
+        </button>
+      </>
+    )}
+
+    {/* RESORT RECEIPT */}
+    {item.itemType === 'resort' && (
+      <button
+        type="button"
+        className="catalog-view-receipt-btn"
+        onClick={() => {
+          if (onOpenReceipt) {
+            onOpenReceipt(item.raw)
+          }
+        }}
+      >
+        View Receipt
+      </button>
+    )}
+
+    {/* FINISHED OCULAR STATES */}
+    {item.itemType === 'ocular' &&
+      ['arrived', 'no_show', 'cancelled'].includes(item.status) && (
+        <span className="cell-plain-text">
+          No further action
+        </span>
+      )}
+
+  </div>
+</td>
+
                   </tr>
                 ))
               )}

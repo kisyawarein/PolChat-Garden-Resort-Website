@@ -6,6 +6,7 @@ function CalendarView({
   reservations,
   visitations,
   onUpdateReservationStatus,
+  onUpdateVisitationStatus,
   onOpenReceipt,
 }) {
   const [currentDate, setCurrentDate] = useState(new Date())
@@ -77,6 +78,65 @@ function CalendarView({
         return 'Resort'
     }
   }
+
+
+  const normalizeStatus = (status) => {
+  return String(status || 'pending')
+    .trim()
+    .toLowerCase()
+    .replace(/\s+/g, '_')
+}
+
+const getStatusClass = (status) => {
+  const normalizedStatus = normalizeStatus(status)
+
+  switch (normalizedStatus) {
+    case 'confirmed':
+    case 'approved':
+      return 'cal-status-confirmed'
+
+    case 'arrived':
+    case 'completed':
+      return 'cal-status-arrived'
+
+    case 'cancelled':
+    case 'canceled':
+      return 'cal-status-cancelled'
+
+    case 'no_show':
+    case 'did_not_arrive':
+    case 'not_arrived':
+      return 'cal-status-no-show'
+
+    case 'pending':
+    default:
+      return 'cal-status-pending'
+  }
+}
+
+const getStatusLabel = (status) => {
+  const normalizedStatus = normalizeStatus(status)
+
+  switch (normalizedStatus) {
+    case 'confirmed':
+      return 'Confirmed'
+    case 'approved':
+      return 'Approved'
+    case 'arrived':
+    case 'completed':
+      return 'Arrived'
+    case 'cancelled':
+    case 'canceled':
+      return 'Cancelled'
+    case 'no_show':
+    case 'did_not_arrive':
+    case 'not_arrived':
+      return 'No Show'
+    case 'pending':
+    default:
+      return 'Pending'
+  }
+}
 
   return (
     <div className="booking-calendar-view">
@@ -233,27 +293,47 @@ function CalendarView({
                 </div>
 
                 <div className="cal-cell-badges">
-                  {dayRes.map((res) => (
-                    <div
-                      key={res.reservation_id}
-                      className={`cal-badge-pill ${getPackageBadgeClass(res.duration_id)}`}
-                      title={`${getPackageShortLabel(res.duration_id)} - ${res.customer_name} (${res.reservation_status})`}
-                    >
-                      <span className="cal-badge-type">{getPackageShortLabel(res.duration_id)}</span>
-                      <span className="cal-badge-user">{res.customer_name || `Cust #${res.customer_id}`}</span>
-                    </div>
-                  ))}
+{dayRes.map((res) => (
+  <div
+    key={res.reservation_id}
+    className={`cal-badge-pill ${getPackageBadgeClass(res.duration_id)} ${getStatusClass(res.reservation_status)}`}
+    title={`${getPackageShortLabel(res.duration_id)} - ${res.customer_name || `Customer #${res.customer_id}`} (${getStatusLabel(res.reservation_status)})`}
+  >
+    <div className="cal-reservation-card-content">
+      <span className="cal-badge-type cal-reservation-type">
+        {getPackageShortLabel(res.duration_id)}
+      </span>
 
-                  {dayVis.map((vis) => (
-                    <div
-                      key={vis.visitation_id}
-                      className="cal-badge-pill cal-badge-ocular"
-                      title={`Ocular Visit: ${vis.customer_name} (${vis.slot_type})`}
-                    >
-                      <span className="cal-badge-type">Ocular</span>
-                      <span className="cal-badge-user">{vis.customer_name}</span>
-                    </div>
-                  ))}
+      <span className="cal-badge-user cal-badge-user-full">
+        {res.customer_name || `Customer #${res.customer_id}`}
+      </span>
+
+      <span className="cal-badge-status cal-reservation-status">
+        {getStatusLabel(res.reservation_status)}
+      </span>
+    </div>
+  </div>
+))}
+
+{dayVis.map((vis) => (
+  <div
+    key={vis.visitation_id}
+    className={`cal-badge-pill cal-badge-ocular ${getStatusClass(vis.visitation_status)}`}
+    title={`Ocular Visit: ${vis.customer_name || `Customer #${vis.customer_id}`} - ${vis.slot_type} (${getStatusLabel(vis.visitation_status)})`}
+  >
+    <span className="cal-badge-type">
+      Ocular
+    </span>
+
+    <span className="cal-badge-user">
+      {vis.customer_name || `Customer #${vis.customer_id}`}
+    </span>
+
+    <span className="cal-badge-status">
+      {getStatusLabel(vis.visitation_status)}
+    </span>
+  </div>
+))}
                 </div>
               </div>
             )
@@ -295,64 +375,234 @@ function CalendarView({
                             {r.reservation_status.toUpperCase()}
                           </span>
                         </div>
-                        <div className="modal-sched-item-body">
-                          <div><strong>Package:</strong> {getPackageShortLabel(r.duration_id)} ({r.guest_count} Pax)</div>
-                          <div><strong>Event:</strong> {r.event_name || 'Group Gathering'}</div>
-                          <div><strong>Contact:</strong> {r.customer_phone || '0917-xxx-xxxx'}</div>
-                          <div><strong>Cost:</strong> PHP {((r.reservation_cost || 0) + (r.extra_charges || 0)).toLocaleString()}</div>
-                        </div>
-                        <div className="modal-sched-item-actions">
-                          {r.reservation_status === 'pending' && (
-                            <button
-                              type="button"
-                              className="booking-btn-approve"
-                              onClick={() => {
-                                onUpdateReservationStatus(r.reservation_id, 'confirmed')
-                                setSelectedDayDetails(null)
-                              }}
-                            >
-                              Approve
-                            </button>
-                          )}
-                          <button
-                            type="button"
-                            className="booking-btn-receipt"
-                            onClick={() => {
-                              onOpenReceipt(r)
-                              setSelectedDayDetails(null)
-                            }}
-                          >
-                            Print Receipt
-                          </button>
-                        </div>
+
+<div className="modal-sched-item-actions">
+  {normalizeStatus(r.reservation_status) === 'pending' && (
+    <>
+      <button
+        type="button"
+        className="booking-btn-approve"
+        onClick={async () => {
+          await onUpdateReservationStatus(
+            r.reservation_id,
+            'confirmed'
+          )
+          setSelectedDayDetails(null)
+        }}
+      >
+        Confirm
+      </button>
+
+      <button
+        type="button"
+        className="booking-btn-cancel"
+        onClick={async () => {
+          await onUpdateReservationStatus(
+            r.reservation_id,
+            'cancelled'
+          )
+          setSelectedDayDetails(null)
+        }}
+      >
+        Cancel
+      </button>
+    </>
+  )}
+
+  {normalizeStatus(r.reservation_status) === 'confirmed' && (
+    <>
+      <button
+        type="button"
+        className="booking-btn-arrived"
+        onClick={async () => {
+          await onUpdateReservationStatus(
+            r.reservation_id,
+            'arrived'
+          )
+          setSelectedDayDetails(null)
+        }}
+      >
+        Arrived
+      </button>
+
+      <button
+        type="button"
+        className="booking-btn-no-show"
+        onClick={async () => {
+          await onUpdateReservationStatus(
+            r.reservation_id,
+            'no_show'
+          )
+          setSelectedDayDetails(null)
+        }}
+      >
+        No Show
+      </button>
+
+      <button
+        type="button"
+        className="booking-btn-cancel"
+        onClick={async () => {
+          await onUpdateReservationStatus(
+            r.reservation_id,
+            'cancelled'
+          )
+          setSelectedDayDetails(null)
+        }}
+      >
+        Cancel
+      </button>
+    </>
+  )}
+
+  <button
+    type="button"
+    className="booking-btn-receipt"
+    onClick={() => {
+      onOpenReceipt(r)
+      setSelectedDayDetails(null)
+    }}
+  >
+    Print Receipt
+  </button>
+</div>
                       </div>
                     ))}
                   </div>
                 </div>
               )}
 
-              {selectedDayDetails.dayVis.length > 0 && (
-                <div className="modal-sched-section">
-                  <h4 className="modal-sched-heading">Ocular Visitations</h4>
-                  <div className="modal-sched-stack">
-                    {selectedDayDetails.dayVis.map((v) => (
-                      <div key={v.visitation_id} className="modal-sched-item">
-                        <div className="modal-sched-item-header">
-                          <strong>#{v.visitation_id} - {v.customer_name}</strong>
-                          <span className={`booking-status-badge status-${v.visitation_status}`}>
-                            {v.visitation_status.toUpperCase()}
-                          </span>
-                        </div>
-                        <div className="modal-sched-item-body">
-                          <div><strong>Timeslot:</strong> {v.slot_type}</div>
-                          <div><strong>Visitors:</strong> {v.guest_count}</div>
-                          <div><strong>Purpose:</strong> {v.purpose}</div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+              
+                {selectedDayDetails.dayVis.length > 0 && (
+  <div className="modal-sched-section">
+    <h4 className="modal-sched-heading">
+      Ocular Visitations
+    </h4>
+
+    <div className="modal-sched-stack">
+      {selectedDayDetails.dayVis.map((v) => {
+        const visitationStatus = normalizeStatus(v.visitation_status)
+
+        return (
+          <div
+            key={v.visitation_id}
+            className="modal-sched-item"
+          >
+            <div className="modal-sched-item-header">
+              <strong>
+                #{v.visitation_id} -{' '}
+                {v.customer_name || `Customer #${v.customer_id}`}
+              </strong>
+
+              <span
+                className={`booking-status-badge status-${visitationStatus}`}
+              >
+                {getStatusLabel(v.visitation_status)}
+              </span>
+            </div>
+
+            <div className="modal-sched-item-body">
+              <div>
+                <strong>Timeslot:</strong>{' '}
+                {v.slot_type || 'Not specified'}
+              </div>
+
+              <div>
+                <strong>Visitors:</strong>{' '}
+                {v.guest_count || 0}
+              </div>
+
+              <div>
+                <strong>Purpose:</strong>{' '}
+                {v.purpose || 'Not specified'}
+              </div>
+            </div>
+
+            <div className="modal-sched-item-actions">
+              {visitationStatus === 'pending' && (
+                <>
+                  <button
+                    type="button"
+                    className="booking-btn-approve"
+                    onClick={async () => {
+                      await onUpdateVisitationStatus(
+                        v.visitation_id,
+                        'confirmed'
+                      )
+                      setSelectedDayDetails(null)
+                    }}
+                  >
+                    Confirm
+                  </button>
+
+                  <button
+                    type="button"
+                    className="booking-btn-cancel"
+                    onClick={async () => {
+                      await onUpdateVisitationStatus(
+                        v.visitation_id,
+                        'cancelled'
+                      )
+                      setSelectedDayDetails(null)
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </>
               )}
+
+              {visitationStatus === 'confirmed' && (
+                <>
+                  <button
+                    type="button"
+                    className="booking-btn-arrived"
+                    onClick={async () => {
+                      await onUpdateVisitationStatus(
+                        v.visitation_id,
+                        'arrived'
+                      )
+                      setSelectedDayDetails(null)
+                    }}
+                  >
+                    Arrived
+                  </button>
+
+                  <button
+                    type="button"
+                    className="booking-btn-no-show"
+                    onClick={async () => {
+                      await onUpdateVisitationStatus(
+                        v.visitation_id,
+                        'no_show'
+                      )
+                      setSelectedDayDetails(null)
+                    }}
+                  >
+                    No Show
+                  </button>
+
+                  <button
+                    type="button"
+                    className="booking-btn-cancel"
+                    onClick={async () => {
+                      await onUpdateVisitationStatus(
+                        v.visitation_id,
+                        'cancelled'
+                      )
+                      setSelectedDayDetails(null)
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        )
+      })}
+    </div>
+  </div>
+)}
             </div>
 
             <div className="modal-card-footer">
