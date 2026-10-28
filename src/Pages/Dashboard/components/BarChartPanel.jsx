@@ -1,7 +1,11 @@
-import React, { useState } from 'react'
+import React, { useMemo, useState } from 'react'
 
-function BarChartPanel({ reservations = [], visitations = [], onExportCsv }) {
-  const [selectedView, setSelectedView] = useState('packages') // 'packages' | 'status'
+function BarChartPanel({
+  reservations = [],
+  visitations = [],
+  onExportCsv,
+}) {
+  const [selectedView, setSelectedView] = useState('packages')
   const [isViewMenuOpen, setIsViewMenuOpen] = useState(false)
   const [hoveredBar, setHoveredBar] = useState(null)
 
@@ -20,49 +24,380 @@ function BarChartPanel({ reservations = [], visitations = [], onExportCsv }) {
     'Custom range',
   ]
 
-  // Multipliers based on date range for realistic dynamic scaling
-  const getScaleMultiplier = () => {
-    switch (dateRange) {
-      case 'This Week': return 0.2
-      case 'This Month': return 0.45
-      case 'Last 3 Months': return 0.75
-      case 'Last 3 Years': return 3.2
-      case 'Custom range': return 0.8
-      case 'This Year':
-      default: return 1.0
+  /*
+   * Converts a database date value into a JavaScript Date.
+   *
+   * Date-only values such as "2026-10-29" are parsed as local dates.
+   * This prevents them from moving to the previous day because of
+   * timezone conversion.
+   */
+  const parseDateValue = (value) => {
+    if (!value) return null
+
+    if (value instanceof Date) {
+      return Number.isNaN(value.getTime()) ? null : value
+    }
+
+    if (typeof value === 'string') {
+      const trimmedValue = value.trim()
+
+      const dateOnlyMatch = trimmedValue.match(
+        /^(\d{4})-(\d{2})-(\d{2})$/
+      )
+
+      if (dateOnlyMatch) {
+        const [, year, month, day] = dateOnlyMatch
+
+        const localDate = new Date(
+          Number(year),
+          Number(month) - 1,
+          Number(day)
+        )
+
+        return Number.isNaN(localDate.getTime()) ? null : localDate
+      }
+    }
+
+    const parsedDate = new Date(value)
+
+    return Number.isNaN(parsedDate.getTime()) ? null : parsedDate
+  }
+
+  /*
+   * Finds the reservation date.
+   *
+   * The first available date field is used. Place the actual booking
+   * schedule fields before created_at so the chart measures scheduled
+   * visits instead of the date the database row was created.
+   */
+const getReservationDate = (reservation) => {
+  if (!reservation) return null
+
+  const value =
+    reservation.start_date ??
+    reservation.reservation_start_date ??
+    reservation.reservation_date ??
+    reservation.booking_date ??
+    reservation.check_in_date ??
+    reservation.checkin_date ??
+    reservation.visit_date ??
+    reservation.date_reserved ??
+    reservation.created_at ??
+    reservation.date_created
+
+  return parseDateValue(value)
+}
+
+  /*
+   * Finds the ocular visitation date.
+   */
+  const getVisitationDate = (visitation) => {
+    if (!visitation) return null
+
+    const value =
+      visitation.visitation_start_date ??
+      visitation.visitation_date ??
+      visitation.visit_date ??
+      visitation.schedule_date ??
+      visitation.start_date ??
+      visitation.created_at ??
+      visitation.date_created
+
+    return parseDateValue(value)
+  }
+
+  const startOfDay = (date) => {
+    const result = new Date(date)
+    result.setHours(0, 0, 0, 0)
+    return result
+  }
+
+  const endOfDay = (date) => {
+    const result = new Date(date)
+    result.setHours(23, 59, 59, 999)
+    return result
+  }
+
+  /*
+   * Returns the beginning and end of the selected date period.
+   */
+ const selectedDateBounds = useMemo(() => {
+  const now = new Date()
+
+  let start = startOfDay(now)
+  let end = endOfDay(now)
+
+  switch (dateRange) {
+    case 'This Week': {
+      // Monday through Sunday of the current calendar week
+      const currentDay = now.getDay()
+      const daysSinceMonday =
+        currentDay === 0 ? 6 : currentDay - 1
+
+      start = startOfDay(now)
+      start.setDate(start.getDate() - daysSinceMonday)
+
+      end = endOfDay(start)
+      end.setDate(end.getDate() + 6)
+
+      break
+    }
+
+    case 'This Month': {
+      // Entire current calendar month
+      start = startOfDay(
+        new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          1
+        )
+      )
+
+      end = endOfDay(
+        new Date(
+          now.getFullYear(),
+          now.getMonth() + 1,
+          0
+        )
+      )
+
+      break
+    }
+
+    case 'Last 3 Months': {
+      // Rolling three-month period ending today
+      start = startOfDay(now)
+      start.setMonth(start.getMonth() - 3)
+
+      end = endOfDay(now)
+
+      break
+    }
+
+    case 'Last 3 Years': {
+      // Rolling three-year period ending today
+      start = startOfDay(now)
+      start.setFullYear(start.getFullYear() - 3)
+
+      end = endOfDay(now)
+
+      break
+    }
+
+    case 'Custom range': {
+      const parsedStart = parseDateValue(customStart)
+      const parsedEnd = parseDateValue(customEnd)
+
+      start = parsedStart
+        ? startOfDay(parsedStart)
+        : null
+
+      end = parsedEnd
+        ? endOfDay(parsedEnd)
+        : null
+
+      break
+    }
+
+    case 'This Year':
+    default: {
+      // Entire calendar year, including future scheduled bookings
+      start = startOfDay(
+        new Date(
+          now.getFullYear(),
+          0,
+          1
+        )
+      )
+
+      end = endOfDay(
+        new Date(
+          now.getFullYear(),
+          11,
+          31
+        )
+      )
+
+      break
     }
   }
 
-  const mult = getScaleMultiplier()
+  return { start, end }
+}, [dateRange, customStart, customEnd])
 
-  // Base counts
-  const realDayTour = reservations.filter((r) => r.duration_id === 1).length
-  const realOvernight = reservations.filter((r) => r.duration_id === 2).length
-  const realDay22 = reservations.filter((r) => r.duration_id === 3).length
-  const realNight22 = reservations.filter((r) => r.duration_id === 4).length
-  const realOcular = visitations.length
+  /*
+   * Checks whether a record date is inside the selected period.
+   */
+  const isInsideSelectedRange = (recordDate) => {
+    if (!recordDate) return false
+
+    const { start, end } = selectedDateBounds
+
+    if (!start || !end) return false
+    if (start.getTime() > end.getTime()) return false
+
+    const recordTime = recordDate.getTime()
+
+    return (
+      recordTime >= start.getTime() &&
+      recordTime <= end.getTime()
+    )
+  }
+
+  /*
+   * Filter the source records before calculating chart values.
+   */
+  const filteredReservations = useMemo(() => {
+    return reservations.filter((reservation) => {
+      const reservationDate = getReservationDate(reservation)
+      return isInsideSelectedRange(reservationDate)
+    })
+  }, [reservations, selectedDateBounds])
+
+  const filteredVisitations = useMemo(() => {
+    return visitations.filter((visitation) => {
+      const visitationDate = getVisitationDate(visitation)
+      return isInsideSelectedRange(visitationDate)
+    })
+  }, [visitations, selectedDateBounds])
+
+  /*
+   * Converts duration_id into a number because Supabase data may
+   * sometimes provide IDs as strings.
+   */
+  const getDurationId = (reservation) => {
+    const value =
+      reservation?.duration_id ??
+      reservation?.duration_type_id ??
+      reservation?.duration?.duration_id
+
+    return Number(value)
+  }
+
+  /*
+   * Package counts based only on the filtered records.
+   */
+  const realDayTour = filteredReservations.filter(
+    (reservation) => getDurationId(reservation) === 1
+  ).length
+
+  const realOvernight = filteredReservations.filter(
+    (reservation) => getDurationId(reservation) === 2
+  ).length
+
+  const realDay22 = filteredReservations.filter(
+    (reservation) => getDurationId(reservation) === 3
+  ).length
+
+  const realNight22 = filteredReservations.filter(
+    (reservation) => getDurationId(reservation) === 4
+  ).length
+
+  const realOcular = filteredVisitations.length
 
   const packageBars = [
-    { label: 'Day Tour', count: Math.max(1, Math.round((realDayTour > 0 ? realDayTour : 18) * mult)), color: '#7CCE17', sub: '9am - 5pm' },
-    { label: 'Overnight', count: Math.max(1, Math.round((realOvernight > 0 ? realOvernight : 24) * mult)), color: '#43593B', sub: '8pm - 6am' },
-    { label: '22h Day', count: Math.max(1, Math.round((realDay22 > 0 ? realDay22 : 15) * mult)), color: '#E6BF5C', sub: '8am - 6am' },
-    { label: '22h Night', count: Math.max(1, Math.round((realNight22 > 0 ? realNight22 : 12) * mult)), color: '#ACAD79', sub: '8pm - 6pm' },
-    { label: 'Ocular', count: Math.max(1, Math.round((realOcular > 0 ? realOcular : 9) * mult)), color: '#58402E', sub: 'Inspections' },
+    {
+      label: 'Day Tour',
+      count: realDayTour,
+      color: '#7CCE17',
+      sub: '9am - 5pm',
+    },
+    {
+      label: 'Overnight',
+      count: realOvernight,
+      color: '#43593B',
+      sub: '8pm - 6am',
+    },
+    {
+      label: '22h Day',
+      count: realDay22,
+      color: '#E6BF5C',
+      sub: '8am - 6am',
+    },
+    {
+      label: '22h Night',
+      count: realNight22,
+      color: '#ACAD79',
+      sub: '8pm - 6pm',
+    },
+    {
+      label: 'Ocular',
+      count: realOcular,
+      color: '#58402E',
+      sub: 'Inspections',
+    },
   ]
 
-  const confirmedCount = reservations.filter((r) => r.reservation_status === 'confirmed').length
-  const pendingCount = reservations.filter((r) => r.reservation_status === 'pending').length
-  const paidSecDepCount = reservations.filter((r) => r.has_paid_sec_dep).length
-  const fullPaidCount = reservations.filter((r) => r.has_paid_reservation).length
+  /*
+   * Normalizes text values before comparing reservation statuses.
+   */
+  const normalizeText = (value) => {
+    return String(value ?? '').trim().toLowerCase()
+  }
+
+  /*
+   * Handles true, 1, and common text representations from the database.
+   */
+  const isTrueValue = (value) => {
+    if (value === true || value === 1) return true
+
+    const normalizedValue = normalizeText(value)
+
+    return (
+      normalizedValue === 'true' ||
+      normalizedValue === '1' ||
+      normalizedValue === 'yes' ||
+      normalizedValue === 'paid'
+    )
+  }
+
+  const confirmedCount = filteredReservations.filter(
+    (reservation) =>
+      normalizeText(reservation.reservation_status) === 'confirmed'
+  ).length
+
+  const pendingCount = filteredReservations.filter(
+    (reservation) =>
+      normalizeText(reservation.reservation_status) === 'pending'
+  ).length
+
+  const paidSecDepCount = filteredReservations.filter(
+    (reservation) => isTrueValue(reservation.has_paid_sec_dep)
+  ).length
+
+  const fullPaidCount = filteredReservations.filter(
+    (reservation) => isTrueValue(reservation.has_paid_reservation)
+  ).length
 
   const statusBars = [
-    { label: 'Confirmed', count: Math.max(1, Math.round((confirmedCount > 0 ? confirmedCount : 28) * mult)), color: '#7CCE17', sub: 'Approved' },
-    { label: 'Pending', count: Math.max(1, Math.round((pendingCount > 0 ? pendingCount : 10) * mult)), color: '#E6BF5C', sub: 'Awaiting Action' },
-    { label: 'Deposit Paid', count: Math.max(1, Math.round((paidSecDepCount > 0 ? paidSecDepCount : 22) * mult)), color: '#ACAD79', sub: 'Security Dep' },
-    { label: 'Fully Paid', count: Math.max(1, Math.round((fullPaidCount > 0 ? fullPaidCount : 19) * mult)), color: '#43593B', sub: 'Completed' },
+    {
+      label: 'Confirmed',
+      count: confirmedCount,
+      color: '#7CCE17',
+      sub: 'Approved',
+    },
+    {
+      label: 'Pending',
+      count: pendingCount,
+      color: '#E6BF5C',
+      sub: 'Awaiting Action',
+    },
+    {
+      label: 'Deposit Paid',
+      count: paidSecDepCount,
+      color: '#ACAD79',
+      sub: 'Security Dep',
+    },
+    {
+      label: 'Fully Paid',
+      count: fullPaidCount,
+      color: '#43593B',
+      sub: 'Completed',
+    },
   ]
 
-  const activeBars = selectedView === 'packages' ? packageBars : statusBars
+  const activeBars =
+    selectedView === 'packages' ? packageBars : statusBars
 
   // Chart Dimensions
   const chartWidth = 380
@@ -75,19 +410,62 @@ function BarChartPanel({ reservations = [], visitations = [], onExportCsv }) {
   const usableWidth = chartWidth - padLeft - padRight
   const usableHeight = chartHeight - padTop - padBottom
 
-  const maxVal = Math.max(...activeBars.map((b) => b.count), 15)
+  /*
+   * The chart keeps a minimum vertical scale of 5 so that an empty
+   * chart remains readable, but the actual displayed values stay at 0.
+   */
+  const highestCount = Math.max(
+    ...activeBars.map((bar) => bar.count),
+    0
+  )
+
+  const maxVal = Math.max(5, highestCount)
+
   const barSlotWidth = usableWidth / activeBars.length
   const barWidth = Math.min(barSlotWidth * 0.58, 38)
 
-  const yTicks = [0, Math.round(maxVal * 0.33), Math.round(maxVal * 0.66), maxVal]
+  /*
+   * Use unique rounded tick values to avoid duplicate React keys.
+   */
+  const yTicks = [
+    ...new Set([
+      0,
+      Math.round(maxVal * 0.33),
+      Math.round(maxVal * 0.66),
+      maxVal,
+    ]),
+  ]
+
+  const customRangeIsInvalid =
+    dateRange === 'Custom range' &&
+    selectedDateBounds.start &&
+    selectedDateBounds.end &&
+    selectedDateBounds.start.getTime() >
+      selectedDateBounds.end.getTime()
+
+  const handleExport = () => {
+    if (typeof onExportCsv !== 'function') return
+
+    onExportCsv({
+      selectedView,
+      dateRange,
+      customStart,
+      customEnd,
+      bars: activeBars,
+      reservations: filteredReservations,
+      visitations: filteredVisitations,
+    })
+  }
 
   return (
     <div className="dash-panel-box dash-bar-panel">
-      {/* Panel Header (No icon next to title) */}
+      {/* Panel Header */}
       <div className="dash-panel-bar">
         <div className="dash-panel-heading">
           <span className="dash-panel-title-text">
-            {selectedView === 'packages' ? 'Package Volume' : 'Status Breakdown'}
+            {selectedView === 'packages'
+              ? 'Package Volume'
+              : 'Status Breakdown'}
           </span>
         </div>
 
@@ -99,7 +477,7 @@ function BarChartPanel({ reservations = [], visitations = [], onExportCsv }) {
               type="button"
               className="dash-dropdown-toggle-btn"
               onClick={() => {
-                setIsDateMenuOpen(!isDateMenuOpen)
+                setIsDateMenuOpen((currentValue) => !currentValue)
                 setIsViewMenuOpen(false)
               }}
             >
@@ -109,45 +487,87 @@ function BarChartPanel({ reservations = [], visitations = [], onExportCsv }) {
 
             {isDateMenuOpen && (
               <div className="dash-dropdown-menu dash-date-menu">
-                <div className="dash-filter-menu-title">Select Timeframe</div>
-                {dateOptions.map((opt) => (
+                <div className="dash-filter-menu-title">
+                  Select Timeframe
+                </div>
+
+                {dateOptions.map((option) => (
                   <button
-                    key={opt}
+                    key={option}
                     type="button"
-                    className={`dash-dropdown-item ${dateRange === opt ? 'active' : ''}`}
+                    className={`dash-dropdown-item ${
+                      dateRange === option ? 'active' : ''
+                    }`}
                     onClick={() => {
-                      setDateRange(opt)
-                      if (opt !== 'Custom range') setIsDateMenuOpen(false)
+                      setDateRange(option)
+                      setHoveredBar(null)
+
+                      if (option !== 'Custom range') {
+                        setIsDateMenuOpen(false)
+                      }
                     }}
                   >
-                    {opt}
+                    {option}
                   </button>
                 ))}
 
                 {dateRange === 'Custom range' && (
                   <div className="dash-custom-range-box">
                     <div className="dash-range-row">
-                      <label>From:</label>
+                      <label htmlFor="dash-custom-start">
+                        From:
+                      </label>
+
                       <input
+                        id="dash-custom-start"
                         type="date"
                         value={customStart}
-                        onChange={(e) => setCustomStart(e.target.value)}
+                        onChange={(event) => {
+                          setCustomStart(event.target.value)
+                          setHoveredBar(null)
+                        }}
                         className="dash-date-input"
                       />
                     </div>
+
                     <div className="dash-range-row">
-                      <label>To:</label>
+                      <label htmlFor="dash-custom-end">
+                        To:
+                      </label>
+
                       <input
+                        id="dash-custom-end"
                         type="date"
                         value={customEnd}
-                        onChange={(e) => setCustomEnd(e.target.value)}
+                        min={customStart || undefined}
+                        onChange={(event) => {
+                          setCustomEnd(event.target.value)
+                          setHoveredBar(null)
+                        }}
                         className="dash-date-input"
                       />
                     </div>
+
+                    {customRangeIsInvalid && (
+                      <div className="dash-date-error">
+                        The end date must be on or after the start
+                        date.
+                      </div>
+                    )}
+
                     <button
                       type="button"
                       className="dash-apply-date-btn"
-                      onClick={() => setIsDateMenuOpen(false)}
+                      disabled={
+                        !customStart ||
+                        !customEnd ||
+                        customRangeIsInvalid
+                      }
+                      onClick={() => {
+                        if (!customRangeIsInvalid) {
+                          setIsDateMenuOpen(false)
+                        }
+                      }}
                     >
                       Apply
                     </button>
@@ -163,7 +583,7 @@ function BarChartPanel({ reservations = [], visitations = [], onExportCsv }) {
               type="button"
               className="dash-dropdown-toggle-btn"
               onClick={() => {
-                setIsViewMenuOpen(!isViewMenuOpen)
+                setIsViewMenuOpen((currentValue) => !currentValue)
                 setIsDateMenuOpen(false)
               }}
             >
@@ -175,20 +595,27 @@ function BarChartPanel({ reservations = [], visitations = [], onExportCsv }) {
               <div className="dash-dropdown-menu">
                 <button
                   type="button"
-                  className={`dash-dropdown-item ${selectedView === 'packages' ? 'active' : ''}`}
+                  className={`dash-dropdown-item ${
+                    selectedView === 'packages' ? 'active' : ''
+                  }`}
                   onClick={() => {
                     setSelectedView('packages')
                     setIsViewMenuOpen(false)
+                    setHoveredBar(null)
                   }}
                 >
                   By Package Type
                 </button>
+
                 <button
                   type="button"
-                  className={`dash-dropdown-item ${selectedView === 'status' ? 'active' : ''}`}
+                  className={`dash-dropdown-item ${
+                    selectedView === 'status' ? 'active' : ''
+                  }`}
                   onClick={() => {
                     setSelectedView('status')
                     setIsViewMenuOpen(false)
+                    setHoveredBar(null)
                   }}
                 >
                   By Status Breakdown
@@ -196,18 +623,45 @@ function BarChartPanel({ reservations = [], visitations = [], onExportCsv }) {
               </div>
             )}
           </div>
+
+          {/* Only render Export if the parent supplied the function */}
+          {typeof onExportCsv === 'function' && (
+            <button
+              type="button"
+              className="dash-dropdown-toggle-btn"
+              onClick={handleExport}
+            >
+              Export CSV
+            </button>
+          )}
         </div>
       </div>
 
       {/* Panel Body */}
       <div className="dash-panel-content">
         <div className="dash-chart-wrapper">
-          <svg viewBox={`0 0 ${chartWidth} ${chartHeight}`} className="dash-svg-chart">
+          <svg
+            viewBox={`0 0 ${chartWidth} ${chartHeight}`}
+            className="dash-svg-chart"
+            role="img"
+            aria-label={
+              selectedView === 'packages'
+                ? `Package volume for ${dateRange}`
+                : `Reservation status breakdown for ${dateRange}`
+            }
+          >
             {/* Horizontal Grid Lines */}
             {yTicks.map((tick) => {
-              const y = padTop + usableHeight - (tick / maxVal) * usableHeight
+              const y =
+                padTop +
+                usableHeight -
+                (tick / maxVal) * usableHeight
+
               return (
-                <g key={tick} className="dash-grid-group">
+                <g
+                  key={`tick-${tick}`}
+                  className="dash-grid-group"
+                >
                   <line
                     x1={padLeft}
                     y1={y}
@@ -215,8 +669,11 @@ function BarChartPanel({ reservations = [], visitations = [], onExportCsv }) {
                     y2={y}
                     stroke="#E4DCD3"
                     strokeWidth="1"
-                    strokeDasharray={tick === 0 ? 'none' : '3,3'}
+                    strokeDasharray={
+                      tick === 0 ? 'none' : '3,3'
+                    }
                   />
+
                   <text
                     x={padLeft - 8}
                     y={y + 4}
@@ -230,11 +687,21 @@ function BarChartPanel({ reservations = [], visitations = [], onExportCsv }) {
             })}
 
             {/* Bars */}
-            {activeBars.map((bar, idx) => {
-              const barCenterX = padLeft + idx * barSlotWidth + barSlotWidth / 2
+            {activeBars.map((bar, index) => {
+              const barCenterX =
+                padLeft +
+                index * barSlotWidth +
+                barSlotWidth / 2
+
               const barX = barCenterX - barWidth / 2
-              const bHeight = (bar.count / maxVal) * usableHeight
-              const barY = padTop + usableHeight - bHeight
+
+              const barHeight =
+                bar.count === 0
+                  ? 0
+                  : (bar.count / maxVal) * usableHeight
+
+              const barY =
+                padTop + usableHeight - barHeight
 
               return (
                 <g
@@ -253,7 +720,7 @@ function BarChartPanel({ reservations = [], visitations = [], onExportCsv }) {
                     x={barX}
                     y={barY}
                     width={barWidth}
-                    height={bHeight}
+                    height={barHeight}
                     fill={bar.color}
                     rx="4"
                     className="dash-bar-rect"
@@ -261,7 +728,11 @@ function BarChartPanel({ reservations = [], visitations = [], onExportCsv }) {
 
                   <text
                     x={barCenterX}
-                    y={barY - 5}
+                    y={
+                      bar.count === 0
+                        ? padTop + usableHeight - 5
+                        : barY - 5
+                    }
                     textAnchor="middle"
                     className="dash-bar-val-text"
                   >
@@ -290,9 +761,21 @@ function BarChartPanel({ reservations = [], visitations = [], onExportCsv }) {
                 top: `${(hoveredBar.y / chartHeight) * 100}%`,
               }}
             >
-              <div className="dash-tooltip-title">{hoveredBar.label}</div>
+              <div className="dash-tooltip-title">
+                {hoveredBar.label}
+              </div>
+
               <div className="dash-tooltip-val">
-                {hoveredBar.count} Bookings • {hoveredBar.sub}
+                {hoveredBar.count}{' '}
+                {hoveredBar.label === 'Ocular'
+                  ? hoveredBar.count === 1
+                    ? 'Inspection'
+                    : 'Inspections'
+                  : hoveredBar.count === 1
+                    ? 'Booking'
+                    : 'Bookings'}
+                {' • '}
+                {hoveredBar.sub}
               </div>
             </div>
           )}

@@ -34,67 +34,224 @@ function AreaChartPanel({ reservations = [], onExportCsv }) {
   }
 
   // Dynamic datasets based on chosen date range
-  const getPeriodsForRange = () => {
-    switch (dateRange) {
-      case 'This Week':
-        return [
-          { label: 'Mon', subLabel: 'Oct 05', revenue: 9000, volume: 22, bookings: 2 },
-          { label: 'Tue', subLabel: 'Oct 06', revenue: 15000, volume: 35, bookings: 3 },
-          { label: 'Wed', subLabel: 'Oct 07', revenue: 12000, volume: 28, bookings: 2 },
-          { label: 'Thu', subLabel: 'Oct 08', revenue: 26000, volume: 55, bookings: 4 },
-          { label: 'Fri', subLabel: 'Oct 09', revenue: 45000, volume: 90, bookings: 7 },
-          { label: 'Sat', subLabel: 'Oct 10', revenue: 68000, volume: 140, bookings: 10 },
-          { label: 'Sun', subLabel: 'Oct 11', revenue: 52000, volume: 110, bookings: 8 },
-        ]
-      case 'This Month':
-        return [
-          { label: 'Wk 1', subLabel: 'Oct', revenue: 38000, volume: 75, bookings: 6 },
-          { label: 'Wk 2', subLabel: 'Oct', revenue: 64000, volume: 130, bookings: 10 },
-          { label: 'Wk 3', subLabel: 'Oct', revenue: 89000, volume: 180, bookings: 14 },
-          { label: 'Wk 4', subLabel: 'Oct', revenue: 76000, volume: 150, bookings: 12 },
-        ]
-      case 'Last 3 Months':
-        return [
-          { label: 'Aug', subLabel: '2026', revenue: 110000, volume: 220, bookings: 18 },
-          { label: 'Sep', subLabel: '2026', revenue: 165000, volume: 330, bookings: 26 },
-          { label: 'Oct', subLabel: '2026', revenue: 245000, volume: 490, bookings: 38 },
-        ]
-      case 'Last 3 Years':
-        return [
-          { label: '2024', subLabel: 'Annual', revenue: 480000, volume: 950, bookings: 82 },
-          { label: '2025', subLabel: 'Annual', revenue: 760000, volume: 1520, bookings: 128 },
-          { label: '2026', subLabel: 'YTD', revenue: 980000, volume: 1960, bookings: 165 },
-        ]
-      case 'Custom range':
-        return [
-          { label: 'Period 1', subLabel: customStart.slice(5), revenue: 55000, volume: 110, bookings: 9 },
-          { label: 'Period 2', subLabel: 'Mid', revenue: 125000, volume: 250, bookings: 20 },
-          { label: 'Period 3', subLabel: customEnd.slice(5), revenue: 195000, volume: 390, bookings: 31 },
-        ]
-      case 'This Year':
-      default:
-        return [
-          { label: 'Q1', subLabel: '2025', revenue: 45000, volume: 85, bookings: 8 },
-          { label: 'Q2', subLabel: '2025', revenue: 78000, volume: 145, bookings: 14 },
-          { label: 'Q3', subLabel: '2025', revenue: 110000, volume: 210, bookings: 20 },
-          { label: 'Q4', subLabel: '2025', revenue: 95000, volume: 180, bookings: 16 },
-          { label: 'Q1', subLabel: '2026', revenue: 140000, volume: 260, bookings: 24 },
-          { label: 'Q2', subLabel: '2026', revenue: 265000, volume: 510, bookings: 42 },
-          { label: 'Q3', subLabel: '2026', revenue: 195000, volume: 380, bookings: 32 },
-        ]
+  // Build chart data from real reservation records only
+const getPeriodsForRange = () => {
+  const now = new Date()
+
+  const getReservationDate = (reservation) => {
+    if (!reservation?.start_date) return null
+
+    const date = new Date(reservation.start_date)
+
+    return Number.isNaN(date.getTime())
+      ? null
+      : date
+  }
+
+  const getRevenue = (reservation) => {
+    const status = String(
+      reservation.reservation_status || ''
+    )
+      .trim()
+      .toLowerCase()
+
+    // Only count revenue from bookings that were actually accepted
+    if (
+      ![
+        'confirmed',
+        'arrived',
+        'completed',
+      ].includes(status)
+    ) {
+      return 0
+    }
+
+    return (
+      Number(reservation.reservation_cost || 0) +
+      Number(reservation.extra_charges || 0)
+    )
+  }
+
+  const aggregatePeriod = (
+    label,
+    subLabel,
+    startDate,
+    endDate
+  ) => {
+    const matchingReservations = reservations.filter(
+      (reservation) => {
+        const date = getReservationDate(reservation)
+
+        return (
+          date &&
+          date >= startDate &&
+          date < endDate
+        )
+      }
+    )
+
+    return {
+      label,
+      subLabel,
+
+      revenue: matchingReservations.reduce(
+        (sum, reservation) =>
+          sum + getRevenue(reservation),
+        0
+      ),
+
+      volume: matchingReservations.reduce(
+        (sum, reservation) =>
+          sum + Number(reservation.guest_count || 0),
+        0
+      ),
+
+      bookings: matchingReservations.length,
     }
   }
+
+  if (dateRange === 'This Week') {
+    const start = new Date(now)
+    const day = start.getDay()
+    const diff = day === 0 ? -6 : 1 - day
+
+    start.setDate(start.getDate() + diff)
+    start.setHours(0, 0, 0, 0)
+
+    return Array.from({ length: 7 }).map(
+      (_, index) => {
+        const periodStart = new Date(start)
+        periodStart.setDate(
+          periodStart.getDate() + index
+        )
+
+        const periodEnd = new Date(periodStart)
+        periodEnd.setDate(periodEnd.getDate() + 1)
+
+        return aggregatePeriod(
+          periodStart.toLocaleDateString('en-US', {
+            weekday: 'short',
+          }),
+          periodStart.toLocaleDateString('en-US', {
+            month: 'short',
+            day: '2-digit',
+          }),
+          periodStart,
+          periodEnd
+        )
+      }
+    )
+  }
+
+  if (dateRange === 'This Month') {
+    const year = now.getFullYear()
+    const month = now.getMonth()
+
+    return Array.from({ length: 4 }).map(
+      (_, index) => {
+        const startDay = index * 7 + 1
+        const endDay =
+          index === 3
+            ? new Date(year, month + 1, 1)
+            : new Date(year, month, startDay + 7)
+
+        return aggregatePeriod(
+          `Wk ${index + 1}`,
+          now.toLocaleDateString('en-US', {
+            month: 'short',
+          }),
+          new Date(year, month, startDay),
+          endDay
+        )
+      }
+    )
+  }
+
+  if (dateRange === 'Last 3 Months') {
+    return Array.from({ length: 3 }).map(
+      (_, index) => {
+        const monthOffset = index - 2
+
+        const start = new Date(
+          now.getFullYear(),
+          now.getMonth() + monthOffset,
+          1
+        )
+
+        const end = new Date(
+          start.getFullYear(),
+          start.getMonth() + 1,
+          1
+        )
+
+        return aggregatePeriod(
+          start.toLocaleDateString('en-US', {
+            month: 'short',
+          }),
+          String(start.getFullYear()),
+          start,
+          end
+        )
+      }
+    )
+  }
+
+  if (dateRange === 'Last 3 Years') {
+    return Array.from({ length: 3 }).map(
+      (_, index) => {
+        const year =
+          now.getFullYear() - 2 + index
+
+        return aggregatePeriod(
+          String(year),
+          'Annual',
+          new Date(year, 0, 1),
+          new Date(year + 1, 0, 1)
+        )
+      }
+    )
+  }
+
+  if (dateRange === 'Custom range') {
+    const start = new Date(
+      `${customStart}T00:00:00`
+    )
+
+    const end = new Date(
+      `${customEnd}T00:00:00`
+    )
+
+    end.setDate(end.getDate() + 1)
+
+    return [
+      aggregatePeriod(
+        'Custom',
+        `${customStart} to ${customEnd}`,
+        start,
+        end
+      ),
+    ]
+  }
+
+  // This Year: real quarterly data
+  const year = now.getFullYear()
+
+  return [0, 1, 2, 3].map((quarter) => {
+    const startMonth = quarter * 3
+
+    return aggregatePeriod(
+      `Q${quarter + 1}`,
+      String(year),
+      new Date(year, startMonth, 1),
+      new Date(year, startMonth + 3, 1)
+    )
+  })
+}
 
   const periods = getPeriodsForRange()
 
   // If real reservations exist, enrich latest data point
-  const totalRealRevenue = reservations
-    .filter((r) => r.reservation_status === 'confirmed')
-    .reduce((sum, r) => sum + (r.reservation_cost || 0) + (r.extra_charges || 0), 0)
 
-  if (totalRealRevenue > 0 && periods.length > 0) {
-    periods[periods.length - 1].revenue = Math.max(periods[periods.length - 1].revenue, totalRealRevenue)
-  }
 
   // Chart layout dimensions
   const chartWidth = 650
@@ -171,7 +328,7 @@ function AreaChartPanel({ reservations = [], onExportCsv }) {
       {/* Panel Header (Without Icon next to title) */}
       <div className="dash-panel-bar">
         <div className="dash-panel-heading">
-          <span className="dash-panel-title-text">Revenue & Reservation Trends</span>
+          <span className="dash-panel-title-text">Booking Value & Reservation Trends</span>
         </div>
 
         {/* Right Action Header Buttons */}
