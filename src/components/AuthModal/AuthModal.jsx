@@ -129,7 +129,7 @@ function AuthModal({ onAdminLoggedIn }) {
     }
   }
 
-  // Step 1: Send OTP to Email (with strict database uniqueness verification)
+  // Step 1: Send OTP to Email (with strict database uniqueness & ZeroBounce existence verification)
   const handleRequestOtp = async (e) => {
     e.preventDefault()
     setErrorMsg('')
@@ -146,24 +146,55 @@ function AuthModal({ onAdminLoggedIn }) {
 
     const emailPattern = /^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/
 
-if (!emailPattern.test(cleanEmail)) {
-  setErrorMsg('Please enter a valid email address, for example: name@gmail.com')
-  return
-}
+    if (!emailPattern.test(cleanEmail)) {
+      setErrorMsg('Please enter a valid email address, for example: name@gmail.com')
+      return
+    }
 
     if (signupPassword.length < 6) {
       setErrorMsg('Password must be at least 6 characters.')
       return
     }
-if (signupPassword !== confirmPassword) {
-  setErrorMsg('Passwords do not match. Please re-enter your password.')
-  return
-}
+    if (signupPassword !== confirmPassword) {
+      setErrorMsg('Passwords do not match. Please re-enter your password.')
+      return
+    }
+
+    setIsCheckingName(true)
+
+    // =================================================================
+    // ZEROBOUNCE EMAIL EXISTENCE CHECK (STRICT BLOCK)
+    // =================================================================
+    try {
+      // Paste your ZeroBounce API Key here
+      const API_KEY = 'd86510d4c14d4f2e951e24d45b894db8'; 
+      
+      const validationRes = await fetch(`https://api.zerobounce.net/v2/validate?api_key=${API_KEY}&email=${cleanEmail}`);
+      
+      if (!validationRes.ok) {
+        throw new Error('ZeroBounce API request failed');
+      }
+
+      const validationData = await validationRes.json();
+
+      // ZeroBounce returns 'invalid' if the inbox physically does not exist
+      if (validationData.status === 'invalid') {
+        setIsCheckingName(false);
+        setErrorMsg('WARNING: This email address does not exist. Please enter a real, active email address.');
+        return; // STOPS EXECUTION: User remains on the sign-up page
+      }
+    } catch (err) {
+      console.warn('API error:', err);
+      // STRICT BLOCK: If the API fails (missing key, out of free credits, etc.), 
+      // it forces the system to reject the email instead of bypassing it.
+      setIsCheckingName(false);
+      setErrorMsg('Email verification service is currently unavailable or API key is missing.');
+      return; 
+    }
+    // =================================================================
 
     // Check database to prevent duplicate First Name, Last Name, or Email
-    setIsCheckingName(true)
     try {
-      // Purge any legacy stored background emails
       try {
         localStorage.removeItem('polchat_registered_users')
         localStorage.removeItem('polchat_email_notifications')
@@ -178,13 +209,13 @@ if (signupPassword !== confirmPassword) {
       if (conflict && conflict.hasConflict) {
         setIsCheckingName(false)
         setErrorMsg('This email address is already in use. Please sign in or use a different email.')
-        return // STOP IMMEDIATELY: Do NOT send OTP, do NOT move to OTP screen
+        return 
       }
     } catch (err) {
       console.error('Account availability check error:', err)
       setIsCheckingName(false)
       setErrorMsg('Could not verify account details with server. Please try again.')
-      return // STOP IMMEDIATELY on error: Do NOT send OTP, do NOT move to OTP screen
+      return 
     }
     setIsCheckingName(false)
 
@@ -220,7 +251,6 @@ if (signupPassword !== confirmPassword) {
     setResendCooldown(60)
     setOtpDigits(['', '', '', '', '', ''])
 
-    // Dispatch OTP via direct backend mailer
     fetch('/api/send-otp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -238,7 +268,6 @@ if (signupPassword !== confirmPassword) {
   const handleOtpDigitChange = (index, value) => {
     const cleaned = value.replace(/\D/g, '')
 
-    // Handle full 6-digit paste
     if (cleaned.length >= 6) {
       const sixDigits = cleaned.slice(0, 6).split('')
       setOtpDigits(sixDigits)
@@ -252,7 +281,6 @@ if (signupPassword !== confirmPassword) {
     setOtpDigits(newDigits)
     setErrorMsg('')
 
-    // Move focus to next box
     if (singleDigit && index < 5) {
       otpInputRefs.current[index + 1]?.focus()
     }
@@ -293,7 +321,6 @@ if (signupPassword !== confirmPassword) {
     setIsSubmitting(true)
 
     try {
-      // Create customer record in Supabase customer_accounts & log in immediately
       const res = await signup({
         firstName: firstName.trim(),
         lastName: lastName.trim(),
@@ -308,7 +335,6 @@ if (signupPassword !== confirmPassword) {
         return
       }
 
-      // Reset all states completely upon successful signup
       resetSignupForm()
 
       if (res?.user?.role === 'admin' && onAdminLoggedIn) {
@@ -337,9 +363,7 @@ if (signupPassword !== confirmPassword) {
           ✕
         </button>
 
-        {/* Modal Dual Frame */}
         <div className="auth-modal-content">
-          {/* Left Column: Visual Side */}
           <div className="auth-visual-side">
             <img
               src={galleryImg}
@@ -352,7 +376,6 @@ if (signupPassword !== confirmPassword) {
             </div>
           </div>
 
-          {/* Right Column: Clean Form Flow */}
           <div className="auth-form-side">
             <div className="auth-brand-header">
               <h2 className="auth-resort-title">PolChat Garden Resort</h2>
@@ -360,9 +383,6 @@ if (signupPassword !== confirmPassword) {
             </div>
 
             {authModalMode === 'signin' ? (
-              // ==========================================
-              // SIGN IN VIEW
-              // ==========================================
               <div className="auth-form-flow">
                 <h3 className="auth-form-subtitle">Welcome Back!</h3>
 
@@ -428,12 +448,8 @@ if (signupPassword !== confirmPassword) {
                     Create Account
                   </button>
                 </div>
-
               </div>
             ) : isOtpStep ? (
-              // ==========================================
-              // STEP 2: CLEAN OTP VERIFICATION (NO CODE ON SCREEN)
-              // ==========================================
               <div className="auth-form-flow">
                 <h3 className="auth-form-subtitle">Enter Verification Code</h3>
                 <p className="auth-clean-desc">
@@ -443,7 +459,6 @@ if (signupPassword !== confirmPassword) {
                 {errorMsg && <div className="auth-clean-alert auth-alert-error">{errorMsg}</div>}
 
                 <form onSubmit={handleVerifyOtpAndSignup} className="auth-fields-stack">
-                  {/* 6 Clean Individual Digit Boxes */}
                   <div className="auth-otp-boxes-row">
                     {otpDigits.map((digit, index) => (
                       <input
@@ -493,16 +508,12 @@ if (signupPassword !== confirmPassword) {
                 </form>
               </div>
             ) : (
-              // ==========================================
-              // STEP 1: SIGN UP REGISTRATION VIEW
-              // ==========================================
               <div className="auth-form-flow">
                 <h3 className="auth-form-subtitle">Create Account</h3>
 
                 {errorMsg && <div className="auth-clean-alert auth-alert-error">{errorMsg}</div>}
 
                 <form onSubmit={handleRequestOtp} className="auth-fields-stack">
-                  {/* First Name & Last Name */}
                   <div className="auth-names-grid">
                     <div className="auth-field-group">
                       <label className="auth-label">First Name *</label>
@@ -532,11 +543,11 @@ if (signupPassword !== confirmPassword) {
                   <div className="auth-field-group">
                     <label className="auth-label">Birthday</label>
                     <input
-                    type="date"
-                     value={birthday}
-                     max={new Date().toISOString().split('T')[0]}
-                    onChange={(e) => setBirthday(e.target.value)}
-                      />
+                      type="date"
+                      value={birthday}
+                      max={new Date().toISOString().split('T')[0]}
+                      onChange={(e) => setBirthday(e.target.value)}
+                    />
                   </div>
 
                   <div className="auth-field-group">
@@ -551,31 +562,31 @@ if (signupPassword !== confirmPassword) {
                     />
                   </div>
 
-<div className="auth-field-group">
-  <label className="auth-label">Password *</label>
-  <input
-    type="password"
-    className="auth-input-line"
-    value={signupPassword}
-    onChange={(e) => setSignupPassword(e.target.value)}
-    placeholder="At least 6 characters"
-    required
-  />
-</div>
+                  <div className="auth-field-group">
+                    <label className="auth-label">Password *</label>
+                    <input
+                      type="password"
+                      className="auth-input-line"
+                      value={signupPassword}
+                      onChange={(e) => setSignupPassword(e.target.value)}
+                      placeholder="At least 6 characters"
+                      required
+                    />
+                  </div>
 
-<div className="auth-field-group">
-  <label className="auth-label">Confirm Password *</label>
-  <input
-    type="password"
-    className="auth-input-line"
-    value={confirmPassword}
-    onChange={(e) => setConfirmPassword(e.target.value)}
-    placeholder="Re-enter your password"
-    required
-  />
-</div>
+                  <div className="auth-field-group">
+                    <label className="auth-label">Confirm Password *</label>
+                    <input
+                      type="password"
+                      className="auth-input-line"
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Re-enter your password"
+                      required
+                    />
+                  </div>
 
-<button
+                  <button
                     type="submit"
                     className="auth-submit-btn"
                     disabled={isCheckingName}
