@@ -36,44 +36,30 @@ export default async function handler(req, res) {
         return res.status(400).json({
           success: false,
           valid: false,
-          status: 'invalid',
           error:
             'Email is invalid. Please try a different email.',
         })
       }
     }
 
-    const email = String(
-      body?.email || ''
-    )
+    const email = String(body?.email || '')
       .trim()
       .toLowerCase()
 
-    // ==========================================
-    // 1. BASIC EMAIL FORMAT CHECK
-    // ==========================================
-
+    // Basic email-format validation
     const emailPattern =
       /^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/
 
-    if (
-      !email ||
-      !emailPattern.test(email)
-    ) {
+    if (!email || !emailPattern.test(email)) {
       return res.status(200).json({
         success: true,
         valid: false,
         status: 'invalid',
-        subStatus:
-          'failed_syntax_check',
+        subStatus: 'failed_syntax_check',
         error:
           'Email is invalid. Please try a different email.',
       })
     }
-
-    // ==========================================
-    // 2. GET SERVER-SIDE ZEROBOUNCE KEY
-    // ==========================================
 
     const apiKey =
       process.env.ZEROBOUNCE_API_KEY
@@ -91,18 +77,10 @@ export default async function handler(req, res) {
       })
     }
 
-    // ==========================================
-    // 3. CALL ZEROBOUNCE
-    // ==========================================
-
     const zeroBounceUrl =
       'https://api.zerobounce.net/v2/validate' +
-      `?api_key=${encodeURIComponent(
-        apiKey
-      )}` +
-      `&email=${encodeURIComponent(
-        email
-      )}` +
+      `?api_key=${encodeURIComponent(apiKey)}` +
+      `&email=${encodeURIComponent(email)}` +
       '&ip_address='
 
     const response =
@@ -110,7 +88,7 @@ export default async function handler(req, res) {
 
     if (!response.ok) {
       console.error(
-        'ZeroBounce HTTP error:',
+        'ZeroBounce HTTP request failed:',
         response.status
       )
 
@@ -124,6 +102,28 @@ export default async function handler(req, res) {
 
     const validation =
       await response.json()
+
+    // ZeroBounce may return an API-level error without
+    // returning a deliverability status.
+    const providerError = String(
+      validation?.error ||
+      validation?.message ||
+      ''
+    ).trim()
+
+    if (providerError) {
+      console.error(
+        'ZeroBounce API returned an error:',
+        providerError
+      )
+
+      return res.status(502).json({
+        success: false,
+        valid: false,
+        error:
+          'Email verification is temporarily unavailable. Please try again.',
+      })
+    }
 
     const status = String(
       validation?.status || ''
@@ -141,29 +141,28 @@ export default async function handler(req, res) {
       validation?.did_you_mean || ''
     ).trim()
 
-    // Safe server-side diagnostic.
-    // Do NOT log the API key.
-    console.log(
-      'ZEROBOUNCE RESULT:',
-      {
-        status,
-        subStatus,
-        didYouMean,
-      }
-    )
+    console.log('ZEROBOUNCE RESULT:', {
+      status,
+      subStatus,
+      didYouMean,
+    })
 
-    // ==========================================
-    // 4. STRICT WORKING EMAIL CHECK
-    // ==========================================
-    //
-    // Only an address ZeroBounce returns
-    // as "valid" may continue to the OTP step.
-    //
-    // Existing PolChat account checking is
-    // intentionally NOT performed here.
-    // That stays inside AuthModal/DataService.
-    // ==========================================
+    // A missing status is a provider/API problem,
+    // not proof that the customer's email is invalid.
+    if (!status) {
+      console.error(
+        'ZeroBounce returned no validation status.'
+      )
 
+      return res.status(502).json({
+        success: false,
+        valid: false,
+        error:
+          'Email verification is temporarily unavailable. Please try again.',
+      })
+    }
+
+    // Strict rule: only "valid" reaches OTP.
     if (status !== 'valid') {
       return res.status(200).json({
         success: true,
@@ -171,16 +170,11 @@ export default async function handler(req, res) {
         status,
         subStatus,
         didYouMean,
-
         error: didYouMean
           ? `Email is invalid. Please try a different email. Did you mean ${didYouMean}?`
           : 'Email is invalid. Please try a different email.',
       })
     }
-
-    // ==========================================
-    // 5. VERIFIED WORKING EMAIL
-    // ==========================================
 
     return res.status(200).json({
       success: true,
@@ -191,7 +185,7 @@ export default async function handler(req, res) {
     })
   } catch (error) {
     console.error(
-      'ZeroBounce validation error:',
+      'ZeroBounce validation exception:',
       error
     )
 
