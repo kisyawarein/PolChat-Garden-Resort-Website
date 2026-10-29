@@ -278,319 +278,312 @@ function AuthModal({ onAdminLoggedIn }) {
   // SIGN UP STEP 1
   // VALIDATE EMAIL -> CHECK DUPLICATE -> SEND OTP
   // ========================================================
+const handleRequestOtp = async (e) => {
+  e.preventDefault()
 
-  const handleRequestOtp = async (e) => {
-    e.preventDefault()
+  if (isCheckingName || isSubmitting) return
 
-    if (isCheckingName || isSubmitting) return
+  setErrorMsg('')
 
-    setErrorMsg('')
+  const cleanFirst = firstName.trim()
+  const cleanLast = lastName.trim()
+  const cleanEmail = email.trim().toLowerCase()
 
-    const cleanFirst = firstName.trim()
-    const cleanLast = lastName.trim()
+  if (
+    !cleanFirst ||
+    !cleanLast ||
+    !cleanEmail ||
+    !signupPassword.trim() ||
+    !confirmPassword.trim()
+  ) {
+    setErrorMsg('Please fill in all required fields.')
+    return
+  }
 
-    const cleanEmail = email
-      .trim()
-      .toLowerCase()
+  const emailPattern =
+    /^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/
 
-    if (
-      !cleanFirst ||
-      !cleanLast ||
-      !cleanEmail ||
-      !signupPassword.trim() ||
-      !confirmPassword.trim()
-    ) {
+  if (!emailPattern.test(cleanEmail)) {
+    setErrorMsg(
+      'Email is invalid. Please try a different email.'
+    )
+    return
+  }
+
+  if (signupPassword.length < 6) {
+    setErrorMsg(
+      'Password must be at least 6 characters.'
+    )
+    return
+  }
+
+  if (signupPassword !== confirmPassword) {
+    setErrorMsg(
+      'Passwords do not match. Please re-enter your password.'
+    )
+    return
+  }
+
+  setIsCheckingName(true)
+
+  try {
+    // ====================================================
+    // 1. CHECK WHETHER EMAIL ALREADY HAS A POLCHAT ACCOUNT
+    // ====================================================
+    //
+    // This must run before ZeroBounce so an existing
+    // customer is always told to sign in.
+
+    const conflict =
+      await DataService.checkAccountConflict({
+        firstName: cleanFirst,
+        lastName: cleanLast,
+        email: cleanEmail,
+      })
+
+    if (conflict?.hasConflict) {
       setErrorMsg(
-        'Please fill in all required fields.'
+        'This email address is already registered. Please sign in to your existing account.'
       )
       return
     }
 
-    const emailPattern =
-      /^[^\s@]+@[^\s@]+\.[A-Za-z]{2,}$/
+    // ====================================================
+    // 2. CHECK WHETHER EMAIL IS A WORKING EMAIL
+    // ====================================================
 
-    if (!emailPattern.test(cleanEmail)) {
-      setErrorMsg(
-        'Please enter a valid email address, for example: name@gmail.com'
-      )
-      return
-    }
-
-    if (signupPassword.length < 6) {
-      setErrorMsg(
-        'Password must be at least 6 characters.'
-      )
-      return
-    }
-
-    if (signupPassword !== confirmPassword) {
-      setErrorMsg(
-        'Passwords do not match. Please re-enter your password.'
-      )
-      return
-    }
-
-    setIsCheckingName(true)
-
-    try {
-      // ====================================================
-      // 1. SERVER-SIDE ZEROBOUNCE VALIDATION
-      // ====================================================
-
-      const validationResponse = await fetch(
-        '/api/validate-email',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email: cleanEmail,
-          }),
-        }
-      )
-
-      const validationResult =
-        await validationResponse
-          .json()
-          .catch(() => ({}))
-
-      if (!validationResponse.ok) {
-        setErrorMsg(
-          validationResult?.error ||
-            'Email verification is currently unavailable. Please try again.'
-        )
-        return
-      }
-
-      if (validationResult?.success === false) {
-        setErrorMsg(
-          validationResult?.error ||
-            'Email verification could not be completed.'
-        )
-        return
-      }
-
-      // IMPORTANT:
-      // ONLY ZeroBounce status "valid" may continue.
-      if (validationResult?.valid !== true) {
-        setErrorMsg(
-          getEmailValidationError(
-            validationResult
-          )
-        )
-        return
-      }
-
-      // ====================================================
-      // 2. DUPLICATE EMAIL CHECK
-      // ====================================================
-
-      const conflict =
-        await DataService.checkAccountConflict({
-          firstName: cleanFirst,
-          lastName: cleanLast,
+    const validationResponse = await fetch(
+      '/api/validate-email',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
           email: cleanEmail,
-        })
-
-      if (conflict?.hasConflict) {
-        setErrorMsg(
-          'This email address is already in use. Please sign in or use a different email.'
-        )
-        return
+        }),
       }
+    )
 
-      // ====================================================
-      // 3. GENERATE OTP
-      // ====================================================
-
-      const otpCode = Math.floor(
-        100000 + Math.random() * 900000
-      ).toString()
-
-      // ====================================================
-      // 4. SEND OTP
-      // ====================================================
-
-      const otpResponse = await fetch(
-        '/api/send-otp',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email: cleanEmail,
-            otpCode,
-          }),
-        }
-      )
-
-      const otpResult = await otpResponse
+    const validationResult =
+      await validationResponse
         .json()
         .catch(() => ({}))
 
-      // Do NOT move to OTP screen if sending failed.
-      if (
-        !otpResponse.ok ||
-        otpResult?.success === false
-      ) {
-        setErrorMsg(
-          otpResult?.error ||
-            'We could not send a verification code to this email address. Please verify the email and try again.'
-        )
-        return
-      }
-
-      // ====================================================
-      // 5. OTP DELIVERY SUCCEEDED
-      // ====================================================
-
-      setEmail(cleanEmail)
-      setGeneratedOtp(otpCode)
-
-      setOtpDigits([
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-      ])
-
-      setIsOtpStep(true)
-      setResendCooldown(60)
-
-      setTimeout(() => {
-        otpInputRefs.current[0]?.focus()
-      }, 80)
-    } catch (error) {
-      console.error(
-        'Signup email verification error:',
-        error
-      )
-
+    if (!validationResponse.ok) {
       setErrorMsg(
-        'Email verification could not be completed. Please try again.'
+        validationResult?.error ||
+          'Email verification is temporarily unavailable. Please try again.'
       )
-    } finally {
-      setIsCheckingName(false)
+      return
     }
+
+    if (validationResult?.success === false) {
+      setErrorMsg(
+        validationResult?.error ||
+          'Email verification could not be completed. Please try again.'
+      )
+      return
+    }
+
+    if (validationResult?.valid !== true) {
+      setErrorMsg(
+        validationResult?.error ||
+          'Email is invalid. Please try a different email.'
+      )
+      return
+    }
+
+    // ====================================================
+    // 3. GENERATE OTP
+    // ====================================================
+
+    const otpCode = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString()
+
+    // ====================================================
+    // 4. SEND OTP
+    // ====================================================
+
+    const otpResponse = await fetch('/api/send-otp', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: cleanEmail,
+        otpCode,
+      }),
+    })
+
+    const otpResult = await otpResponse
+      .json()
+      .catch(() => ({}))
+
+    // Do not open the OTP screen unless the server
+    // confirms that the message was sent.
+    if (
+      !otpResponse.ok ||
+      otpResult?.success === false
+    ) {
+      setErrorMsg(
+        otpResult?.error ||
+          'We could not send a verification code to this email address. Please verify the email and try again.'
+      )
+      return
+    }
+
+    // ====================================================
+    // 5. OTP DELIVERY SUCCEEDED
+    // ====================================================
+
+    setEmail(cleanEmail)
+    setGeneratedOtp(otpCode)
+
+    setOtpDigits([
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+    ])
+
+    setIsOtpStep(true)
+    setResendCooldown(60)
+
+    setTimeout(() => {
+      otpInputRefs.current[0]?.focus()
+    }, 80)
+  } catch (error) {
+    console.error(
+      'Signup email verification error:',
+      error
+    )
+
+    setErrorMsg(
+      'Email verification could not be completed. Please try again.'
+    )
+  } finally {
+    setIsCheckingName(false)
   }
+}
+  
 
   // ========================================================
   // RESEND OTP
   // ========================================================
 
   const handleResendOtp = async () => {
-    if (
-      resendCooldown > 0 ||
-      isSubmitting
-    ) {
-      return
-    }
+  if (resendCooldown > 0 || isSubmitting) {
+    return
+  }
 
-    setErrorMsg('')
-    setIsSubmitting(true)
+  setErrorMsg('')
+  setIsSubmitting(true)
 
-    const cleanEmail = email
-      .trim()
-      .toLowerCase()
+  const cleanEmail = email.trim().toLowerCase()
 
-    try {
-      // Revalidate before issuing another code.
-      const validationResponse = await fetch(
-        '/api/validate-email',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email: cleanEmail,
-          }),
-        }
-      )
+  try {
+    // Revalidate before generating another OTP.
+    // The account-conflict check is unnecessary here
+    // because the customer already passed it before
+    // entering the OTP screen.
 
-      const validationResult =
-        await validationResponse
-          .json()
-          .catch(() => ({}))
-
-      if (
-        !validationResponse.ok ||
-        validationResult?.success === false ||
-        validationResult?.valid !== true
-      ) {
-        setErrorMsg(
-          'This email address could not be verified. Please return and enter another active email address.'
-        )
-        return
+    const validationResponse = await fetch(
+      '/api/validate-email',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: cleanEmail,
+        }),
       }
+    )
 
-      const otpCode = Math.floor(
-        100000 + Math.random() * 900000
-      ).toString()
-
-      const otpResponse = await fetch(
-        '/api/send-otp',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            email: cleanEmail,
-            otpCode,
-          }),
-        }
-      )
-
-      const otpResult = await otpResponse
+    const validationResult =
+      await validationResponse
         .json()
         .catch(() => ({}))
 
-      if (
-        !otpResponse.ok ||
-        otpResult?.success === false
-      ) {
-        setErrorMsg(
-          otpResult?.error ||
-            'The verification code could not be resent. Please try again.'
-        )
-        return
-      }
-
-      setGeneratedOtp(otpCode)
-
-      setOtpDigits([
-        '',
-        '',
-        '',
-        '',
-        '',
-        '',
-      ])
-
-      setResendCooldown(60)
-
-      setTimeout(() => {
-        otpInputRefs.current[0]?.focus()
-      }, 80)
-    } catch (error) {
-      console.error(
-        'OTP resend error:',
-        error
-      )
-
+    if (!validationResponse.ok) {
       setErrorMsg(
-        'The verification code could not be resent. Please try again.'
+        validationResult?.error ||
+          'Email verification is temporarily unavailable. Please try again.'
       )
-    } finally {
-      setIsSubmitting(false)
+      return
     }
-  }
 
+    if (
+      validationResult?.success === false ||
+      validationResult?.valid !== true
+    ) {
+      setErrorMsg(
+        validationResult?.error ||
+          'Email is invalid. Please return and try a different email.'
+      )
+      return
+    }
+
+    const otpCode = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString()
+
+    const otpResponse = await fetch('/api/send-otp', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: cleanEmail,
+        otpCode,
+      }),
+    })
+
+    const otpResult = await otpResponse
+      .json()
+      .catch(() => ({}))
+
+    if (
+      !otpResponse.ok ||
+      otpResult?.success === false
+    ) {
+      setErrorMsg(
+        otpResult?.error ||
+          'The verification code could not be resent. Please try again.'
+      )
+      return
+    }
+
+    setGeneratedOtp(otpCode)
+
+    setOtpDigits([
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+    ])
+
+    setResendCooldown(60)
+
+    setTimeout(() => {
+      otpInputRefs.current[0]?.focus()
+    }, 80)
+  } catch (error) {
+    console.error('OTP resend error:', error)
+
+    setErrorMsg(
+      'The verification code could not be resent. Please try again.'
+    )
+  } finally {
+    setIsSubmitting(false)
+  }
+}
   // ========================================================
   // OTP INPUT
   // ========================================================
