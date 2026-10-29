@@ -87,6 +87,11 @@ export default async function handler(req, res) {
     }
 
     const validation = await response.json()
+    console.log('ZEROBOUNCE RESULT:', {
+    status: validation?.status,
+     subStatus: validation?.sub_status,
+     didYouMean: validation?.did_you_mean,
+    })
 
     const status = String(
       validation?.status || ''
@@ -100,18 +105,10 @@ export default async function handler(req, res) {
       .trim()
       .toLowerCase()
 
-    // Block addresses ZeroBounce explicitly identifies as unsafe.
-    // "unknown" and "catch-all" may continue to OTP because
-    // the customer still has to prove inbox ownership by entering
-    // the code received through email.
-    const blockedStatuses = [
-    'invalid',
-    'spamtrap',
-    'abuse',
-    'do_not_mail',
-    ]
-
-const valid = !blockedStatuses.includes(status)
+    // STRICT EMAIL VERIFICATION
+    // Only an email explicitly verified as "valid"
+    // by ZeroBounce may continue to OTP.
+    const valid = status === 'valid'
 
     return res.status(200).json({
       success: true,
